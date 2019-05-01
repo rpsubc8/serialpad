@@ -5,6 +5,8 @@ Y lo más importante, se permite realizar un upload de un ps-exe directamente  a
 
 <h2>Simulacion</h2>
 Para pruebas rápidas estoy usando un emulador de psx (epsx) y un script (autohotkey) que envia las pulsaciones de teclas para el emulador.
+Se usan 8 botones del mando, junto con 1 más (L1) para el pulso (sincronia) del dato.
+En siguientes versiones se usara un arduino que con transistores activará o no los botones.
 
 <center><table>
  <tr>
