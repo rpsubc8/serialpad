@@ -40,6 +40,28 @@ En siguientes versiones se usara un arduino que con transistores activará o no 
  </tr>  
 </table></center>
 
+<h2>Fases de desarrollo</h2>
+Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacute;s complejo:
+<ul>
+ <li>Control de teclado remoto y real (puerto PC PS2) con arduino activando 9 botones del Gamepad, por medio
+   de un protocolo muy simple de flanco ascendente, pero lento en velocidad. Se realizará un programa que envia los datos
+   en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie, así como la posibilidad de leer directamente de arduino el teclado con la libreria PS2keyboard.
+ </li>
+ <li>Envio de PS-exe a memoria de PSOne o a tarjeta de memoria de PSOne con arduino activando 9 botones del Gamepad,
+  , por medio de un protocolo muy simple de flanco ascendente, pero lento en velocidad. Se realizará un programa que envia datos 
+  en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie
+ </li>
+ <li>Carga de PS-exe desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x85 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 o mediante el sakura de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo).
+ </li>
+ <li>
+  Recepción de datos por medio de sonido de la PSX, los 2 canales de audio. Se realizará un programa en psx que genera tonos con pulsos que pueden ser decodificados como datos binarios. La psx recibirá comandos remotos y enviará los datos como sonido.
+ </li>
+ <li>
+  Simulación de mando y memoria psx por medio de arduino. He capturado los comandos del mando de la psx, así como los de la memoria, al usar un protocolo SPI a 250 Khz. Estoy realizando un programa en arduino que al recibir los comandos, envie las respuestas a un programa en la psone que interprete para cargar datos.
+ </li>
+</ul>
+
+
 <h2>Conclusion</h2>
 Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS
 
