@@ -68,6 +68,9 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
 <h2>Conclusion</h2>
 Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS
 
+<h2>Uso de MSDOS</h2>
+El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de forma que se puede usar todo el kit de desarrollo psyq de 16bits, ya que así se puede usar en casi cualquier máquina actual que no sea PC. También se puede usar el msdosplayer para Windows 7 64 bits en adelante.
+
 <h2>Historial</h2>
 Aún no es funcional de cara al usuario.
 Permite recibir comando de recepcion de fichero, y se reciben 100 bytes.
