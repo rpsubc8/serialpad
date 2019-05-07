@@ -52,7 +52,7 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
   , por medio de un protocolo muy simple de flanco ascendente, pero lento en velocidad. Se realizará un programa que envia datos 
   en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie
  </li>
- <li>Carga de PS-exe desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x85 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 o mediante el sakura de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo).
+ <li>Carga de PS-exe desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x86 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 o mediante el sakura de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo).
   <center><img src="memecardAnalizar.jpg"></center>
  </li>
  <li>
