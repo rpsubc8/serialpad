@@ -1,5 +1,5 @@
 # Serial PAD
-Convierte un mando de PSX en un PS1 en un adaptador de:
+Permite usar un teclado o ratón en una PSX real. Soporta:
 <ul>
  <li>Teclado PS/2 (usb)</li>
  <li>Ratón PS/2 (usb)</li>
@@ -29,7 +29,7 @@ Se requiere los siguiente materiales
 <br><br>
 
 
-#Otras pruebas
+# Otras pruebas
 Permite usar un mando de psx <b>(conectado a la psx)</b> como si fuera un modem <b>(lento)</b> serie, pudiendo enviar ficheros o usar el teclado, en cualquier consola psx, incluida la psone.
 Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
 <center><img src="preview/capturaepsx.gif"></center>
