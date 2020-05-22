@@ -1,4 +1,35 @@
 # Serial PAD
+Convierte un mando de PSX en un PS1 en un adaptador de:
+<ul>
+ <li>Teclado PS/2 (usb)</li>
+ <li>Ratón PS/2 (usb)</li>
+ <li>Comunicación lenta serie</ul>
+</ul>
+<center><img src="preview/captureEpsxMouse.gif"></center>
+De esta forma se puede introducir datos por teclado o ratón en cualquier modelos de PS1 o PsOne.
+<br><br>
+
+<h2>Simulación</h2>
+<br>Para todo quel que no quiera modificar un mando, se puede realizar pruebas en emulador, así como simulando la pulsación de teclas, con el<br>
+
+
+<h2>Mando físico en Emulador</h2>
+<br><br>
+
+
+<h2>Mando físico en consola real</h2>
+Se requiere los siguiente materiales
+<ul>
+ <li>Mando PSX botones R1,R2,L1,L2</li>
+ <li>Adaptador usb a PS/2 o </li>
+ <li>Teclado PS/2</li>
+ <li>Ratón PS/2</li>
+ </li>Arduino Nano o UNO</li>
+</ul>
+<br><br>
+
+
+#Otras pruebas
 Permite usar un mando de psx <b>(conectado a la psx)</b> como si fuera un modem <b>(lento)</b> serie, pudiendo enviar ficheros o usar el teclado, en cualquier consola psx, incluida la psone.
 Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
 <center><img src="preview/capturaepsx.gif"></center>
