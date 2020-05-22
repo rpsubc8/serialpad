@@ -12,6 +12,11 @@ De esta forma se puede introducir datos por teclado o ratón en cualquier modelo
 <h2>Simulación</h2>
 <br>Para todo quel que no quiera modificar un mando, se puede realizar pruebas en emulador, así como simulando la pulsación de teclas, con el<br>
 
+<h2>Modificar mando</h2>
+<center><img src="preview/mandoCableBotones.jpg"></center>
+<center><img src="preview/mandoR1R2.jpg"></center>
+<br><br>
+
 
 <h2>Mando físico en Emulador</h2>
 <br><br>
