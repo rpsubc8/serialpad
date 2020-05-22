@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr" lang="en"><head>
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="KEYWORDS" content="PSX/TIM file,PSX/TIM format,PSX,Little endian,PSX/GPU,PSX/frame buffer">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" href="http://wiki.qhimm.com/favicon.ico">
+<link title="Creative Commons" type="application/rdf+xml" href="http://wiki.qhimm.com/index.php?title=PSX/TIM_format&amp;action=creativecommons" rel="meta">
+<link rel="copyright" href="http://creativecommons.org/licenses/by-nc-sa/2.5/"><title>PSX/TIM format - QhimmWiki</title>
+    
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" media="print" href="TIM_file_files/commonPrint.css"><!--[if lt IE 5.5000]><style type="text/css">@import "/skins/monobook/IE50Fixes.css";</style><![endif]--><!--[if IE 5.5000]><style type="text/css">@import "/skins/monobook/IE55Fixes.css";</style><![endif]--><!--[if IE 6]><style type="text/css">@import "/skins/monobook/IE60Fixes.css";</style><![endif]--><!--[if IE]><script type="text/javascript" src="/skins/common/IEFixes.js"></script>
+    <meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+    
+    
+    
+    
+    <script type="text/javascript" src="TIM_file_files/index.php"></script>    <script type="text/javascript" src="TIM_file_files/wikibits.js"></script>
+    <style type="text/css">/*<![CDATA[*/
+@import "/index.php?title=MediaWiki:Monobook.css&action=raw&ctype=text/css&smaxage=18000";
+@import "/index.php?title=-&action=raw&gen=css";
+/*]]>*/</style></head><body class="ns-0">
+    <div id="globalWrapper">
+      <div id="column-content">
+	<div id="content">
+	  <a name="top" id="contentTop"></a>
+	  	  <h1 class="firstHeading"><a href="http://wiki.qhimm.com/PSX" title="PSX">PSX</a> / TIM format</h1>
+	  <div id="bodyContent">
+	    <h3 id="siteSub">From QhimmWiki</h3>
+	    <div id="contentSub">(Redirected from <a href="http://wiki.qhimm.com/PSX/TIM_file?redirect=no" title="PSX/TIM file">PSX/TIM file</a>)</div>
+	    	    	    <!-- start content -->
+	    <table id="toc" border="0"><tbody><tr id="toctitle"><td align="center">
+<b>Table of contents</b> <script type="text/javascript">showTocToggle("show","hide")</script><span class="toctoggle">[<a href="javascript:toggleToc()" class="internal"><span id="showlink" style="display: none;">show</span><span id="hidelink">hide</span></a>]</span>
+</td></tr><tr id="tocinside"><td>
+<div class="tocline"><a href="#Introduction">1 Introduction</a><br></div>
+<div class="tocline"><a href="#File_layout">2 File layout</a><br></div>
+<div class="tocline"><a href="#Header">3 Header</a><br></div>
+<div class="tocline"><a href="#CLUT_.28color_lookup_table.29">4 CLUT (color lookup table)</a><br></div>
+<div class="tocline"><a href="#Image_data">5 Image data</a><br></div>
+</td></tr></tbody></table>
+<div class="editsection" style="float: right; margin-left: 5px;">[<a href="http://wiki.qhimm.com/PSX/TIM_format?action=edit&amp;section=1" title="PSX/TIM format">edit</a>]</div><a name="Introduction"></a><h2> Introduction </h2>
+<p>A TIM file is a standard image file format for the <a href="http://wiki.qhimm.com/PSX" title="PSX">Sony PlayStation</a>. The file structure closely mimics the way textures are managed in the <a href="http://wiki.qhimm.com/PSX/frame_buffer?action=edit" class="new" title="PSX/frame buffer">frame buffer</a> by the <a href="http://wiki.qhimm.com/PSX/GPU?action=edit" class="new" title="PSX/GPU">GPU</a>. TIM files are <a href="http://wiki.qhimm.com/Little_endian?action=edit" class="new" title="Little endian">little endian</a>-based.
+</p><p><br>
+</p>
+<div class="editsection" style="float: right; margin-left: 5px;">[<a href="http://wiki.qhimm.com/PSX/TIM_format?action=edit&amp;section=2" title="PSX/TIM format">edit</a>]</div><a name="File_layout"></a><h2> File layout </h2>
+<p>A TIM file is made up of three conceptual blocks; the header, the
+color lookup table (CLUT) and the image data. The CLUT block and the
+image data block have the same basic layout and are also treated the
+same way when loading a TIM file into the PlayStation frame buffer.
+Also, the CLUT block is optional and technically does not need to be
+present, even when the image data consists of color indices. Such image
+data is assumed to refer to <i>some</i> color lookup table, but not
+necessarily one stored in the same TIM file. In almost all cases
+though, the CLUT is included in the same TIM file as the image data
+using it and can thus be assumed to be applicable.
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_TIM_file_layout.png" class="image" title="Image:PSX_TIM_file_layout.png"><img src="TIM_file_files/PSX_TIM_file_layout.png" alt="Image:PSX_TIM_file_layout.png" longdesc="/Image:PSX_TIM_file_layout.png"></a></div><br>
+<p><br>
+</p>
+<div class="editsection" style="float: right; margin-left: 5px;">[<a href="http://wiki.qhimm.com/PSX/TIM_format?action=edit&amp;section=3" title="PSX/TIM format">edit</a>]</div><a name="Header"></a><h2> Header </h2>
+<p>The header starts with a 'tag' byte; this value is constant for all
+TIM files and must be 0x10. The immediately following byte denotes the
+version of the file format. At present, only version '0' TIM files are
+known to exist.
+</p><p>The next 32-bit word contains specific flags denoting the basic
+properties of the TIM file. The BPP (Bits Per Pixel) value denotes the
+bit depth of the image data, according to the following values:
+</p>
+<pre><b>00</b>  4-bit (color indices)
+<b>01</b>  8-bit (color indices)
+<b>10</b>  16-bit (actual colors)
+<b>11</b>  24-bit (actual colors)
+</pre>
+<p>The CLP (Color Lookup table Present) flag simply denotes whether the
+CLUT block is present in the TIM file. This flag is typically set when
+BPP is 00 or 01, and cleared otherwise.
+</p><p><br>
+</p>
+<div class="editsection" style="float: right; margin-left: 5px;">[<a href="http://wiki.qhimm.com/PSX/TIM_format?action=edit&amp;section=4" title="PSX/TIM format">edit</a>]</div><a name="CLUT_.28color_lookup_table.29"></a><h2> CLUT (color lookup table) </h2>
+<p>The CLUT starts with a simple 32-bit word telling the length, in
+bytes, of the entire CLUT block (including the header). Following that
+is a set of four 16-bit values telling how the CLUT data should be
+loaded into the frame buffer. These measurements are in frame buffer
+pixels, which are 16-bit. Each CLUT is stored in a rectangular portion
+of the frame buffer, which is typically 16 or 256 pixels wide
+(corresponding to 4-bit or 8-bit color indices). The rows define one or
+more 'palettes' which can be selected at runtime to use when drawing a
+color-indexed image.
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_TIM_file_clut.png" class="image" title="Image:PSX_TIM_file_clut.png"><img src="TIM_file_files/PSX_TIM_file_clut.png" alt="Image:PSX_TIM_file_clut.png" longdesc="/Image:PSX_TIM_file_clut.png"></a></div><br>
+<p>The length of the CLUT data is always <i>width</i> × <i>height</i> × 2 bytes, precisely the amount of data needed to fill a rectangular area of <i>width</i> × <i>height</i>
+pixels in the frame buffer. Also, the x coordinate of the CLUT needs to
+be an even multiple of 16, but the y coordinate can be any value
+between 0-511. Typically they are stored directly under the front/back
+buffers. Each 16-bit value is interpreted as real color frame buffer
+pixels, which have the following format:
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_color_formats_16.png" class="image" title="Image:PSX_color_formats_16.png"><img src="TIM_file_files/PSX_color_formats_16.png" alt="Image:PSX_color_formats_16.png" longdesc="/Image:PSX_color_formats_16.png"></a></div><br>
+<p>The red, green and blue samples behave like any RGB-defined color,
+but the STP (special transparency processing) bit has varying special
+meanings. Depending on the current transparency processing mode, it
+denotes if pixels of this color should be treated as transparent or
+not. If transparency processing is enabled, pixels of this color will
+be rendered transparent if the STP bit is set. A special case is black
+pixels (RGB 0,0,0), which <b>by default</b> are treated as transparent by the PlayStation <i>unless</i> the STP bit is set.
+</p><p><br>
+</p>
+<div class="editsection" style="float: right; margin-left: 5px;">[<a href="http://wiki.qhimm.com/PSX/TIM_format?action=edit&amp;section=5" title="PSX/TIM format">edit</a>]</div><a name="Image_data"></a><h2> Image data </h2>
+<p>The image block is structurally identical to the CLUT block and is
+processed in exactly the same way when loaded into the frame buffer. It
+starts with a 32-bit word telling the length, in bytes, of the entire
+image block, then has 4 16-bit values containing the frame buffer
+positioning information. After that follows the image data, which is
+always <i>width</i> × <i>height</i> × 2 bytes long. It is important to
+realize that the image measurements are in 16-bit frame buffer pixels,
+which does not necessarily correspond to the size of the contained
+image. It may help to visualize the entire image data as a <i>width</i> × <i>height</i>
+array of 16-bit values, which is then interpreted differently depending
+on color mode (this is exactly how the PlayStation treats it). To
+calculate the actual image dimensions, it is thus necessary to take
+into account the current BPP value (bits per pixel).
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_TIM_file_image.png" class="image" title="Image:PSX_TIM_file_image.png"><img src="TIM_file_files/PSX_TIM_file_image.png" alt="Image:PSX_TIM_file_image.png" longdesc="/Image:PSX_TIM_file_image.png"></a></div><br>
+<p>The image data, while loaded straight into the frame buffer, is
+structured differently depending on the bit depth of the image. To a
+TIM file reader, the image data is parsed as a series of 16-bit values
+with varying interpretations. The most straight-forward interpretation
+is for 16-bit images (BPP = <b>10</b>), in which case the image data has the same format as the frame buffer pixels themselves:
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_color_formats_16.png" class="image" title="Image:PSX_color_formats_16.png"><img src="TIM_file_files/PSX_color_formats_16.png" alt="Image:PSX_color_formats_16.png" longdesc="/Image:PSX_color_formats_16.png"></a></div><br>
+<p>The PlayStation is also capable of handling data in 24-bit color (BPP = <b>11</b>),
+in which case the color samples are stored as 3-byte groups. In the
+event that an image's width is an uneven number of pixels, the last
+byte is left as padding; the first pixel of a new row is always stored
+at the corresponding first pixel of the frame buffer row. The color
+samples are stored in the following order:
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_color_formats_24.png" class="image" title="Image:PSX_color_formats_24.png"><img src="TIM_file_files/PSX_color_formats_24.png" alt="Image:PSX_color_formats_24.png" longdesc="/Image:PSX_color_formats_24.png"></a></div><br>
+<p>Apart from the two "real" color modes, the PlayStation frequently
+utilizes color indexed images via CLUTs (color lookup tables). Whenever
+an image with color index data is drawn to the screen, a reference to a
+CLUT is included and the color indices get replaced with the
+corresponding value in the table. For 8-bit indexed colors (BPP = <b>01</b>), the image pixels are stored two by two in each 16-bit value as follows:
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_color_formats_8.png" class="image" title="Image:PSX_color_formats_8.png"><img src="TIM_file_files/PSX_color_formats_8.png" alt="Image:PSX_color_formats_8.png" longdesc="/Image:PSX_color_formats_8.png"></a></div><br>
+<p>These images are used in conjuction with a 256-pixel CLUT. For less color-rich images, 4-bit index colors (BPP = <b>00</b>) are also available, for use with a 16-pixel CLUT. These pixels are stored four by four in each 16-bit value:
+</p>
+<br><div class="center"><a href="http://wiki.qhimm.com/Image:PSX_color_formats_4.png" class="image" title="Image:PSX_color_formats_4.png"><img src="TIM_file_files/PSX_color_formats_4.png" alt="Image:PSX_color_formats_4.png" longdesc="/Image:PSX_color_formats_4.png"></a></div><br>
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.qhimm.com/PSX/TIM_format">http://wiki.qhimm.com/PSX/TIM_format</a>"</div>
+	    	    <!-- end content -->
+	    <div class="visualClear"></div>
+	  </div>
+	</div>
+      </div>
+      <div id="column-one">
+	<div id="p-cactions" class="portlet">
+	  <h5>Views</h5>
+	  <ul>
+	    <li id="ca-nstab-main" class="selected"><a title="View the content page [alt-c]" accesskey="c" href="http://wiki.qhimm.com/PSX/TIM_format">Article</a></li><li id="ca-talk" class="new"><a title="Discussion about the content page [alt-t]" accesskey="t" href="http://wiki.qhimm.com/Talk:PSX/TIM_format?action=edit">Discussion</a></li><li id="ca-edit"><a title="You can edit this page. Please use the preview button before saving. [alt-e]" accesskey="e" href="http://wiki.qhimm.com/PSX/TIM_format?action=edit">Edit</a></li><li id="ca-history"><a title="Past versions of this page. [alt-h]" accesskey="h" href="http://wiki.qhimm.com/PSX/TIM_format?action=history">History</a></li>	  </ul>
+	</div>
+	<div class="portlet" id="p-personal">
+	  <h5>Personal tools</h5>
+	  <div class="pBody">
+	    <ul>
+	    <li id="pt-login"><a title="You are encouraged to log in, it is not mandatory however. [alt-o]" accesskey="o" href="http://wiki.qhimm.com/Special:Userlogin?returnto=PSX/TIM_format">Create an account or log in</a></li>	    </ul>
+	  </div>
+	</div>
+	<div class="portlet" id="p-logo">
+	  <a style="background-image: url(/skins/common/images/wiki.png);" href="http://wiki.qhimm.com/Main_Page" title="Main Page"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<div class="portlet" id="p-nav">
+	  <h5>Navigation</h5>
+	  <div class="pBody">
+	    <ul>
+	      	      <li id="n-mainpage"><a title="Visit the Main Page [alt-z]" accesskey="z" href="http://wiki.qhimm.com/Main_Page">Main Page</a></li>	      <li id="n-portal"><a title="About the project, what you can do, where to find things" href="http://wiki.qhimm.com/QhimmWiki:Community_Portal">Community portal</a></li>	      <li id="n-currentevents"><a title="Find background information on current events" href="http://wiki.qhimm.com/Current_events">Current events</a></li>	      <li id="n-recentchanges"><a title="The list of recent changes in the wiki. [alt-r]" accesskey="r" href="http://wiki.qhimm.com/Special:Recentchanges">Recent changes</a></li>	      <li id="n-randompage"><a title="Load a random page [alt-x]" accesskey="x" href="http://wiki.qhimm.com/Special:Randompage">Random page</a></li>	      <li id="n-help"><a title="The place to find out." href="http://wiki.qhimm.com/Help:Contents">Help</a></li>	    </ul>
+	  </div>
+	</div>
+	<div id="p-search" class="portlet">
+	  <h5><label for="searchInput">Search</label></h5>
+	  <div class="pBody">
+	    <form name="searchform" action="/Special:Search" id="searchform">
+	      <input id="searchInput" name="search" accesskey="f" value="" type="text">
+	      <input name="go" class="searchButton" id="searchGoButton" value="Go" type="submit">&nbsp;<input name="fulltext" class="searchButton" value="Search" type="submit">
+	    </form>
+	  </div>
+	</div>
+	<div class="portlet" id="p-tb">
+	  <h5>Toolbox</h5>
+	  <div class="pBody">
+	    <ul>
+		  		  <li id="t-whatlinkshere"><a title="List of all wiki pages that link here [alt-j]" accesskey="j" href="http://wiki.qhimm.com/Special:Whatlinkshere?target=PSX%2FTIM_format">What links here</a></li>
+		  		  <li id="t-recentchangeslinked"><a title="Recent changes in pages linked from this page [alt-k]" accesskey="k" href="http://wiki.qhimm.com/Special:Recentchangeslinked?target=PSX%2FTIM_format">Related changes</a></li>
+		  	      	      	      	      	      	      	      	      	      <li id="t-specialpages"><a title="List of all special pages [alt-q]" accesskey="q" href="http://wiki.qhimm.com/Special:Specialpages">Special pages</a></li>	      	    </ul>
+	  </div>
+	</div>
+	      </div><!-- end of the left (by default at least) column -->
+      <div class="visualClear"></div>
+      <div id="footer">
+    <div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="TIM_file_files/poweredby_mediawiki_88x31.png" alt="MediaWiki"></a></div>	<div id="f-copyrightico"><a href="http://creativecommons.org/licenses/by-nc-sa/2.5/"><img src="TIM_file_files/somerights20.gif" alt="Attribution-NonCommercial-ShareAlike"></a></div>	<ul id="f-list">
+	  <li id="f-lastmod"> This page was last modified 01:54, 5 Mar 2005.</li>	  <li id="f-viewcount">This page has been accessed 3029 times.</li>	  	  <li id="f-copyright">Content is available under <a href="http://creativecommons.org/licenses/by-nc-sa/2.5/" class="external" title="http://creativecommons.org/licenses/by-nc-sa/2.5/" rel="nofollow">Attribution-NonCommercial-ShareAlike</a>.</li>	  <li id="f-about"><a href="http://wiki.qhimm.com/QhimmWiki:About" title="QhimmWiki:About">About QhimmWiki</a></li>	  <li id="f-disclaimer"><a href="http://wiki.qhimm.com/QhimmWiki:General_disclaimer" title="QhimmWiki:General disclaimer">Disclaimers</a></li>	</ul>
+      </div>
+    </div>
+    <!-- Served by callisto.nocdirect.com in 0.15 secs. -->
+  
+</body></html>

@@ -1,0 +1,23 @@
+Posicion dentro de la cabecera del TIM de 8 bpp
+------------------------------------------------
+ Cuento a partir de la posicion 1 del fichero y no de 0
+
+CLUT, posicion en bytes
+------------------------
+ length: 9, 10, 11 y 12 (little endiang) 0C020000 es 524 por defecto
+         bytes clut + 4 bytes longitud + 4 bytes xy + 4 bytes width height
+         es decir bytes clut (512) + 12 = 524
+ X: 13 y 14 (little endiang) 0001 es 256
+ Y: 15 y 16 (little endiang) FF00 es 255 y 0001 es 256
+ width: 17 y 18 (little endiang) 0001 es 256 que es por defecto
+ height: 19 y 20 (little endiang) 0100 es 1 por defecto
+
+ Paleta en formato de 16 bits, con 256 entradas (512 bytes)
+
+IMAGEN, posicion en bytes
+--------------------------
+ lenght: 533,534,535 y 536 (little endiang) se corresponde con:
+         bytes imagen + 4 bytes longitud + 4 bytes xy + 4 bytes width height
+         es decir bytes imagen +  12 bytes
+ X: 537 y 538 (little endiang)
+ Y: 539 y 540 (little endiang)
