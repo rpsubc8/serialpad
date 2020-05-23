@@ -12,7 +12,7 @@ De esta forma se puede introducir datos por teclado o ratón en cualquier modelo
 <h2>Simulación</h2>
 Para todo aquel que no quiera modificar un mando real de PSX, se puede realizar pruebas mediante emulación:
 <ul>
- <li>< href="https://www.epsxe.com/">Emulador de PSX (ePSX)</a></li>
+ <li><a href="https://www.epsxe.com/">Emulador de PSX (ePSX)</a></li>
  <li><a href="https://www.autohotkey.com/">Auto Hot Key (Script teclado y ratón)</a></li>
 </ul>
 Una vez instalado el Auto Hot Key, podremos lanzar el KeyboardMouse.ahk, que traducirá los movimiento y pulsación de botones del ratón en pulsaciones de teclado, que el emulador ePSX interpretará como pulsación de botones del mando.<br>
@@ -26,6 +26,18 @@ Debemos de configurar los gatillos del mando con las teclas:
 </ul>
 Si lanzamos el script KeyboardMouse.ahk en una ventana de comandos, veremos como al mover al ratón, se generan pulsaciones de teclas:
 <center><img src="preview/autohotkey.gif"></center>
+Debemos de tener cuidado, y asegurarnos de estar en la ventana del emulador ePSX, ya que cada vez que hagamos algo con el ratón, estará pulsando teclas.<br>
+En el emulador, si lanzamos el main.exe, nos saldrá el menú con los botones:
+<ul>
+ <li>Fast - Velocidad rápida del ratón</li>
+ <li>Normal - Velocidad normal</li>
+ <li>Slow - Velocidad lenta</li>
+ <li>X - Invierte el movimiento eje X</li>
+ <li>Y - Invierte el movimiento eje Y</li>
+ <li>Left - Zurdos</li>
+</ul>
+En la parte superior, nos aparecerá información de las coordenadas y botones del ratón, así como el estado del mando de la PSX.
+Si pasamos por encima de los botones, se iluminarán, y si se hace click se activará.
 <br><br>
 
 <h2>Modificar mando</h2>
