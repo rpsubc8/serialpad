@@ -1,16 +1,30 @@
 # Serial PAD
-Permite usar un teclado o ratón en una PSX real. Soporta:
+Permite usar un teclado o ratón en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
  <li>Teclado PS/2 (usb)</li>
  <li>Ratón PS/2 (usb)</li>
  <li>Comunicación lenta serie</ul>
 </ul>
 <center><img src="preview/captureEpsxMouse.gif"></center>
-De esta forma se puede introducir datos por teclado o ratón en cualquier modelos de PS1 o PsOne.
+De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne.
 <br><br>
 
 <h2>Simulación</h2>
-<br>Para todo quel que no quiera modificar un mando, se puede realizar pruebas en emulador, así como simulando la pulsación de teclas, con el<br>
+Para todo aquel que no quiera modificar un mando real de PSX, se puede realizar pruebas mediante emulación:
+<ul>
+ <li>Emulador de PSX (ePSX)</li>
+ <li><a href="https://www.autohotkey.com/">Auto Hot Key (Script teclado y ratón)</a></li>
+</ul>
+Una vez instalado el Auto Hot Key, podremos lanzar el KeyboardMouse.ahk, que traducirá los movimiento y pulsación de botones del ratón en pulsaciones de teclado, que el emulador ePSX interpretará como pulsación de botones del mando.<br>
+<center><img src="preview/ePSXconfigPAD.gif"></center>
+Debemos de configurar los gatillos del mando con las teclas:
+<ul>
+ <li>R1 - R</li>
+ <li>R2 - T</li>
+ <li>L1 - W</li>
+ <li>L2 - W</li> 
+</ul>
+<br><br>
 
 <h2>Modificar mando</h2>
 <center><img src="preview/mandoCableBotones.jpg"></center>
