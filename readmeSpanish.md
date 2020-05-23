@@ -1,18 +1,18 @@
 # Serial PAD
 Permite usar un teclado o ratón en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
- <li>Teclado PS/2 (usb)</li>
- <li>Ratón PS/2 (usb)</li>
- <li>Comunicación lenta serie</ul>
+ <li>Ratón PS/2 (usb) - 100% funcional y se incluye pantalla de test</li>
+ <li>Teclado PS/2 (usb) - código funcional, pero falta pantalla de test</li> 
+ <li>Comunicación lenta serie - código funcional, aunque falta pantalla de test</ul>
 </ul>
 <center><img src="preview/captureEpsxMouse.gif"></center>
-De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne.
+De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX.
 <br><br>
 
 <h2>Simulación</h2>
 Para todo aquel que no quiera modificar un mando real de PSX, se puede realizar pruebas mediante emulación:
 <ul>
- <li>Emulador de PSX (ePSX)</li>
+ <li>< href="https://www.epsxe.com/">Emulador de PSX (ePSX)</a></li>
  <li><a href="https://www.autohotkey.com/">Auto Hot Key (Script teclado y ratón)</a></li>
 </ul>
 Una vez instalado el Auto Hot Key, podremos lanzar el KeyboardMouse.ahk, que traducirá los movimiento y pulsación de botones del ratón en pulsaciones de teclado, que el emulador ePSX interpretará como pulsación de botones del mando.<br>
@@ -22,8 +22,10 @@ Debemos de configurar los gatillos del mando con las teclas:
  <li>R1 - R</li>
  <li>R2 - T</li>
  <li>L1 - W</li>
- <li>L2 - W</li> 
+ <li>L2 - E</li> 
 </ul>
+Si lanzamos el script KeyboardMouse.ahk en una ventana de comandos, veremos como al mover al ratón, se generan pulsaciones de teclas:
+<center><img src="preview/autohotkey.gif"></center>
 <br><br>
 
 <h2>Modificar mando</h2>
