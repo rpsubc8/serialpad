@@ -1,12 +1,13 @@
 # Serial PAD
 Permite usar un teclado o ratón en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
- <li>Ratón PS/2 (usb) - 100% funcional y se incluye pantalla de test</li>
- <li>Teclado PS/2 (usb) - código funcional, pero falta pantalla de test</li> 
- <li>Comunicación lenta serie - código funcional, aunque falta pantalla de test</ul>
+ <li><b>Ratón PS/2 (usb)</b> - 100% funcional y se incluye pantalla de test</li>
+ <li><b>Teclado PS/2 (usb)</b> - código funcional, pero falta pantalla de test</li> 
+ <li><b>Comunicación lenta serie</b> - código funcional, aunque falta pantalla de test</ul>
 </ul>
 <center><img src="preview/captureEpsxMouse.gif"></center>
-De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX.
+De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX.<br>
+El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a hacer uso de ratones de PSX, es decir, que no es compatible con el ratón de PSX original.
 <br><br>
 
 <h2>Simulación</h2>
@@ -19,34 +20,41 @@ Una vez instalado el Auto Hot Key, podremos lanzar el KeyboardMouse.ahk, que tra
 <center><img src="preview/ePSXconfigPAD.gif"></center>
 Debemos de configurar los gatillos del mando con las teclas:
 <ul>
- <li>R1 - R</li>
- <li>R2 - T</li>
- <li>L1 - W</li>
- <li>L2 - E</li> 
+ <li><b>R1</b> - R</li>
+ <li><b>R2</b> - T</li>
+ <li><b>L1</b> - W</li>
+ <li><b>L2</b> - E</li> 
 </ul>
 Si lanzamos el script KeyboardMouse.ahk en una ventana de comandos, veremos como al mover al ratón, se generan pulsaciones de teclas:
 <center><img src="preview/autohotkey.gif"></center>
 Debemos de tener cuidado, y asegurarnos de estar en la ventana del emulador ePSX, ya que cada vez que hagamos algo con el ratón, estará pulsando teclas.<br>
 En el emulador, si lanzamos el main.exe, nos saldrá el menú con los botones:
 <ul>
- <li>Fast - Velocidad rápida del ratón</li>
- <li>Normal - Velocidad normal</li>
- <li>Slow - Velocidad lenta</li>
- <li>X - Invierte el movimiento eje X</li>
- <li>Y - Invierte el movimiento eje Y</li>
- <li>Left - Zurdos</li>
+ <li><b>Fast</b> - Velocidad rápida del ratón</li>
+ <li><b>Normal</b> - Velocidad normal</li>
+ <li><b>Slow</b> - Velocidad lenta</li>
+ <li><b>X</b> - Invierte el movimiento eje X</li>
+ <li><b>Y</b> - Invierte el movimiento eje Y</li>
+ <li><b>Left</b> - Zurdos</li>
 </ul>
 En la parte superior, nos aparecerá información de las coordenadas y botones del ratón, así como el estado del mando de la PSX.
-Si pasamos por encima de los botones, se iluminarán, y si se hace click se activará.
+Si pasamos por encima de los botones, se iluminarán, y si se hace click se activará.<br>
+Debemos tener en cuenta, que la emulación no va bien, dado que el script de teclado y el emulador tiene unas demoras, que al final se traduce en unos movimientos no fluidos del ratón y fallos esporádicos. Sin embargo no es muy útil para ver que al menos funciona.
 <br><br>
 
 <h2>Modificar mando</h2>
+Si queremos una respuesta fluida, debemos modificar el mando real.
 <center><img src="preview/mandoCableBotones.jpg"></center>
+Se van a usar los 4 botones (gatillos laterales), es decir, R1, R2, L1 y L2. El motivo se debe a que son los más fáciles de modificar sin falta de usar soldador, es decir, que cualquiera puede hacerlo. Estos botones estan unidos a la placa del mando con un hilo para cada uno de los botones, y otro para la masa. La forma de detectar un botón pulsada, es muy sencilla, tna sólo con unirlo con la masa.<br>
+No todos los mandos usan el sistema de masa, así que tendremos que tener en cuenta si nuestro mando sirve para este proyecto.
 <center><img src="preview/mandoR1R2.jpg"></center>
+Debemos mirar con el multitester la masa, que se corresponde con la masa real del mando.<br>
+Y luego usaremos un sistema de buffer de transistores que activaran los botones. Dichos transistores seran controlados por un ARDUINO.
 <br><br>
 
 
 <h2>Mando físico en Emulador</h2>
+Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón al PS/2, debemos 
 <br><br>
 
 
