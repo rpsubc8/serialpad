@@ -50,12 +50,16 @@ Se van a usar los 4 botones (gatillos laterales), es decir, R1, R2, L1 y L2. El 
 No todos los mandos usan el sistema de masa, así que tendremos que tener en cuenta si nuestro mando sirve para este proyecto.
 <center><img src="preview/mandoR1R2.jpg"></center>
 Debemos mirar con el multitester la masa, que se corresponde con la masa real del mando.<br>
-Y luego usaremos un sistema de buffer de transistores que activaran los botones. Dichos transistores seran controlados por un ARDUINO.
+Luego usaremos un sistema de buffer de transistores que activaran los botones. Dichos transistores seran controlados por un ARDUINO, de manera, que se leeran los datos del ratón PS/2 y se activarán los botones del mando.
 <br><br>
 
 
 <h2>Mando físico en Emulador</h2>
-Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón al PS/2, debemos 
+Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón al PS/2, podemos hacer pruebas sobre el emulador ePSX, antes de probar con una PSX real, gracias a un conversor de mandos PSX a usb.
+<center><img src="preview/PSXusb.jpg"></center>
+Debemos de configurar el mando en el emulador de PSX, de manera que usemos los botones del mando, en lugar de las letras.
+<center><img src="preview/"></center>
+Y si todo es correcto, al ejecutar el main.exe, podremos usar el ratón.
 <br><br>
 
 
@@ -63,13 +67,37 @@ Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón 
 Se requiere los siguiente materiales
 <ul>
  <li>Mando PSX botones R1,R2,L1,L2</li>
- <li>Adaptador usb a PS/2 o </li>
+ <li>Adaptador usb a PS/2 o ratón PS/2</li>
  <li>Teclado PS/2</li>
  <li>Ratón PS/2</li>
  </li>Arduino Nano o UNO</li>
 </ul>
 <br><br>
 
+
+<h2>Protocolo Ratón</h2>
+Se ha usado un protocolo muy simple similar a como se usaban los ratones en los primeros COMMODORE y MSX por puerto de juegos, pero con varias mejoras de velocidad.<br>
+Se envian cada 25 milisegundos 4 bits, que contienen:
+<ul>
+ <li>2 bits movimiento X</li>
+ <li>2 bits movimiento Y</li>
+</ul>
+O bien:
+<ul>
+ <li>2 bits botón izquierdo</li>
+ <li>2 bits botón derecho</li> 
+</ul>
+
+Los bits del movimiento pueden ser:
+<ul>
+ <li><b>00</a> - No hay movimiento</li>
+ <li><b>01</a> - Movimiento positivo</li>
+ <li><b>11</a> - Movimiento negativo</li>
+</ul>
+Para los botones, si se da la opción <b>10</b> es que el botón está activo.
+Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así que se leen entre 16 y 20 milisegundos.
+<br><br>
+ 
 
 # Otras pruebas
 Permite usar un mando de psx <b>(conectado a la psx)</b> como si fuera un modem <b>(lento)</b> serie, pudiendo enviar ficheros o usar el teclado, en cualquier consola psx, incluida la psone.
