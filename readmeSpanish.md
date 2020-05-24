@@ -70,7 +70,7 @@ Se requiere los siguiente materiales
  <li>Adaptador usb a PS/2 o ratón PS/2</li>
  <li>Teclado PS/2</li>
  <li>Ratón PS/2</li>
- </li>Arduino Nano o UNO</li>
+ <li>Arduino Nano o UNO</li>
 </ul>
 <br><br>
 
@@ -90,14 +90,31 @@ O bien:
 
 Los bits del movimiento pueden ser:
 <ul>
- <li><b>00</a> - No hay movimiento</li>
- <li><b>01</a> - Movimiento positivo</li>
- <li><b>11</a> - Movimiento negativo</li>
+ <li><b>00</b></a> - No hay movimiento</li>
+ <li><b>01</b></a> - Movimiento positivo</li>
+ <li><b>11</b></a> - Movimiento negativo</li>
 </ul>
 Para los botones, si se da la opción <b>10</b> es que el botón está activo.
-Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así que se leen entre 16 y 20 milisegundos.
+Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así que se leen entre 16 y 20 milisegundos.<br>
+<br><br>
+
+
+<h2>ARDUINO</h2>
+Se puede usar casi cualquier placa de ARDUINO, pero en concreto he realizado pruebas con la NANO, que dispone de 2 pines de interrupción, útiles para el PS/2.<br>
+La disposición de pines es la siguiente:
+<ul>
+ <li>2 - CLK conector PS/2</li>
+ <li>4 - pin datos conector PS/2</li>
+ <li>5 - transistor L1</li>
+ <li>6 - transistor L2</li>
+ <li>7 - transistor R1</li>
+ <li>8 - transistor R2</li> 
+</ul>
+Se ha usado una libreria muy básica de lectura del ratón <b>PS2Mouse.h</b>, que se encarga de leer el movimiento del ratón, así como el estado de los botones.<br>
+Los pines activarán la base del transistor, que permitirá activar los botones del mando.
 <br><br>
  
+
 
 # Otras pruebas
 Permite usar un mando de psx <b>(conectado a la psx)</b> como si fuera un modem <b>(lento)</b> serie, pudiendo enviar ficheros o usar el teclado, en cualquier consola psx, incluida la psone.
@@ -140,8 +157,9 @@ En siguientes versiones se usara un arduino que con transistores activará o no 
   <td>Start</td><td>V</td><td>Q0</td>
  </tr>  
 </table></center>
+<br><br>
 
-<h2>Fases de desarrollo</h2>
+<h2>Otros frentes de desarrollo</h2>
 Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacute;s complejo:
 <ul>
  <li><b>Control de teclado remoto y real</b> (puerto PC PS2) con arduino activando 9 botones del Gamepad, por medio
@@ -162,15 +180,19 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
   <center><img src="preview/mandoAnalizadorDigital.jpg"></center>
  </li>
 </ul>
-
-
-<h2>Conclusion</h2>
-Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS
+<br></br>
 
 <h2>Uso de MSDOS</h2>
 El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de forma que se puede usar todo el kit de desarrollo psyq de 16bits, ya que así se puede usar en casi cualquier máquina actual que no sea PC. También se puede usar el msdosplayer para Windows 7 64 bits en adelante.
 
 <h2>Historial</h2>
-Aún no es funcional de cara al usuario.
-Permite recibir comando de recepcion de fichero, y se reciben 100 bytes.
+Se puede probar el ratón en:
+<ul>
+ <li>Simulación de PAD con teclado y emulador ePSX.</li>
+ <li>Emulador ePSX y mando real modificado</li>
+ <li>Consola PSX real y mando modificado</li>
+</ul>
+Código comentado para uso de teclado, y envio de ficheros (recibe 100 bytes).
 
+<h2>Conclusion</h2>
+Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS
