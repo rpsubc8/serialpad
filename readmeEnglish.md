@@ -47,7 +47,7 @@ We must take into account that the emulation is not going well, since the keyboa
 
 <h2>Modify control</h2>
 If we want a fluid response, we must modify the actual command.
-<center><img src="preview/cable commandBotones.jpg"></center>
+<center><img src="preview/mandoCableBotones.jpg"></center>
 The 4 buttons (side triggers) will be used, i.e. R1, R2, L1 and L2. The reason for this is that they are the easiest to modify without using a soldering iron, i.e. anyone can do it. These buttons are attached to the control plate with a wire for each of the buttons, and another for the ground. The way to detect a pressed button is very simple, just by joining it to the ground.
 Not all controllers use the mass system, so we'll have to consider whether our controller is suitable for this project.
 <center><img src="preview/mandoR1R2.jpg"></center>
@@ -56,4 +56,27 @@ Then we will use a transistor buffer system that will activate the buttons. Thes
 We must cut the cables (the easiest way) or solder the board, an extension of cables to the outside, and then connect to the transistor buffer.
 <center><img src="preview/pinoutPadPSXarduino.gif"></center>
 The resistance for the base of the transistor is 470 Ohms, and the transistor serves us 2n3904, which is the most basic and cheapest on the market. That doesn't stop us from doing the same with optocouplers or even solid relays.
+<br><br>
+
+
+<h2>Physical control in Emulator</h2>
+Once the ARDUINO has been updated with the mouse code, and connected to the PS/2, we can test the ePSX emulator, before trying a real PSX, thanks to a PSX to usb converter.
+<center><img src="preview/PSXusb.jpg"></center>
+We have to configure the controller in the PSX emulator, so that we use the buttons on the controller, instead of the letters.
+<center><img src="preview/ePSXconfigUsbPAD.gif"></center>
+And if everything is correct, when running the main.exe, we can use the mouse.
+<br><br>
+
+
+<h2>Physical control in real console</h2>
+The following materials are required
+<ul>
+ <li>PSX control buttons R1,R2,L1,L2</li>
+ <li>USB to PS/2 adapter or PS/2 mouse</li>
+ <li>PS/2 keyboard</li>
+ <li>PS/2 Mouse</li>
+ <li>Arduino Nano or UNO</li>
+</ul>
+Once everything is connected and the main.exe is started, when you move the mouse, you will be able to see it on the screen. We must guarantee that our mouse is compatible with a PS/2 communication. Not all modern mice accept a conversion from USB to PS/2. To be sure, it is as simple as, debugging in ARDUINO following the output trace to the serial console, decomposing the code.
+<center><img src="preview/PS2toArduino.jpg"></center>
 <br><br>
