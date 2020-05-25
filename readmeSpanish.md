@@ -72,6 +72,7 @@ Se requiere los siguiente materiales
  <li>Ratón PS/2</li>
  <li>Arduino Nano o UNO</li>
 </ul>
+Una vez todo conectado y arrancado el main.exe, al realizar movimientos del ratón, se podrá ver en la pantalla. Debemos garantizar que nuestro ratón sea compatible con una comunicación PS/2. No todos los ratones modernos aceptan una conversión de USB a PS/2. Para estar seguros, es tan sencillo como, depurar en ARDUINO siguiendo la traza de salida a la consola serie, descomentando el código.
 <br><br>
 
 
@@ -204,4 +205,4 @@ Se puede probar el ratón en:
 Código comentado para uso de teclado, y envio de ficheros (recibe 100 bytes).
 
 <h2>Conclusion</h2>
-Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS
+Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS.
