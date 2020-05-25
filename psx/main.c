@@ -1,10 +1,11 @@
 //Autor: ackerman
+//Permite usar raton usb PS/2 conectado a PAD por medio de ARDUINO
+//Usa botones R1,R2,L1,L2
+//Tambien permite teclado
 //Jaime Jose Gavin Sierra
-/**
-	a simple program for printing to the psx screen
-*/
+//a simple program for printing to the psx screen
 
-#include <sys/types.h>		//these are the various include files that need to be included
+#include <sys/types.h>	//these are the various include files that need to be included
 #include <libetc.h>		//note that the order they are included in does matter in some cases!
 #include <libgte.h>
 #include <libgpu.h>
@@ -15,28 +16,27 @@
 //#include "barco.h"
 #include "raton.h"
 #include "btnall.h"
-/*
-also note that while this example uses the Gs functions, these are high level functions
-and should not be used if it can be helped as they are quite slow and consume lots of memory.
-they will however do while you are learning as they simplify things and help you to understand
-the process that you go through to print to the screen.
-*/
+//also note that while this example uses the Gs functions, these are high level functions
+//and should not be used if it can be helped as they are quite slow and consume lots of memory.
+//they will however do while you are learning as they simplify things and help you to understand
+//the process that you go through to print to the screen.
 
-#define OT_LENGTH (10)			//this is the 'length' of the OT (ordering tabble)
-					//for more info on ordering tables, check out ot.txt on my 'info' page
 
-#define PACKETMAX (2048)		//these are the graphics area contants
-#define PACKETMAX2 (PACKETMAX*24)	//allows you to select how many gfx objects the psx should handle
-					//in this particular example
+#define OT_LENGTH (10) //this is the 'length' of the OT (ordering tabble)
+					   //for more info on ordering tables, check out ot.txt on my 'info' page
 
-#define SCREEN_WIDTH 320		//contants to determine the height and width of the screen resolution
+#define PACKETMAX (2048) //these are the graphics area contants
+#define PACKETMAX2 (PACKETMAX*24) //allows you to select how many gfx objects the psx should handle
+					              //in this particular example
+
+#define SCREEN_WIDTH 320 //contants to determine the height and width of the screen resolution
 //#define SCREEN_HEIGHT 240
 #define SCREEN_HEIGHT 256
 
 
-GsOT myOT[2];				//an array of 2 OT's this is how your double buffering is implemented
+GsOT myOT[2]; //an array of 2 OT's this is how your double buffering is implemented
 GsOT_TAG myOT_TAG[2][1<<OT_LENGTH];
-PACKET GPUPacketArea[2][PACKETMAX2];	//also 2 gfx packet areas for double buffering
+PACKET GPUPacketArea[2][PACKETMAX2]; //also 2 gfx packet areas for double buffering
 
 u_long pad;
 u_char datoPAD;
@@ -45,16 +45,16 @@ char letra=' ';
 char bufferLetra[200]="\0";
 u_char contBuffer=0;
 u_char STD_antes=0;
-u_char flag_cmd=0;
-u_char flag_file=0;
-u_char flag_sizefile0=0;
-u_char flag_sizefile1=0;
-u_char flag_datafile=0;
+//u_char flag_cmd=0;
+//u_char flag_file=0;
+//u_char flag_sizefile0=0;
+//u_char flag_sizefile1=0;
+//u_char flag_datafile=0;
 char cadLog[200]="\0";
-u_long sizeFile=0;
-u_long contDataFile=0;
+//u_long sizeFile=0;
+//u_long contDataFile=0;
 char globalNewData=0;
-u_char bufferFile[65536];
+//u_char bufferFile[65536];
 
 u_char gb_Q7=0; //8 bits keyboard no strobe
 u_char gb_Q6=0; //8 bits keyboard no strobe
@@ -74,18 +74,19 @@ int gb_mouseX= SCREEN_WIDTH>>1;
 int gb_mouseY= SCREEN_HEIGHT>>1;
 int gb_mouse_btnLeft=0;
 int gb_mouse_btnRight=0;
-//int gb_contBtnBorrar=0;
-int gb_mouse_Xequal=0;     //cont mismo movimiento X
-int gb_mouse_Yequal=0;     //cont mismo movimiento Y
+u_char gb_mouseContBtnBorrar=0; //cont actual borrar estado boton click
+u_char gb_maxMouseBtnBorrar=50; //max num antes borrar estado boton click
+u_char gb_mouse_Xequal=0; //cont mismo movimiento X
+u_char gb_mouse_Yequal=0; //cont mismo movimiento Y
 int gb_mouseXmoveBefore=0; //movimiento anterior x 0 1 -1
 int gb_mouseYmoveBefore=0; //movimiento anterior y 0 1 -1
 
-int gb_mouse_max_equalX = 16; 
-int gb_mouse_max_equalY = 16;
-int gb_mouse_max_incX = 4; //Inc X al repetirse movimiento X
-int gb_mouse_max_incY = 4; //Inc Y al repetirse movimiento Y
+u_char gb_mouse_max_equalX = 16; //Numero de veces igual movimiento antes de incrementar X
+u_char gb_mouse_max_equalY = 16; //Numero de veces igual movimiento antes de incrementar Y
+u_char gb_mouse_max_incX = 4; //Inc X al repetirse movimiento X
+u_char gb_mouse_max_incY = 4; //Inc Y al repetirse movimiento Y
 
-#define tope_buffer 128000
+//#define tope_buffer 128000
 #define tope_texto 1024
 #define booleana unsigned char
 #define TRUE 1
@@ -94,7 +95,7 @@ int gb_mouse_max_incY = 4; //Inc Y al repetirse movimiento Y
 #define RATON_ADDRESS raton_array
 //#define BTNFAST_ADDRESS DecodificaBinario(&btnfast)
 #define BTNALL_ADDRESS btnall_array
-unsigned char bufferAux[tope_buffer];
+//unsigned char bufferAux[tope_buffer];
 GsIMAGE	ratonImg;
 GsSPRITE ratonSprite;
 
@@ -120,21 +121,21 @@ int activeBuffer=0;		//variable used to hold the buffer that is currently being 
 /***************** prototypes *******************/
 void InitGraphics(void);		  //this method sets up gfx for printing to screen
 void DisplayAll(int);			  //this displays the contents of the OT
-void HandlePad(void);
-void HandlePadTwoBtn(void);       //2 botones R1 y R2 convierte 14 botones
-void HandleKeyboardTwoBtn(void);  //2 botones R1 y R2 convierte teclado
-void HandleKeyboardFourBtn(void); //4 botones R1,R2,L1,L2 convierte teclado
-void HandleKeyboardFourBtnNoStrobe(void); //4 botones R1,R2,L1,L2 sin Strobe convierte teclado
-void HandleMouseFourBtn(void);    //4 botones R1,R2,L1,L2 convierte raton
+//void HandlePad(void);
+//void HandlePadTwoBtn(void);       //2 botones R1 y R2 convierte 14 botones
+//void HandleKeyboardTwoBtn(void);  //2 botones R1 y R2 convierte teclado
+//void HandleKeyboardFourBtn(void); //4 botones R1,R2,L1,L2 convierte teclado
+//void HandleKeyboardFourBtnNoStrobe(void); //4 botones R1,R2,L1,L2 sin Strobe convierte teclado
+//void HandleMouseFourBtn(void);    //4 botones R1,R2,L1,L2 convierte raton
 void HandleMouseFourBtnNoStrobe(void);    //4 botones R1,R2,L1,L2 convierte raton rapido
-void pollKeyboardTwoBtn(void);
-void pollKeyboardFourBtn(void);
-void pollKeyboardFourBtnNoStrobe(void);
-void pollMouseFourBtn(void);
+//void pollKeyboardTwoBtn(void);
+//void pollKeyboardFourBtn(void);
+//void pollKeyboardFourBtnNoStrobe(void);
+//void pollMouseFourBtn(void);
 void pollMouseFourBtnNoStrobe(void);
-void pollPADTwoBtn(void);
-void pollCMDpad(void);
-unsigned char *DecodificaBinario(struct TBinarioHex *dato);
+//void pollPADTwoBtn(void);
+//void pollCMDpad(void);
+//unsigned char *DecodificaBinario(struct TBinarioHex *dato);
 void InitSprite(GsIMAGE *im, GsSPRITE *sp,int sxIni,int syIni,int sWidth,int sHeight);
 void LoadAllSprites(void);
 void PaintBtnAll(void);
@@ -229,14 +230,14 @@ void InitSprite(GsIMAGE *im, GsSPRITE *sp,int sxIni,int syIni,int sWidth,int sHe
 }
 
 //********************************************************************************
-unsigned char* DecodificaBinario(struct TBinarioHex *dato){
+/*unsigned char* DecodificaBinario(struct TBinarioHex *dato){
 //Decodifica un buffer en formato RLE o sin codificar y devuelve el nuevo buffer
 //Si no se puede decoficar nos da NULL
 //Coger sin preguntar el bufferAux para los datos auxiliares
  unsigned int i,j,cont,inicio;
  unsigned char aux,color,baseColor,colorRepetido;
-/* for (i=0;i<tope_buffer;i++)
-  bufferAux[i]= 0;*/
+// for (i=0;i<tope_buffer;i++)
+//  bufferAux[i]= 0;
 // bzero(bufferAux,tope_buffer); //Ocupa mas byte k el for
  switch (dato->tipoCodificacion){
   case sin_codificacion: return (dato->buffer);break;
@@ -278,6 +279,7 @@ unsigned char* DecodificaBinario(struct TBinarioHex *dato){
  }
  return (bufferAux);
 }
+*/
 
 //**********************************************************
 void HandleMouseFourBtnNoStrobe()
@@ -304,10 +306,7 @@ void HandleMouseFourBtnNoStrobe()
  }
  else
  {
-  cadPAD[3]=48;
-  cadPAD[2]=48;
-  cadPAD[1]=48;
-  cadPAD[0]=48;
+  cadPAD[3]= cadPAD[2]= cadPAD[1]= cadPAD[0]=48;
   cadPAD[4]='\0'; //Muestro solo 4 bits
  }
 }
@@ -319,6 +318,7 @@ void pollMouseFourBtnNoStrobe()
  u_char aux=0;
  char car=' ';
  char car2=' ';
+ int aux_gb_btn;
   
  if (globalNewData == 1)
  {
@@ -329,18 +329,31 @@ void pollMouseFourBtnNoStrobe()
   {
    car = 'L';
    if (gb_mouseXmoveBefore == -1)
-   {
+   {	
 	gb_mouse_Xequal++;
 	if (gb_mouse_Xequal>gb_mouse_max_equalX)	
-	 gb_mouseX-= gb_mouse_max_incX;	
+	{
+	 if (gb_pushBtnInvertX == 0)
+	  gb_mouseX-= gb_mouse_max_incX;
+     else
+      gb_mouseX+= gb_mouse_max_incX;	
+	}
     else
-	 gb_mouseX--;
+	{
+	 if (gb_pushBtnInvertX == 0)
+	  gb_mouseX--;
+     else
+	  gb_mouseX++;
+	}
    }
    else
    {
 	gb_mouseXmoveBefore = -1;
 	gb_mouse_Xequal = 0;
-    gb_mouseX--;   
+	if (gb_pushBtnInvertX == 0)
+     gb_mouseX--;
+    else
+	 gb_mouseX++;
    }
   }
   else
@@ -351,16 +364,29 @@ void pollMouseFourBtnNoStrobe()
     if (gb_mouseXmoveBefore == 1)
     {
 	 gb_mouse_Xequal++;
-	 if (gb_mouse_Xequal>gb_mouse_max_equalX )	
-	  gb_mouseX+= gb_mouse_max_incX;	
+	 if (gb_mouse_Xequal>gb_mouse_max_equalX)
+	 {
+	  if (gb_pushBtnInvertX == 0)
+	   gb_mouseX+= gb_mouse_max_incX; //No esta invertido pulsado
+      else
+	   gb_mouseX-= gb_mouse_max_incX;
+	 }
      else
-	  gb_mouseX++;
+	 {
+	  if (gb_pushBtnInvertX == 0)
+	   gb_mouseX++;
+      else
+	   gb_mouseX--;
+	 }
     }
     else
     {
  	 gb_mouseXmoveBefore = 1;
 	 gb_mouse_Xequal = 0;
-     gb_mouseX++;   
+	 if (gb_pushBtnInvertX == 0)
+      gb_mouseX++;
+     else
+	  gb_mouseX--;
     }	
    }
    else
@@ -381,16 +407,29 @@ void pollMouseFourBtnNoStrobe()
    if (gb_mouseYmoveBefore == -1)
    {
 	gb_mouse_Yequal++;
-	if (gb_mouse_Yequal>gb_mouse_max_equalY)	
-	 gb_mouseY+= gb_mouse_max_incY;	
+	if (gb_mouse_Yequal>gb_mouse_max_equalY)
+	{
+	 if (gb_pushBtnInvertY == 0)
+	  gb_mouseY+= gb_mouse_max_incY;	
+     else
+	  gb_mouseY-= gb_mouse_max_incY;	
+	}
     else
-     gb_mouseY++;
+	{
+	 if (gb_pushBtnInvertY == 0)
+      gb_mouseY++;
+     else
+	  gb_mouseY--;
+	}
    }
    else
    {
 	gb_mouseYmoveBefore = -1;
 	gb_mouse_Yequal = 0;
-    gb_mouseY++;   
+	if (gb_pushBtnInvertY == 0)
+     gb_mouseY++;
+    else
+	 gb_mouseY--;
    }     
   }  
   if (gb_Q2 == 1 && gb_Q3 == 0)
@@ -399,16 +438,29 @@ void pollMouseFourBtnNoStrobe()
    if (gb_mouseYmoveBefore == 1)
    {
 	gb_mouse_Yequal++;
-	if (gb_mouse_Yequal>gb_mouse_max_equalY)	
-	 gb_mouseY-= gb_mouse_max_incY;
+	if (gb_mouse_Yequal>gb_mouse_max_equalY)
+	{
+	 if (gb_pushBtnInvertY == 0)
+	  gb_mouseY-= gb_mouse_max_incY;
+     else
+	  gb_mouseY+= gb_mouse_max_incY;
+	}
     else
-     gb_mouseY--;
+	{
+	 if (gb_pushBtnInvertY == 0)
+      gb_mouseY--;
+     else
+	  gb_mouseY++;
+	}
    }
    else
    {
 	gb_mouseYmoveBefore = 1;
 	gb_mouse_Yequal = 0;
-    gb_mouseY--;
+	if (gb_pushBtnInvertY == 0)
+     gb_mouseY--;
+    else
+	 gb_mouseY++;
    }      
   }
   if (gb_Q2 == 0 && gb_Q3 == 0)
@@ -420,13 +472,21 @@ void pollMouseFourBtnNoStrobe()
       
   //Botones
   if ((gb_Q0 == 0)&&(gb_Q1 == 1))
-   gb_mouse_btnLeft = 1;
-  else
-   gb_mouse_btnLeft = 0;
-  if ((gb_Q2 == 0)&&(gb_Q3 == 1))
-   gb_mouse_btnRight = 1;  
-  else
+   gb_mouse_btnLeft = 1;  
+  else  
+   gb_mouse_btnLeft = 0;  
+
+  if ((gb_Q2 == 0)&&(gb_Q3 == 1))    
+   gb_mouse_btnRight = 1;     
+  else  
    gb_mouse_btnRight = 0;
+  
+  if (gb_pushBtnLeftHand == 1)
+  {
+   aux_gb_btn = gb_mouse_btnLeft; //Zurdos
+   gb_mouse_btnLeft = gb_mouse_btnRight;
+   gb_mouse_btnRight = aux_gb_btn;
+  }
   
   
   if (gb_mouseX<0)
@@ -454,18 +514,19 @@ void pollMouseFourBtnNoStrobe()
  }
  else
  {
-//  gb_contBtnBorrar++;
-//  if (gb_contBtnBorrar>50)
-//  {
-//   gb_contBtnBorrar=0;   
+  gb_mouseContBtnBorrar++;
+  if (gb_mouseContBtnBorrar>gb_maxMouseBtnBorrar)
+  {
+   gb_mouseContBtnBorrar=0;   
    gb_mouse_btnLeft = 0; //Reseteamos para lectura
    gb_mouse_btnRight = 0;
    sprintf(cadLog,"%x %s X:%03d Y:%03d B:%d%d",aux,gb_cadKeyBuf,gb_mouseX,gb_mouseY,gb_mouse_btnLeft,gb_mouse_btnRight);
-//  }  
+  }  
  }	
 }
 
 //**********************************************************
+/*
 void HandleMouseFourBtn()
 {
  //R1 Sync R2,L1,L2 bit Data First 3 bits Mouse, Second 3 bits R2,L1,L2
@@ -511,8 +572,10 @@ void HandleMouseFourBtn()
   }
  } 
 }
+*/
 
 //**********************************************************
+/*
 void pollMouseFourBtn()
 {
  //Convierte 6 bits raton
@@ -589,21 +652,22 @@ void pollMouseFourBtn()
  }
  else
  {
-//  gb_contBtnBorrar++;
-//  if (gb_contBtnBorrar>50)
-//  {
-//   gb_contBtnBorrar=0;   
+  gb_mouseContBtnBorrar++;
+  if (gb_mouseContBtnBorrar>50)
+  {
+   gb_mouseContBtnBorrar=0;   
    gb_mouse_btnLeft = 0; //Reseteamos para lectura
    gb_mouse_btnRight = 0;
    sprintf(cadLog,"MOUSE4BTN %d %c\n%s\nX:%d Y:%d Btn:%d%d",aux,car,gb_cadKeyBuf,gb_mouseX,gb_mouseY,gb_mouse_btnLeft,gb_mouse_btnRight);
-//  }  
+  }  
  }
 }
-
+*/
 
 
 
 //**********************************************************
+/*
 void HandleKeyboardFourBtnNoStrobe()
 {
  //R1,R2,L1,L2 bit Data First 4 bits Keyboard, Second 4 bits R1,R2,L1,L2
@@ -656,8 +720,10 @@ void HandleKeyboardFourBtnNoStrobe()
   }  
  } 
 }
+*/
 
 //**********************************************************
+/*
 void pollKeyboardFourBtnNoStrobe()
 {
  //Convierte 8 bits keyboard letras fast No Strobe
@@ -727,8 +793,10 @@ void pollKeyboardFourBtnNoStrobe()
   }
  }	
 }
+*/
 
 //**********************************************************
+/*
 void HandleKeyboardFourBtn()
 {
  //R1 Sync R2,L1,L2 bit Data First 3 bits Keyboard, Second 3 bits R2,L1,L2
@@ -774,8 +842,10 @@ void HandleKeyboardFourBtn()
   }
  } 
 }
+*/
 
 //**********************************************************
+/*
 void pollKeyboardFourBtn()
 {
  //Convierte 6 bits keyboard letras
@@ -829,8 +899,10 @@ void pollKeyboardFourBtn()
   sprintf(cadLog,"KEYBOARD4BTN %d %c\n%s",aux,car,gb_cadKeyBuf);  
  }	
 }
+*/
 
 //**********************************************************
+/*
 void HandleKeyboardTwoBtn()
 {
  //R1 Sync R2 bit Data  5 bits Keyboard
@@ -865,8 +937,10 @@ void HandleKeyboardTwoBtn()
   }
  }
 }
+*/
 
 //**********************************************************
+/*
 void pollKeyboardTwoBtn()
 {
  //Convierte 5 bits keyboard letras
@@ -920,8 +994,10 @@ void pollKeyboardTwoBtn()
   sprintf(cadLog,"KEYBOARD2BTN %d %c\n%s",aux,car,gb_cadKeyBuf);  
  }	
 }
+*/
 
 //**********************************************************
+/*
 void pollPADTwoBtn()
 {	
  //Convierte 4 bits 14 botones PSX a letras 
@@ -957,8 +1033,10 @@ void pollPADTwoBtn()
   sprintf(cadLog,"PAD2BTN %d %c\n%s",aux,car,gb_cadKeyBuf);  
  }
 }
+*/
 
 //**********************************************************
+/*
 void pollCMDpad(){	
  int i;
  char auxcad[200]="\0";
@@ -1027,6 +1105,7 @@ void pollCMDpad(){
   //letra=(char)(datoPAD);
  }
 }
+*/
 
 //*******************************************************
 void PaintMouse()
@@ -1069,7 +1148,7 @@ void PaintBtnAll()
  }
     
  btnFast.r = btnFast.g = btnFast.b= 40;
- btnNormal.r = btnNormal.g = btnNormal.b= 40;  
+ btnNormal.r = btnNormal.g = btnNormal.b= 40;
  btnSlow.r = btnSlow.g = btnSlow.b= 40;
  btnInvertX.r = btnInvertX.g = btnInvertX.b= 40;
  btnInvertY.r = btnInvertY.g = btnInvertY.b= 40;
@@ -1132,42 +1211,29 @@ void PaintBtnAll()
  if (aux_pushBtnFast == 1)
  {
   gb_pushBtnFast=1;
-  gb_pushBtnNormal = 0;
-  gb_pushBtnSlow = 0;
-  btnNormal.r = btnNormal.g = btnNormal.b = 40;
-  btnSlow.r = btnSlow.g = btnSlow.b = 40;
-  gb_mouse_max_equalX = 8; 
-  gb_mouse_max_equalY = 8;
-  gb_mouse_max_incX = 8;
-  gb_mouse_max_incY = 8;    
+  gb_pushBtnNormal = gb_pushBtnSlow = 0;
+  btnNormal.r = btnNormal.g = btnNormal.b = btnSlow.r = btnSlow.g = btnSlow.b = 40;
+  gb_mouse_max_equalX = gb_mouse_max_equalY = gb_mouse_max_incX = gb_mouse_max_incY = 8;
   gb_action_mouse_click = 1;
  }
  
  if (aux_pushBtnNormal == 1)
- {
-  gb_pushBtnFast=0;
+ {  
   gb_pushBtnNormal = 1;
-  gb_pushBtnSlow = 0;
-  btnFast.r = btnFast.g = btnFast.b = 40;
-  btnSlow.r = btnSlow.g = btnSlow.b = 40;      
-  gb_mouse_max_equalX = 16; 
-  gb_mouse_max_equalY = 16;
-  gb_mouse_max_incX = 4;
-  gb_mouse_max_incY = 4;  
+  gb_pushBtnSlow = gb_pushBtnFast = 0;
+  btnFast.r = btnFast.g = btnFast.b = btnSlow.r = btnSlow.g = btnSlow.b = 40;      
+  gb_mouse_max_equalX = gb_mouse_max_equalY = 16;
+  gb_mouse_max_incX = gb_mouse_max_incY = 4;  
   gb_action_mouse_click = 1;
  } 
 
  if (aux_pushBtnSlow == 1)
  {
-  gb_pushBtnFast=0;
-  gb_pushBtnNormal = 0;
+  gb_pushBtnFast= gb_pushBtnNormal = 0;
   gb_pushBtnSlow = 1;
-  btnFast.r = btnFast.g = btnFast.b = 40;
-  btnNormal.r = btnNormal.g = btnNormal.b = 40;
-  gb_mouse_max_equalX = 16; 
-  gb_mouse_max_equalY = 16;
-  gb_mouse_max_incX = 1;
-  gb_mouse_max_incY = 1;  
+  btnFast.r = btnFast.g = btnFast.b = btnNormal.r = btnNormal.g = btnNormal.b = 40;
+  gb_mouse_max_equalX = gb_mouse_max_equalY = 16;
+  gb_mouse_max_incX = gb_mouse_max_incY = 1;  
   gb_action_mouse_click = 1;
  } 
  
@@ -1230,48 +1296,48 @@ void LoadAllSprites()
 	btnFast.my=0;//shipImg.py/2;
 	btnFast.scalex=ONE;//*0.5;
 	btnFast.scaley=ONE;//*0.5;
-	btnFast.x=0;
-	btnFast.y=0;	
+	//btnFast.x=0;
+	//btnFast.y=0;	
 		
 	InitSprite(&btnAllImg, &btnNormal,0,40,136,40);
 	btnNormal.mx=0;
 	btnNormal.my=0;
 	btnNormal.scalex=ONE;
 	btnNormal.scaley=ONE;
-	btnNormal.x=0;
-	btnNormal.y=0;		
+	//btnNormal.x=0;
+	//btnNormal.y=0;		
 		
 	InitSprite(&btnAllImg, &btnSlow,0,80,136,40);
 	btnSlow.mx=0;
 	btnSlow.my=0;
 	btnSlow.scalex=ONE;
 	btnSlow.scaley=ONE;
-	btnSlow.x=0;
-	btnSlow.y=0;			
+	//btnSlow.x=0;
+	//btnSlow.y=0;			
 
 	InitSprite(&btnAllImg, &btnInvertX,0,120,136,40);
 	btnInvertX.mx=0;
 	btnInvertX.my=0;
 	btnInvertX.scalex=ONE;
 	btnInvertX.scaley=ONE;
-	btnInvertX.x=0;
-	btnInvertX.y=0;	
+	//btnInvertX.x=0;
+	//btnInvertX.y=0;	
 	
 	InitSprite(&btnAllImg, &btnInvertY,0,160,136,40);
 	btnInvertY.mx=0;
 	btnInvertY.my=0;
 	btnInvertY.scalex=ONE;
 	btnInvertY.scaley=ONE;
-	btnInvertY.x=0;
-	btnInvertY.y=0;		
+	//btnInvertY.x=0;
+	//btnInvertY.y=0;		
 	
 	InitSprite(&btnAllImg, &btnLeftHand,0,200,136,40);
 	btnLeftHand.mx=0;
 	btnLeftHand.my=0;
 	btnLeftHand.scalex=ONE;
 	btnLeftHand.scaley=ONE;
-	btnLeftHand.x=0;
-	btnLeftHand.y=0;			
+	//btnLeftHand.x=0;
+	//btnLeftHand.y=0;			
 	
     GsGetTimInfo((u_long *)(RATON_ADDRESS+4), &ratonImg);	//this prepares the 'ship' sprite for display	
 	InitSprite(&ratonImg, &ratonSprite,0,0,16,22);
@@ -1279,8 +1345,8 @@ void LoadAllSprites()
 	ratonSprite.my=0;//shipImg.py/2;
 	ratonSprite.scalex=ONE;//*0.5;
 	ratonSprite.scaley=ONE;//*0.5;
-	ratonSprite.x= gb_mouseX;
-	ratonSprite.y= gb_mouseY;	
+	//ratonSprite.x= gb_mouseX;
+	//ratonSprite.y= gb_mouseY;	
 	
  btnFast.x = 8;
  btnFast.y = 30;
@@ -1386,7 +1452,7 @@ void InitGraphics(void) {
 	GsClearOt(0,0,&myOT[0]); //initialises ordering table
 	GsClearOt(0,0,&myOT[1]);
 	
-	PadInit(0);	
+	//PadInit(0);	
 }
 
 //*************************************************
@@ -1402,6 +1468,7 @@ void DisplayAll(int activeBuffer) {
 }
 
 //***********************************************
+/*
 void HandlePadTwoBtn(void)
 {
  //R1 Sync R2 bit Data   4 bits 14 botones
@@ -1440,8 +1507,10 @@ void HandlePadTwoBtn(void)
   }
  }  
 }
+*/
 
 /***********************************************/
+/*
 void HandlePad(void) {
 //L1 - W         (sync)
 //L2 - E         Q7
@@ -1499,3 +1568,4 @@ void HandlePad(void) {
 //	if (pad&Pad1x) if(speed<15) speed++;
 //	if (pad&Pad1crc) if(speed>1) speed--;
 }
+*/

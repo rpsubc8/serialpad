@@ -1,3 +1,3 @@
 psymake
-cpe2x main.cpe
+cpe2x /CE main.cpe
 rem psexe main.exe
