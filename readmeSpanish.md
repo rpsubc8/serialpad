@@ -101,6 +101,7 @@ Los bits del movimiento pueden ser:
 </ul>
 Para los botones, si se da la opción <b>10</b> es que el botón está activo.
 Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así que se leen entre 16 y 20 milisegundos.<br>
+El código de demora de 25 milisegundos, está puesto en el Arduino, pero podemos cambiarlo a 50 milisegundos. Para el caso del emulador de teclado, está puesto a 50 milisegundos, dado que a tiempos inferiores, ocurren problemas de sincronismo.
 <br><br>
 
 
