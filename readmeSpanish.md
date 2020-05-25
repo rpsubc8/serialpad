@@ -204,6 +204,7 @@ El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de fo
 <h2>Historial</h2>
 Se puede probar el ratón en:
 <ul>
+ <li>2020/05/25 - 100% ratón PS/2</li>
  <li>Simulación de PAD con teclado y emulador ePSX.</li>
  <li>Emulador ePSX y mando real modificado</li>
  <li>Consola PSX real y mando modificado</li>
