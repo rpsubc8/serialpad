@@ -5,7 +5,7 @@ Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de ma
  <li><b>Teclado PS/2 (usb)</b> - código funcional, falta pantalla de test</li> 
  <li><b>Comunicación lenta serie</b> - código funcional, falta pantalla de test</ul>
 </ul>
-<center><img src="preview/captureEpsxMouse.gif"></center>
+<center><img src="preview/capturaTV.jpg"></center>
 De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX, dándole una mayor autonomía, pudiendo actuar de ordenador personal, por ejemplo.<br>
 <center><img src="preview/ps1mouse.jpg"></center>
 El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a hacer uso de ratones de PSX, es decir, que no es compatible con el ratón de PSX original, y sólo funcionará con nuestro programa que traduce pulsaciones de botones.
@@ -29,6 +29,7 @@ Debemos de configurar los gatillos del mando con las teclas:
 Si lanzamos el script KeyboardMouse.ahk en una ventana de comandos, veremos como al mover al ratón, se generan pulsaciones de teclas:
 <center><img src="preview/autohotkey.gif"></center>
 Debemos de tener cuidado, y asegurarnos de estar en la ventana del emulador ePSX, ya que cada vez que hagamos algo con el ratón, estará pulsando teclas.<br>
+<center><img src="preview/captureEpsxMouse.gif"></center>
 En el emulador, si lanzamos el main.exe, nos saldrá el menú con los botones:
 <ul>
  <li><b>Fast</b> - Velocidad rápida del ratón</li>
