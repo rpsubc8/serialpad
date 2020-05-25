@@ -105,3 +105,114 @@ For the buttons, if the option <b>10</b> is given, the button is active.
 Remember, that the PSX in each vertical delay, the data are read from the PAD, so they are read between 16 and 20 milliseconds.<br>
 The 25 millisecond delay code is set on the Arduino, but we can change it to 50 milliseconds. In the case of the keyboard emulator, it is set to 50 milliseconds, since at lower times, synchronism problems occur.
 <br><br>
+
+
+<h2>ARDUINO</h2>
+Almost any ARDUINO board can be used, but I have tested the NANO, which has 2 interruption pins, useful for the PS/2.
+The pin layout is as follows:
+<ul>
+ <li>2 - CLK PS/2 connector</li>
+ <li>4 - pin data PS/2 connector</li>
+ <li>5 - transistor base L1</li>
+ <li>6 - transistor base L2</li>
+ <li>7 - transistor base R1</li>
+ <li>8 - transistor base R2</li> 
+</ul>
+A very basic library has been used to read the mouse <b>PS2Mouse.h</b>, which is in charge of reading the mouse movement, as well as the state of the buttons.<br>
+The pins will activate the base of the transistor, which will allow the buttons on the controller to be activated.
+<br><br>
+
+
+# Upload PSexe
+I am testing to use this command hack as a communications channel, modem style <b>(slow)</b> serial. I am using a SPI communications bus hack, with a hardcore fake slave spi, so there is no need to modify the remote.
+And the most important thing, it is allowed to upload a ps-exe directly to memory or to the memory card.
+<center><img src="preview/capturaepsx.gif"></center>
+Remember, the PSX can have up to 8 PSX controls by means of multitaps:
+<ul>
+ <li><b>8 x 14 buttons x 50 </b>= 5600 bits/s</li>
+ <li><b>8 x 14 buttons x 60 </b>= 6720 bits/s</li>
+  <li><b>8 x 16 buttons (analog mode) x 50</b>= 6400 bits/s</li>
+  <li><b>8 x 16 buttons (analog mode) x 60</b>= 7680 bits/s</li>
+</ul>
+Putting it into practice physically is quite cumbersome, but it is easy to simulate.
+<br><br>
+
+
+
+<h2>Simulacion</h2>
+For quick tests I am using a psx emulator (epsx) and a script (autohotkey) that sends the keystrokes to the emulator.
+There are 8 buttons on the controller, along with 1 more (L1) for the data pulse (synchronization).
+
+<center><table>
+ <tr>
+  <td>Button</td><td>Key</td><td>Bit</td>
+ </tr>
+ <tr>
+  <td>L1</td><td>W</td><td>(sync)</td>
+ </tr>
+ <tr>  
+  <td>L2</td><td>E</td><td>Q7</td>
+ </tr>   
+ <tr>  
+  <td>R1</td><td>R</td><td>Q6</td>
+ </tr>   
+ <tr>     
+  <td>R2</td><td>T</td><td>Q5</td>
+ </tr>  
+ <tr>  
+  <td>Triangle</td><td>D</td><td></td>
+ </tr>  
+ <tr>  
+  <td>Square</td><td>S</td><td>Q3</td>
+ <tr> 
+ </tr>  
+  <td>Circulo</td><td>X</td><td>Q2</td>
+ <tr> 
+ </tr>  
+  <td>X</td><td>Z</td><td>Q1</td>
+ <tr>      
+  <td>Start</td><td>V</td><td>Q0</td>
+ </tr>  
+</table></center>
+<br><br>
+
+
+<h2>Other development fronts</h2>
+An attack is made on several fronts, from the simplest to the most complex:
+<ul>
+  <li><b>Remote and real keyboard control</b> (PS2 PC port) with 9 Gamepad buttons activated by
+   of a very simple protocol of rising edge and transistors, but slow in speed. A program that sends the data in msdos x86 100% compatible DOSBOX for the remote via serial emulator, as well as the possibility of reading directly from the keyboard with the PS2keyboard library.
+  <center><img src="preview/commandAnalyze.jpg"></center>
+ </li>
+  <li><b>Sending PS-exe</b> to PSOne memory or PSOne memory card with arduino by activating 9 buttons on the Gamepad
+  by means of a very simple protocol of ascending flank, but slow in speed. A program that sends data in msdos x86 100% compatible DOSBOX for the remote via serial emulsion will be made
+ </li>
+ <li><b>Loading PS-exe</b> from PSX memory (128 KB), with the possibility of splitting the exe in several cards. A 100% DOSBOX compatible msdos x86 program will be made to slice the exe into multiple .MCR 128 KB. These .MCR can be saved in real card from PS2 by means of the <a href="https://gamesx.com/mccap/">sakura</a> of parallel port (vmware with windows 95 and 98 with parallel port support) or the <a href="https://github.com/ShendoXT/memcarduino">memcarduino</a>.
+  <center><img src="preview/memecardAnalyze.jpg"></center>
+ </li>
+ <li>
+   <b>Receiving data by sound</b> from the PSX, the 2 audio channels. A program will be made in psx that generates tones with pulses that can be decoded as binary data. The psx will receive remote commands and send the data as sound.
+ </li>
+ <li>
+   <b>Command and memory simulation</b> by means of arduino. I have captured the commands of the psx command, as well as those of the memory, using a 250 Khz SPI protocol. I am making a program in arduino that when it receives the commands, it sends the answers to a program in the psone that it interprets to load data.  
+  <center><img src="preview/commandDigitalAnalyzer.jpg"></center>
+ </li>
+</ul>
+<br></br>
+
+
+
+<h2>Use of MSDOS</h2>
+The reason for using MSDOS, is to achieve maximum compatibility with DOSBOX, so that you can use the entire 16bits psyq development kit, as it can be used in almost any current machine that is not a PC. You can also use the msdosplayer for Windows 7 64 bits and above.
+<br><br>
+
+<h2>History</h2
+<ul>
+ <li>2020/05/25 - 100% PS/2 mouse</li>
+ <li><b>In tests</b> - PAD simulation with keyboard and ePSX emulator</li>
+ <li>Commented code for keyboard use, and file sending (receives 100 bytes).</li>
+</ul>
+<br><br>
+
+<h2>Conclusion</h2>
+This option is used because while the psx has a serial port, the white psone does not. You must therefore make modifications. In addition, an alternative to SIOCONS is achieved.
