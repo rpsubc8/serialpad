@@ -32,3 +32,28 @@ If we launch the KeyboardMouse.ahk script in a command window, we'll see how mov
 We must be careful, and make sure we are in the ePSX emulator window, because every time we do something with the mouse, it will be pressing keys.<br>
 <center><img src="preview/captureEpsxMouse.gif"></center>
 In the emulator, if we launch the main.exe, we will get the menu with the buttons:
+<ul>
+ <li><b>Fast</b> - Fast mouse speed</li>
+ <li><b>Normal</b> - Normal speed</li>
+ <li><b>Slow</b> - Slow speed</li>
+ <li><b>X</b> - Reverses X-axis movement</li>
+ <li><b>Y</b> - Reverse the Y-axis movement</li>
+ <li><b>Left</b> - Left-handed</li>
+</ul>
+At the top, we will see information about the coordinates and mouse buttons, as well as the status of the PSX controller.
+If we pass over the buttons, they will be illuminated, and if we click it will be activated.<br>
+We must take into account that the emulation is not going well, since the keyboard script and the emulator have some delays, which in the end results in some non-flowing movements of the mouse and sporadic failures. However it is very useful to see that at least it works.
+<br><br>
+
+<h2>Modify control</h2>
+If we want a fluid response, we must modify the actual command.
+<center><img src="preview/cable commandBotones.jpg"></center>
+The 4 buttons (side triggers) will be used, i.e. R1, R2, L1 and L2. The reason for this is that they are the easiest to modify without using a soldering iron, i.e. anyone can do it. These buttons are attached to the control plate with a wire for each of the buttons, and another for the ground. The way to detect a pressed button is very simple, just by joining it to the ground.
+Not all controllers use the mass system, so we'll have to consider whether our controller is suitable for this project.
+<center><img src="preview/mandoR1R2.jpg"></center>
+We must look with the multitester at the mass, which corresponds to the real mass of the control.
+Then we will use a transistor buffer system that will activate the buttons. These transistors will be controlled by an ARDUINO, so that the data of the PS/2 mouse will be read and the buttons of the control will be activated.
+We must cut the cables (the easiest way) or solder the board, an extension of cables to the outside, and then connect to the transistor buffer.
+<center><img src="preview/pinoutPadPSXarduino.gif"></center>
+The resistance for the base of the transistor is 470 Ohms, and the transistor serves us 2n3904, which is the most basic and cheapest on the market. That doesn't stop us from doing the same with optocouplers or even solid relays.
+<br><br>
