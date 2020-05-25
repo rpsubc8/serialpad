@@ -181,21 +181,21 @@ There are 8 buttons on the controller, along with 1 more (L1) for the data pulse
 An attack is made on several fronts, from the simplest to the most complex:
 <ul>
   <li><b>Remote and real keyboard control</b> (PS2 PC port) with 9 Gamepad buttons activated by
-   of a very simple protocol of rising edge and transistors, but slow in speed. A program that sends the data in msdos x86 100% compatible DOSBOX for the remote via serial emulator, as well as the possibility of reading directly from the keyboard with the PS2keyboard library.
-  <center><img src="preview/commandAnalyze.jpg"></center>
+   of a very simple protocol of rising edge and transistors, but slow in speed. A program that sends the data in msdos x86 100% compatible DOSBOX for the remote via serial emulator, as well as the possibility of reading directly from the keyboard with the PS2keyboard library.  
+  <center><img src="preview/mandoAnalizar.jpg"></center>
  </li>
   <li><b>Sending PS-exe</b> to PSOne memory or PSOne memory card with arduino by activating 9 buttons on the Gamepad
   by means of a very simple protocol of ascending flank, but slow in speed. A program that sends data in msdos x86 100% compatible DOSBOX for the remote via serial emulsion will be made
  </li>
  <li><b>Loading PS-exe</b> from PSX memory (128 KB), with the possibility of splitting the exe in several cards. A 100% DOSBOX compatible msdos x86 program will be made to slice the exe into multiple .MCR 128 KB. These .MCR can be saved in real card from PS2 by means of the <a href="https://gamesx.com/mccap/">sakura</a> of parallel port (vmware with windows 95 and 98 with parallel port support) or the <a href="https://github.com/ShendoXT/memcarduino">memcarduino</a>.
-  <center><img src="preview/memecardAnalyze.jpg"></center>
+  <center><img src="preview/memecardAnalizar.jpg"></center>
  </li>
  <li>
    <b>Receiving data by sound</b> from the PSX, the 2 audio channels. A program will be made in psx that generates tones with pulses that can be decoded as binary data. The psx will receive remote commands and send the data as sound.
  </li>
  <li>
    <b>Command and memory simulation</b> by means of arduino. I have captured the commands of the psx command, as well as those of the memory, using a 250 Khz SPI protocol. I am making a program in arduino that when it receives the commands, it sends the answers to a program in the psone that it interprets to load data.  
-  <center><img src="preview/commandDigitalAnalyzer.jpg"></center>
+  <center><img src="preview/mandoAnalizadorDigital.jpg"></center>
  </li>
 </ul>
 <br></br>
@@ -206,7 +206,7 @@ An attack is made on several fronts, from the simplest to the most complex:
 The reason for using MSDOS, is to achieve maximum compatibility with DOSBOX, so that you can use the entire 16bits psyq development kit, as it can be used in almost any current machine that is not a PC. You can also use the msdosplayer for Windows 7 64 bits and above.
 <br><br>
 
-<h2>History</h2
+<h2>History</h2>
 <ul>
  <li>2020/05/25 - 100% PS/2 mouse</li>
  <li><b>In tests</b> - PAD simulation with keyboard and ePSX emulator</li>
