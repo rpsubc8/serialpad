@@ -8,7 +8,8 @@ Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de ma
 <center><img src="preview/capturaTV.jpg"></center>
 De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX, dándole una mayor autonomía, pudiendo actuar de ordenador personal, por ejemplo.<br>
 <center><img src="preview/ps1mouse.jpg"></center>
-El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a hacer uso de ratones de PSX, es decir, que no es compatible con el ratón de PSX original, y sólo funcionará con nuestro programa que traduce pulsaciones de botones.
+El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a hacer uso de ratones de PSX, es decir, que no es compatible con el ratón de PSX original, y sólo funcionará con nuestro programa que traduce pulsaciones de botones.<br>
+Los resultados en máquina real, son impresionantes, dado que es muy rápido, tanto el ratón, como el teclado. Para subirlo a máquina real, lo más comodo es usar un cable <a href="http://hitmen.c02.at/html/psx_siocable.html">skywalker</a>, tal y como yo lo tengo, y un conversor de usb a serie, así como la versión modificada <b>send.exe</b> para Windows 64 bits.
 <br><br>
 
 <h2>Simulación</h2>
