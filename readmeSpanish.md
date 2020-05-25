@@ -76,6 +76,7 @@ Se requiere los siguiente materiales
  <li>Arduino Nano o UNO</li>
 </ul>
 Una vez todo conectado y arrancado el main.exe, al realizar movimientos del ratón, se podrá ver en la pantalla. Debemos garantizar que nuestro ratón sea compatible con una comunicación PS/2. No todos los ratones modernos aceptan una conversión de USB a PS/2. Para estar seguros, es tan sencillo como, depurar en ARDUINO siguiendo la traza de salida a la consola serie, descomentando el código.
+<center><img src="preview/PS2toArduino.jpg"></center>
 <br><br>
 
 
