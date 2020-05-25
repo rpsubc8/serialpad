@@ -139,7 +139,7 @@ Putting it into practice physically is quite cumbersome, but it is easy to simul
 
 
 
-<h2>Simulacion</h2>
+<h2>Simulation</h2>
 For quick tests I am using a psx emulator (epsx) and a script (autohotkey) that sends the keystrokes to the emulator.
 There are 8 buttons on the controller, along with 1 more (L1) for the data pulse (synchronization).
 
