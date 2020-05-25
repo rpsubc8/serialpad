@@ -1,5 +1,5 @@
 # Serial PAD
-Permite usar un teclado o ratón en una PSX real conectada al puerto de mandos. Soporta:
+Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
  <li><b>Ratón PS/2 (usb)</b> - 100% funcional, incluye pantalla de test</li>
  <li><b>Teclado PS/2 (usb)</b> - código funcional, falta pantalla de test</li> 
