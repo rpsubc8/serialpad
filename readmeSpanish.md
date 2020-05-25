@@ -51,6 +51,8 @@ No todos los mandos usan el sistema de masa, así que tendremos que tener en cue
 <center><img src="preview/mandoR1R2.jpg"></center>
 Debemos mirar con el multitester la masa, que se corresponde con la masa real del mando.<br>
 Luego usaremos un sistema de buffer de transistores que activaran los botones. Dichos transistores seran controlados por un ARDUINO, de manera, que se leeran los datos del ratón PS/2 y se activarán los botones del mando.
+Debemos cortar los cables (lo más facil) o bien soldar  la placa, una extensión de cables al exterior, para posteriormente conectar al buffer de transistores.
+<center><img src="preview/pinoutPadPSXarduino.gif"></center>
 <br><br>
 
 
