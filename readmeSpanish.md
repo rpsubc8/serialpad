@@ -53,6 +53,7 @@ Debemos mirar con el multitester la masa, que se corresponde con la masa real de
 Luego usaremos un sistema de buffer de transistores que activaran los botones. Dichos transistores seran controlados por un ARDUINO, de manera, que se leeran los datos del ratón PS/2 y se activarán los botones del mando.
 Debemos cortar los cables (lo más facil) o bien soldar  la placa, una extensión de cables al exterior, para posteriormente conectar al buffer de transistores.
 <center><img src="preview/pinoutPadPSXarduino.gif"></center>
+La resistencia para la base del transistor es de 470 Ohmios, y el transistor nos sirven el 2n3904, que es el más básico y barato del mercado. Eso no quita, que podamos hacer lo mismo con optoacopladores o incluso relés sólidos.
 <br><br>
 
 
