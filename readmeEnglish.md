@@ -21,3 +21,14 @@ For those who don't want to modify a real PSX controller, tests can be done by e
 Once the Auto Hot Key is installed, we will be able to launch the KeyboardMouse.ahk, which will translate the mouse movements and button presses into keyboard strokes, which the ePSX emulator will interpret as button presses of the controller.<br>
 <center><img src="preview/ePSXconfigPAD.gif"></center>
 We must set the triggers of the control with the keys:
+<ul>
+ <li><b>R1</b> - R</li>
+ <li><b>R2</b> - T</li>
+ <li><b>L1</b> - W</li>
+ <li><b>L2</b> - E</li> 
+</ul>
+If we launch the KeyboardMouse.ahk script in a command window, we'll see how moving the mouse generates keystrokes:
+<center><img src="preview/autohotkey.gif"></center>
+We must be careful, and make sure we are in the ePSX emulator window, because every time we do something with the mouse, it will be pressing keys.<br>
+<center><img src="preview/captureEpsxMouse.gif"></center>
+In the emulator, if we launch the main.exe, we will get the menu with the buttons:
