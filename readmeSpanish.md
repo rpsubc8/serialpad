@@ -61,7 +61,7 @@ La resistencia para la base del transistor es de 470 Ohmios, y el transistor nos
 Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón al PS/2, podemos hacer pruebas sobre el emulador ePSX, antes de probar con una PSX real, gracias a un conversor de mandos PSX a usb.
 <center><img src="preview/PSXusb.jpg"></center>
 Debemos de configurar el mando en el emulador de PSX, de manera que usemos los botones del mando, en lugar de las letras.
-<center><img src="preview/"></center>
+<center><img src="preview/ePSXconfigUsbPAD.gif"></center>
 Y si todo es correcto, al ejecutar el main.exe, podremos usar el ratón.
 <br><br>
 
