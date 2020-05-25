@@ -80,3 +80,28 @@ The following materials are required
 Once everything is connected and the main.exe is started, when you move the mouse, you will be able to see it on the screen. We must guarantee that our mouse is compatible with a PS/2 communication. Not all modern mice accept a conversion from USB to PS/2. To be sure, it is as simple as, debugging in ARDUINO following the output trace to the serial console, decomposing the code.
 <center><img src="preview/PS2toArduino.jpg"></center>
 <br><br>
+
+
+<h2>Mouse Protocol</h2>
+A very simple protocol similar to how mice were used in the early COMMODORE and MSX has been used per game port, but with several speed improvements.<br>
+Every 25 milliseconds 4 bits are sent, containing:
+<ul>
+ <li>2 bits X movement</li>
+ <li>2 bits Y movement</li>
+</ul>
+Or:
+<ul>
+ <li>2 bits left button</li>
+ <li>2 bits right button</li> 
+</ul>
+
+Movement bits can be:
+<ul>
+ <li><b>00</b> - No movement</li>
+ <li><b>01</b> - Positive movement</li>
+ <li><b>11</b> - Negative movement</li>
+</ul>
+For the buttons, if the option <b>10</b> is given, the button is active.
+Remember, that the PSX in each vertical delay, the data are read from the PAD, so they are read between 16 and 20 milliseconds.<br>
+The 25 millisecond delay code is set on the Arduino, but we can change it to 50 milliseconds. In the case of the keyboard emulator, it is set to 50 milliseconds, since at lower times, synchronism problems occur.
+<br><br>
