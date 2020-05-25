@@ -97,9 +97,9 @@ O bien:
 
 Los bits del movimiento pueden ser:
 <ul>
- <li><b>00</b></a> - No hay movimiento</li>
- <li><b>01</b></a> - Movimiento positivo</li>
- <li><b>11</b></a> - Movimiento negativo</li>
+ <li><b>00</b> - No hay movimiento</li>
+ <li><b>01</b> - Movimiento positivo</li>
+ <li><b>11</b> - Movimiento negativo</li>
 </ul>
 Para los botones, si se da la opción <b>10</b> es que el botón está activo.
 Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así que se leen entre 16 y 20 milisegundos.<br>
