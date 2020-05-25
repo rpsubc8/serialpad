@@ -1,12 +1,12 @@
 # Serial PAD
 Permite usar un teclado o ratón en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
- <li><b>Ratón PS/2 (usb)</b> - 100% funcional y se incluye pantalla de test</li>
- <li><b>Teclado PS/2 (usb)</b> - código funcional, pero falta pantalla de test</li> 
- <li><b>Comunicación lenta serie</b> - código funcional, aunque falta pantalla de test</ul>
+ <li><b>Ratón PS/2 (usb)</b> - 100% funcional, incluye pantalla de test</li>
+ <li><b>Teclado PS/2 (usb)</b> - código funcional, falta pantalla de test</li> 
+ <li><b>Comunicación lenta serie</b> - código funcional, falta pantalla de test</ul>
 </ul>
 <center><img src="preview/captureEpsxMouse.gif"></center>
-De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX.<br>
+De esta forma se puede introducir datos por teclado o ratón en cualquier modelo de PSX o PsOne conectando un teclado a un puerto de mandos de la PSX, dándole una mayor autonomía, pudiendo actuar de ordenador personal, por ejemplo.<br>
 <center><img src="preview/ps1mouse.jpg"></center>
 El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a hacer uso de ratones de PSX, es decir, que no es compatible con el ratón de PSX original.
 <br><br>
@@ -40,7 +40,7 @@ En el emulador, si lanzamos el main.exe, nos saldrá el menú con los botones:
 </ul>
 En la parte superior, nos aparecerá información de las coordenadas y botones del ratón, así como el estado del mando de la PSX.
 Si pasamos por encima de los botones, se iluminarán, y si se hace click se activará.<br>
-Debemos tener en cuenta, que la emulación no va bien, dado que el script de teclado y el emulador tiene unas demoras, que al final se traduce en unos movimientos no fluidos del ratón y fallos esporádicos. Sin embargo no es muy útil para ver que al menos funciona.
+Debemos tener en cuenta, que la emulación no va bien, dado que el script de teclado y el emulador tiene unas demoras, que al final se traduce en unos movimientos no fluidos del ratón y fallos esporádicos. Sin embargo nos es muy útil para ver que al menos funciona.
 <br><br>
 
 <h2>Modificar mando</h2>
@@ -100,7 +100,7 @@ Recordemos, que la PSX en cada retrazo vertical, se leen los datos del PAD, así
 
 
 <h2>ARDUINO</h2>
-Se puede usar casi cualquier placa de ARDUINO, pero en concreto he realizado pruebas con la NANO, que dispone de 2 pines de interrupción, útiles para el PS/2.<br>
+Se puede usar casi cualquier placa de ARDUINO, pero en concreto he realizado pruebas con el NANO, que dispone de 2 pines de interrupción, útiles para el PS/2.<br>
 La disposición de pines es la siguiente:
 <ul>
  <li>2 - CLK conector PS/2</li>
@@ -172,13 +172,13 @@ En siguientes versiones se usara un arduino que con transistores activará o no 
 Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacute;s complejo:
 <ul>
  <li><b>Control de teclado remoto y real</b> (puerto PC PS2) con arduino activando 9 botones del Gamepad, por medio
-   de un protocolo muy simple de flanco ascendente y transistores, pero lento en velocidad. Se realizará un programa que envia los datosen msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie, así como la posibilidad de leer directamente de arduino el teclado con la libreria PS2keyboard.
+   de un protocolo muy simple de flanco ascendente y transistores, pero lento en velocidad. Se realizará un programa que envia los datos en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie, así como la posibilidad de leer directamente de arduino el teclado con la libreria PS2keyboard.
   <center><img src="preview/mandoAnalizar.jpg"></center>
  </li>
  <li><b>Envio de PS-exe</b> a memoria de PSOne o a tarjeta de memoria de PSOne con arduino activando 9 botones del Gamepad,
   , por medio de un protocolo muy simple de flanco ascendente y transistores, pero lento en velocidad. Se realizará un programa que envia datos en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie
  </li>
- <li><b>Carga de PS-exe</b> desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x86 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 o mediante el sakura de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo).
+ <li><b>Carga de PS-exe</b> desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x86 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 mediante el <a href="https://gamesx.com/mccap/">sakura</a> de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo) o el <a href="https://github.com/ShendoXT/memcarduino">memcarduino</a>.
   <center><img src="preview/memecardAnalizar.jpg"></center>
  </li>
  <li>
