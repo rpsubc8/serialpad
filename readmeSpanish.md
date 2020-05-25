@@ -106,10 +106,10 @@ La disposición de pines es la siguiente:
 <ul>
  <li>2 - CLK conector PS/2</li>
  <li>4 - pin datos conector PS/2</li>
- <li>5 - transistor L1</li>
- <li>6 - transistor L2</li>
- <li>7 - transistor R1</li>
- <li>8 - transistor R2</li> 
+ <li>5 - base transistor L1</li>
+ <li>6 - base transistor L2</li>
+ <li>7 - base transistor R1</li>
+ <li>8 - base transistor R2</li> 
 </ul>
 Se ha usado una libreria muy básica de lectura del ratón <b>PS2Mouse.h</b>, que se encarga de leer el movimiento del ratón, así como el estado de los botones.<br>
 Los pines activarán la base del transistor, que permitirá activar los botones del mando.
@@ -118,7 +118,7 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
 
 
 # Upload PSexe
-Estoy realizando pruebas para usar este hack del mando como si fuera un canal de comunicaciones, estilo modem <b>(lento)</b> serie.
+Estoy realizando pruebas para usar este hack del mando como si fuera un canal de comunicaciones, estilo modem <b>(lento)</b> serie. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
 Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
 <center><img src="preview/capturaepsx.gif"></center>
 Recordemos, que la PSX puede disponer de hasta 8 mandos PSX por medio de multitaps:
@@ -134,7 +134,6 @@ Llevarlo a la práctica físicamente es bastante engorroso, pero es fácil de si
 <h2>Simulacion</h2>
 Para pruebas rápidas estoy usando un emulador de psx (epsx) y un script (autohotkey) que envia las pulsaciones de teclas para el emulador.
 Se usan 8 botones del mando, junto con 1 más (L1) para el pulso (sincronia) del dato.
-En siguientes versiones se usara un arduino que con transistores activará o no los botones.
 
 <center><table>
  <tr>
@@ -177,7 +176,7 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
   <center><img src="preview/mandoAnalizar.jpg"></center>
  </li>
  <li><b>Envio de PS-exe</b> a memoria de PSOne o a tarjeta de memoria de PSOne con arduino activando 9 botones del Gamepad,
-  , por medio de un protocolo muy simple de flanco ascendente y transistores, pero lento en velocidad. Se realizará un programa que envia datos en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie
+  , por medio de un protocolo muy simple de flanco ascendente, pero lento en velocidad. Se realizará un programa que envia datos en msdos x86 100% compatible DOSBOX para el remoto via emulaci&oacute;n serie
  </li>
  <li><b>Carga de PS-exe</b> desde memorias de PSX (128 KB), con posibilidad de trozear el exe en varias tarjetas. Se realizará un programa en msdos x86 100% compatible DOSBOX para trocear el exe en múltiples .MCR de 128 KB. Dichos .MCR se puede guardar en tarjeta real desde PS2 mediante el <a href="https://gamesx.com/mccap/">sakura</a> de puerto paralelo (vmware con windows 95 y 98 con soporte puerto paralelo) o el <a href="https://github.com/ShendoXT/memcarduino">memcarduino</a>.
   <center><img src="preview/memecardAnalizar.jpg"></center>
