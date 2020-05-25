@@ -200,16 +200,15 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
 
 <h2>Uso de MSDOS</h2>
 El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de forma que se puede usar todo el kit de desarrollo psyq de 16bits, ya que así se puede usar en casi cualquier máquina actual que no sea PC. También se puede usar el msdosplayer para Windows 7 64 bits en adelante.
+<br><br>
 
 <h2>Historial</h2>
-Se puede probar el ratón en:
 <ul>
  <li>2020/05/25 - 100% ratón PS/2</li>
- <li>Simulación de PAD con teclado y emulador ePSX.</li>
- <li>Emulador ePSX y mando real modificado</li>
- <li>Consola PSX real y mando modificado</li>
+ <li><b>En pruebas</b>Simulación de PAD con teclado y emulador ePSX.</li> 
+ <li>Código comentado para uso de teclado, y envio de ficheros (recibe 100 bytes).</li>
 </ul>
-Código comentado para uso de teclado, y envio de ficheros (recibe 100 bytes).
+<br><br>
 
 <h2>Conclusion</h2>
 Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS.
