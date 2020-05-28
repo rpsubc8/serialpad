@@ -1,6 +1,19 @@
 # Serial PAD
 It allows you to use a PC keyboard or mouse on a real PSX connected to the control port. Supports:
 <ul>
+ <li><a href='#simulation'>Simulación</a></li>
+ <li><a href='#padmodification'>Modificar mando</a></li>
+ <li><a href="#padrealemulator">Mando físico en Emulador</a></li>
+ <li><a href="#realpadrealconsole">Mando físico en consola real</a></li>
+ <li><a href="#protocolo">Protocolo Ratón</a></li>
+ <li><a href="#arduino">ARDUINO</a></li> 
+ <li><a href="#uploadpsexe">Upload PsEXE</a></li>  
+ <li><a href="#msdos">Uso de MSDOS</a></li>  
+ <li><a href="#history">Historial</a></li>  
+ <li><a href="#conclusion">Conclusion</a></li>  
+</ul>
+The features to be highlighted are:
+<ul>
   <li><b>PS/2 Mouse (USB)</b> - 100% functional, includes test screen</li>
   <li><b>PS/2 keyboard (usb)</b> - function code, missing test display</li>
   <li><b>Slow serial communication</b> - function code, missing test display</li>
@@ -12,7 +25,7 @@ The mouse and keyboard that will be used are from PC, so this project, will not 
 The results in real machine, are impressive, since it is very fast, both the mouse, as the keyboard. To upload it to a real machine, the most comfortable way is to use a cable <a href="http://hitmen.c02.at/html/psx_siocable.html">skywalker</a>, as I have it, and a usb to serial converter, as well as the modified version <b>send.exe</b> for Windows 64 bits.
 <br><br>
 
-<h2>Simulation</h2>
+<a name="simulation"><h2>Simulation</h2></a>
 For those who don't want to modify a real PSX controller, tests can be done by emulation:
 <ul>
  <li><a href="https://www.epsxe.com/">PSX emulator (ePSX)</a></li>
@@ -45,7 +58,7 @@ If we pass over the buttons, they will be illuminated, and if we click it will b
 We must take into account that the emulation is not going well, since the keyboard script and the emulator have some delays, which in the end results in some non-flowing movements of the mouse and sporadic failures. However it is very useful to see that at least it works.
 <br><br>
 
-<h2>Modify control</h2>
+<a name="padmodification"><h2>Modify control</h2></a>
 If we want a fluid response, we must modify the actual command.
 <center><img src="preview/mandoCableBotones.jpg"></center>
 The 4 buttons (side triggers) will be used, i.e. R1, R2, L1 and L2. The reason for this is that they are the easiest to modify without using a soldering iron, i.e. anyone can do it. These buttons are attached to the control plate with a wire for each of the buttons, and another for the ground. The way to detect a pressed button is very simple, just by joining it to the ground.
@@ -59,7 +72,7 @@ The resistance for the base of the transistor is 470 Ohms, and the transistor se
 <br><br>
 
 
-<h2>Physical control in Emulator</h2>
+<a name="padrealemulator"><h2>Physical control in Emulator</h2></a>
 Once the ARDUINO has been updated with the mouse code, and connected to the PS/2, we can test the ePSX emulator, before trying a real PSX, thanks to a PSX to usb converter.
 <center><img src="preview/PSXusb.jpg"></center>
 We have to configure the controller in the PSX emulator, so that we use the buttons on the controller, instead of the letters.
@@ -68,7 +81,7 @@ And if everything is correct, when running the main.exe, we can use the mouse.
 <br><br>
 
 
-<h2>Physical control in real console</h2>
+<a name="realpadrealconsole"><h2>Physical control in real console</h2></a>
 The following materials are required
 <ul>
  <li>PSX control buttons R1,R2,L1,L2</li>
@@ -82,7 +95,7 @@ Once everything is connected and the main.exe is started, when you move the mous
 <br><br>
 
 
-<h2>Mouse Protocol</h2>
+<a name="protocolo"><h2>Mouse Protocol</h2></a>
 A very simple protocol similar to how mice were used in the early COMMODORE and MSX has been used per game port, but with several speed improvements.<br>
 Every 25 milliseconds 4 bits are sent, containing:
 <ul>
@@ -107,7 +120,7 @@ The 25 millisecond delay code is set on the Arduino, but we can change it to 50 
 <br><br>
 
 
-<h2>ARDUINO</h2>
+<a name="arduino"><h2>ARDUINO</h2></a>
 Almost any ARDUINO board can be used, but I have tested the NANO, which has 2 interruption pins, useful for the PS/2.
 The pin layout is as follows:
 <ul>
@@ -123,7 +136,7 @@ The pins will activate the base of the transistor, which will allow the buttons 
 <br><br>
 
 
-# Upload PSexe
+<a name="uploadpsexe"><h2>Upload PSexe</h2></a>
 I am testing to use this command hack as a communications channel, modem style <b>(slow)</b> serial. I am using a SPI communications bus hack, with a hardcore fake slave spi, so there is no need to modify the remote.
 And the most important thing, it is allowed to upload a ps-exe directly to memory or to the memory card.
 <center><img src="preview/capturaepsx.gif"></center>
@@ -205,11 +218,11 @@ An attack is made on several fronts, from the simplest to the most complex:
 
 
 
-<h2>Use of MSDOS</h2>
+<a name="msdos"><h2>Use of MSDOS</h2></a>
 The reason for using MSDOS, is to achieve maximum compatibility with DOSBOX, so that you can use the entire 16bits psyq development kit, as it can be used in almost any current machine that is not a PC. You can also use the msdosplayer for Windows 7 64 bits and above.
 <br><br>
 
-<h2>History</h2>
+<a name="history"><h2>History</h2></a>
 <ul>
  <li>2020/05/25 - 100% PS/2 mouse</li>
  <li><b>In tests</b> - PAD simulation with keyboard and ePSX emulator</li>
@@ -217,5 +230,5 @@ The reason for using MSDOS, is to achieve maximum compatibility with DOSBOX, so 
 </ul>
 <br><br>
 
-<h2>Conclusion</h2>
+<a name="conclusion"><h2>Conclusion</h2></a>
 This option is used because while the psx has a serial port, the white psone does not. You must therefore make modifications. In addition, an alternative to SIOCONS is achieved.
