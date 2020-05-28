@@ -131,8 +131,10 @@ Remember, the PSX can have up to 8 PSX controls by means of multitaps:
 <ul>
  <li><b>8 x 14 buttons x 50 </b>= 5600 bits/s</li>
  <li><b>8 x 14 buttons x 60 </b>= 6720 bits/s</li>
-  <li><b>8 x 16 buttons (analog mode) x 50</b>= 6400 bits/s</li>
-  <li><b>8 x 16 buttons (analog mode) x 60</b>= 7680 bits/s</li>
+ <li><b>8 x 16 buttons (analog mode) x 50</b>= 6400 bits/s</li>
+ <li><b>8 x 16 buttons (analog mode) x 60</b>= 7680 bits/s</li>
+ <li><b>8 x 48 bits (analog mode) x 50 </b>= 19200 bits/s</li>
+ <li><b>8 x 48 bits (analog mode) x 60 </b>= 23040 bits/s</li>
 </ul>
 Putting it into practice physically is quite cumbersome, but it is easy to simulate.
 <br><br>
