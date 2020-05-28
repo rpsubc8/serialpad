@@ -1,15 +1,15 @@
 # Serial PAD
 It allows you to use a PC keyboard or mouse on a real PSX connected to the control port. Supports:
 <ul>
- <li><a href='#simulation'>Simulación</a></li>
- <li><a href='#padmodification'>Modificar mando</a></li>
- <li><a href="#padrealemulator">Mando físico en Emulador</a></li>
- <li><a href="#realpadrealconsole">Mando físico en consola real</a></li>
- <li><a href="#protocolo">Protocolo Ratón</a></li>
+ <li><a href='#simulation'>Simulation</a></li>
+ <li><a href='#padmodification'>Modify control</a></li>
+ <li><a href="#padrealemulator">Physical control in Emulator</a></li>
+ <li><a href="#realpadrealconsole">Physical control in real console</a></li>
+ <li><a href="#protocolo">Mouse Protocol</a></li>
  <li><a href="#arduino">ARDUINO</a></li> 
  <li><a href="#uploadpsexe">Upload PsEXE</a></li>  
- <li><a href="#msdos">Uso de MSDOS</a></li>  
- <li><a href="#history">Historial</a></li>  
+ <li><a href="#msdos">Use of MSDOS</a></li>  
+ <li><a href="#history">History</a></li>  
  <li><a href="#conclusion">Conclusion</a></li>  
 </ul>
 The features to be highlighted are:
