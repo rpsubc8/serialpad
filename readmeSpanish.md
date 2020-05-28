@@ -120,7 +120,7 @@ El código de demora de 25 milisegundos, está puesto en el Arduino, pero podemo
 <br><br>
 
 
-<a href="arduino"><h2>ARDUINO</h2></a>
+<a name="arduino"><h2>ARDUINO</h2></a>
 Se puede usar casi cualquier placa de ARDUINO, pero en concreto he realizado pruebas con el NANO, que dispone de 2 pines de interrupción, útiles para el PS/2.<br>
 La disposición de pines es la siguiente:
 <ul>
@@ -137,7 +137,7 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
  
 
 
-<a href="uploadpsexe"><h2>Upload PsEXE</h2></a>
+<a name="uploadpsexe"><h2>Upload PsEXE</h2></a>
 Estoy realizando pruebas para usar este hack del mando como si fuera un canal de comunicaciones, estilo modem <b>(lento)</b> serie. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
 Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
 <center><img src="preview/capturaepsx.gif"></center>
@@ -214,7 +214,7 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
 </ul>
 <br></br>
 
-<a href="msdos"><h2>Uso de MSDOS</h2></a>
+<a name="msdos"><h2>Uso de MSDOS</h2></a>
 El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de forma que se puede usar todo el kit de desarrollo psyq de 16bits, ya que así se puede usar en casi cualquier máquina actual que no sea PC. También se puede usar el msdosplayer para Windows 7 64 bits en adelante.
 <br><br>
 
