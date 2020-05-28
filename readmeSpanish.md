@@ -1,6 +1,12 @@
 # Serial PAD
 Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
+ 
+</ul>
+ <li><a href='#simulation'>Simulación</a></li>
+ <li><a href='#padmodification'>Modificación PAD</a></li>
+ <li><a href="#padrealemulator">Mando físico en Emulador</a></li>
+<ul>
  <li><b>Ratón PS/2 (usb)</b> - 100% funcional, incluye pantalla de test</li>
  <li><b>Teclado PS/2 (usb)</b> - código funcional, falta pantalla de test</li> 
  <li><b>Comunicación lenta serie</b> - código funcional, falta pantalla de test</ul>
@@ -12,7 +18,7 @@ El ratón y teclado que van a usarse son de PC, así que este proyecto, no va a 
 Los resultados en máquina real, son impresionantes, dado que es muy rápido, tanto el ratón, como el teclado. Para subirlo a máquina real, lo más comodo es usar un cable <a href="http://hitmen.c02.at/html/psx_siocable.html">skywalker</a>, tal y como yo lo tengo, y un conversor de usb a serie, así como la versión modificada <b>send.exe</b> para Windows 64 bits.
 <br><br>
 
-<h2>Simulación</h2>
+<a name="simulation"><h2>Simulación</h2></a>
 Para todo aquel que no quiera modificar un mando real de PSX, se puede realizar pruebas mediante emulación:
 <ul>
  <li><a href="https://www.epsxe.com/">Emulador de PSX (ePSX)</a></li>
@@ -45,7 +51,7 @@ Si pasamos por encima de los botones, se iluminarán, y si se hace click se acti
 Debemos tener en cuenta, que la emulación no va bien, dado que el script de teclado y el emulador tiene unas demoras, que al final se traduce en unos movimientos no fluidos del ratón y fallos esporádicos. Sin embargo nos es muy útil para ver que al menos funciona.
 <br><br>
 
-<h2>Modificar mando</h2>
+<a name="padmodification"><h2>Modificar mando</h2></a>
 Si queremos una respuesta fluida, debemos modificar el mando real.
 <center><img src="preview/mandoCableBotones.jpg"></center>
 Se van a usar los 4 botones (gatillos laterales), es decir, R1, R2, L1 y L2. El motivo se debe a que son los más fáciles de modificar sin falta de usar soldador, es decir, que cualquiera puede hacerlo. Estos botones estan unidos a la placa del mando con un hilo para cada uno de los botones, y otro para la masa. La forma de detectar un botón pulsada, es muy sencilla, tna sólo con unirlo con la masa.<br>
@@ -59,7 +65,7 @@ La resistencia para la base del transistor es de 470 Ohmios, y el transistor nos
 <br><br>
 
 
-<h2>Mando físico en Emulador</h2>
+<a name="padrealemulator"><h2>Mando físico en Emulador</h2></a>
 Una vez actualizado el ARDUINO con el código del ratón, y conectado el ratón al PS/2, podemos hacer pruebas sobre el emulador ePSX, antes de probar con una PSX real, gracias a un conversor de mandos PSX a usb.
 <center><img src="preview/PSXusb.jpg"></center>
 Debemos de configurar el mando en el emulador de PSX, de manera que usemos los botones del mando, en lugar de las letras.
