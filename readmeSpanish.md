@@ -137,6 +137,7 @@ Recordemos, que la PSX puede disponer de hasta 8 mandos PSX por medio de multita
  <li><b>8 x 48 bits (modo analógico) x 50 </b>= 19200 bits/s</li>
  <li><b>8 x 48 bits (modo analógico) x 60 </b>= 23040 bits/s</li>
 </ul>
+<center><img src="preview/linkPadSerial.jpg"></center>
 Llevarlo a la práctica físicamente es bastante engorroso, pero es fácil de simular.
 <br><br>
 
