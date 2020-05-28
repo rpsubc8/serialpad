@@ -2,8 +2,15 @@
 Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de mandos. Soporta:
 <ul>
  <li><a href='#simulation'>Simulación</a></li>
- <li><a href='#padmodification'>Modificación PAD</a></li>
+ <li><a href='#padmodification'>Modificar mando</a></li>
  <li><a href="#padrealemulator">Mando físico en Emulador</a></li>
+ <li><a href="#ralpadrealconsole">Mando físico en consola real</a></li>
+ <li><a href="#protocolo">Protocolo Ratón</a></li>
+ <li><a href="#arduino">ARDUINO Ratón</a></li> 
+ <li><a href="#uploadpsexe">Upload PsEXE</a></li>  
+ <li><a href="#msdos">Uso de MSDOS</a></li>  
+ <li><a href="#history">Historial</a></li>  
+ <li><a href="#conclusion">Conclusion</a></li>  
 </ul>
 Las funcionalidades a destacar son:
 <ul>
@@ -74,7 +81,7 @@ Y si todo es correcto, al ejecutar el main.exe, podremos usar el ratón.
 <br><br>
 
 
-<h2>Mando físico en consola real</h2>
+<a name="realpadrealconsole"><h2>Mando físico en consola real</h2></a>
 Se requiere los siguiente materiales
 <ul>
  <li>Mando PSX botones R1,R2,L1,L2</li>
@@ -88,7 +95,7 @@ Una vez todo conectado y arrancado el main.exe, al realizar movimientos del rat�
 <br><br>
 
 
-<h2>Protocolo Ratón</h2>
+<a name="protocolo"><h2>Protocolo Ratón</h2></a>
 Se ha usado un protocolo muy simple similar a como se usaban los ratones en los primeros COMMODORE y MSX por puerto de juegos, pero con varias mejoras de velocidad.<br>
 Se envian cada 25 milisegundos 4 bits, que contienen:
 <ul>
@@ -113,7 +120,7 @@ El código de demora de 25 milisegundos, está puesto en el Arduino, pero podemo
 <br><br>
 
 
-<h2>ARDUINO</h2>
+<a href="arduino"><h2>ARDUINO</h2></a>
 Se puede usar casi cualquier placa de ARDUINO, pero en concreto he realizado pruebas con el NANO, que dispone de 2 pines de interrupción, útiles para el PS/2.<br>
 La disposición de pines es la siguiente:
 <ul>
@@ -130,7 +137,7 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
  
 
 
-# Upload PSexe
+<a href="uploadpsexe"><h2>Upload PsEXE</h2></a>
 Estoy realizando pruebas para usar este hack del mando como si fuera un canal de comunicaciones, estilo modem <b>(lento)</b> serie. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
 Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
 <center><img src="preview/capturaepsx.gif"></center>
@@ -207,11 +214,11 @@ Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacut
 </ul>
 <br></br>
 
-<h2>Uso de MSDOS</h2>
+<a href="msdos"><h2>Uso de MSDOS</h2></a>
 El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de forma que se puede usar todo el kit de desarrollo psyq de 16bits, ya que así se puede usar en casi cualquier máquina actual que no sea PC. También se puede usar el msdosplayer para Windows 7 64 bits en adelante.
 <br><br>
 
-<h2>Historial</h2>
+<a name="history"><h2>Historial</h2></a>
 <ul>
  <li>2020/05/25 - 100% ratón PS/2</li>
  <li><b>En pruebas</b> - Simulación de PAD con teclado y emulador ePSX.</li> 
@@ -219,5 +226,5 @@ El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de fo
 </ul>
 <br><br>
 
-<h2>Conclusion</h2>
+<a name="conclusion"><h2>Conclusion</h2></a>
 Se usa esta opción, porque mientras que la psx si dispone de puerto serie, la psone blanca, no. Se tiene por tanto que realizar modificaciones. Además se logra una alternativa al SIOCONS.
