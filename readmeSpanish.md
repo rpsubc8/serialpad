@@ -6,7 +6,7 @@ Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de ma
  <li><a href="#padrealemulator">Mando físico en Emulador</a></li>
  <li><a href="#ralpadrealconsole">Mando físico en consola real</a></li>
  <li><a href="#protocolo">Protocolo Ratón</a></li>
- <li><a href="#arduino">ARDUINO Ratón</a></li> 
+ <li><a href="#arduino">ARDUINO</a></li> 
  <li><a href="#uploadpsexe">Upload PsEXE</a></li>  
  <li><a href="#msdos">Uso de MSDOS</a></li>  
  <li><a href="#history">Historial</a></li>  
