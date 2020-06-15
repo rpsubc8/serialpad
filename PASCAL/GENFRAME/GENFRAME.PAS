@@ -1,10 +1,18 @@
+{*************************************************************}
+{* Author: ackerman                                          *}
+{* Jaime Jose Gavin Sierra                                   *}
+{* Convierte Binario PsEXE en nibbles para envio por ARDUINO *}
+{* Se puede enviar con el RealTerm. Se tiene que poner una   *}
+{* espera en milisegundos en el retorno de linea             *}
+{* Numero de bytes x 50 milisegundos = 21 x 50 = 1050 milis  *}
+{* Version PASCAL estandar MSDOS x86, DOSBOX y Win32         *}
+{*************************************************************}
 PROGRAM GENFRAME;
 VAR
  gbFileRead: FILE;
  gbFileWrite: TEXT;
- aux, auxLow: byte;
- gbContLinea, NumRead,i: Word;
- gbSpeed, gbCompress, code: integer;
+ gbContLinea, gbNumRead,i: Word;
+ gbSpeed, gbCompress, gbCode: integer;
  Buf: array[1..32000] of byte; {32000 bytes}
  gbCadAddress,gbCadSal: string;
  gbAddress: array[1..4] of byte;
@@ -101,7 +109,7 @@ BEGIN
  auxSize:= FileSize(gbFileRead);
  Writeln(gbFileWrite);
  Writeln(gbFileWrite);
- Writeln(gbFileWrite,'*');
+ Writeln(gbFileWrite,'*'); {Vaciar buffer serial ARDUINO}
 
  cad:= '';
  SaveByteText((auxSize AND $FF));
@@ -119,7 +127,8 @@ BEGIN
  writeln('GENFRAME psexe frame memaddres speed compress');
  writeln('');
  writeln('speed 0,1,2,3,4');
- writeln('compress 0,1');
+ writeln('compress 0,1,2,3');
+ writeln('');
  writeln('Example:');
  writeln(' GENFRAME demo1.exe frame.txt 80010000 0 0');
 END;
@@ -136,8 +145,8 @@ BEGIN
  gbAddress[2]:= HexToNibbleDec(gbCadAddress[6]) OR (HexToNibbleDec(gbCadAddress[5])SHL 4);
  gbAddress[3]:= HexToNibbleDec(gbCadAddress[4]) OR (HexToNibbleDec(gbCadAddress[3])SHL 4);
  gbAddress[4]:= HexToNibbleDec(gbCadAddress[2]) OR (HexToNibbleDec(gbCadAddress[1])SHL 4);
- Val(ParamStr(4), gbSpeed, Code);
- Val(ParamStr(5), gbCompress, Code);
+ Val(ParamStr(4), gbSpeed, gbCode);
+ Val(ParamStr(5), gbCompress, gbCode);
 END;
 
 {********}
@@ -151,17 +160,17 @@ BEGIN
   END;
  GetParams;
 
- Reset(gbFileRead, 1);  { Tama¤o de registro = 1 }
+ Reset(gbFileRead, 1);  { Tamabioo registro 1}
  Rewrite(gbFileWrite);
 
  gbCadSal:= '';
  gbContLinea:=0;
  SaveHead;
  REPEAT
-  BlockRead(gbFileRead, Buf, SizeOf(Buf), NumRead);
-  FOR i:=1 TO NumRead DO
+  BlockRead(gbFileRead, Buf, SizeOf(Buf), gbNumRead);
+  FOR i:=1 TO gbNumRead DO
    SaveByteText(Buf[i]);
- UNTIL (NumRead = 0);
+ UNTIL (gbNumRead = 0);
  IF (gbContLinea>0) THEN
   Writeln(gbFileWrite,gbCadSal); {Ultima linea}
  {Writeln(gbFileWrite);}
