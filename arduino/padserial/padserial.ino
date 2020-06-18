@@ -14,7 +14,7 @@
 #define pinL2 6
 #define pinR1 7
 #define pinR2 8
-#define aDelay 25
+#define gbDelay 25
 
 //#define baudios 9600
 
@@ -25,6 +25,8 @@ uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
 uint8_t auxLow=0;
 uint8_t auxHigh=0;
+uint8_t gbUseFlag=0;
+
 
 void HexTo4Btn(unsigned char a);
 uint8_t CharHexToDec(char a);
@@ -74,38 +76,64 @@ void loop()
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42)  
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)  
    gb_buf[gb_cont_buf++]=gb_aux;  
  } 
- if (gb_aux==42)
- {
-  gb_aux=0;
+ if ((gb_aux==42) || (gb_aux==35))
+ {//El asterisco 42 almohadilla 35
   gb_cont_buf=0; //Vaciamos buffer serie
+  PADHexTo4Btn(0); //Resetemos botones mando
   Serial.end(); 
-  Serial.begin(9600);  
+  Serial.begin(9600);
+  switch (gb_aux)
+  {
+   case 42: gbUseFlag=1;
+    break;
+   case 35: gbUseFlag=0;    
+    break;
+   default: gbUseFlag=1;
+    break;
+  } 
+  gb_aux=0;
  }
  else
  {
   if (gb_aux==13)
-  {
-   //Serial.end(); 
-   //Serial.begin(9600);
-   gb_aux=0;     
+  {    
+   Serial.end(); 
+   Serial.begin(9600);
    //Serial.end();       
    //Serial.print(gb_cont_buf);
-   //Serial.print(" ");
-   for (uint8_t i=0;i<gb_cont_buf;i++)
-   {
-    //Serial.print((char)(gb_buf[i]));
-    PADHexTo4Btn(0);
-    PADHexTo4Btn(CharHexToDec(gb_buf[i]));
-    delay(aDelay);
-    PADHexTo4Btn(0);
-    delay(aDelay);
+   //Serial.print(" ");   
+   gb_aux=0;
+   if (gbUseFlag == 1)
+   {   
+    for (uint8_t i=0;i<gb_cont_buf;i++)
+    {
+     //Serial.print((char)(gb_buf[i]));    
+     PADHexTo4Btn(0);
+     PADHexTo4Btn(CharHexToDec(gb_buf[i]));    
+     delay(gbDelay);
+     PADHexTo4Btn(0);
+     delay(gbDelay);    
+    }    
    }
+   else
+   {
+    for (uint8_t i=0;i<gb_cont_buf;i++)
+    {     
+     //PADHexTo4Btn(0);
+     PADHexTo4Btn(CharHexToDec(gb_buf[i]));
+     delay(gbDelay);
+     //PADHexTo4Btn(CharHexToDec(gb_buf[i+1]));
+     //delay(gbDelay);
+     //PADHexTo4Btn(0);
+    }        
+   }
+
    //Serial.println("");   
    //Serial.flush();
-   gb_cont_buf = 0;   
+   gb_cont_buf = 0;
   }
  }
 }
