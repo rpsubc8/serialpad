@@ -74,6 +74,7 @@ int gb_speed = -1;
 int gb_CRC = -1;
 u_char gb_launch_exe= 0;
 unsigned int gb_address_psExe_cont=0;
+unsigned char gb_BeginData = 0;
 
 u_char *gb_p_address; //Puntero a memoria PSX
 struct EXEC exe;
@@ -91,8 +92,8 @@ void Handle6bytes14Btn2PAD(void);
 void Poll6bytes14Btn2PAD(void);
 void Handle3bytes14BtnNotSync(void);
 void Poll3bytes14BtnNotSync(void);
-//void HandleFourBtnNotSync(void); //Falla
-//void PollFourBtnNotSync(void); //Falla
+void HandleFourBtnNotSync(void); //Falla
+void PollFourBtnNotSync(void); //Falla
 void PollReceivedHeadFourBtn(void);
 void CargaPrograma(struct EXEC *exep);
 int main(void);
@@ -351,7 +352,7 @@ void HandleFourBtn2PAD()
 }
 
 //************************************************************************
-/*Falla
+//Falla
 void HandleFourBtnNotSync()
 {//4 botones 2 bytes sin sincronia
  // 0: estado raro posible 1
@@ -366,7 +367,41 @@ void HandleFourBtnNotSync()
  gb_pad=PadRead(0); 
  if (gb_pad&Pad1R1) gb_std=1; else gb_std=0;
 
-  switch (gb_cont_bit)
+
+ if (gb_std == 0)
+ {
+  gb_byte = gb_pad; //guardamos estado cuando es 0
+  if (gb_std_antes != gb_std)  
+   gb_std_antes = gb_std;  
+ }
+ else
+ {
+  if (gb_std_antes != gb_std)
+  {
+   gb_std_antes = gb_std;
+   switch (gb_cont_bit)
+   {
+	case 0: gb_bytes[0] = gb_byte & 0x07; 
+	 gb_bytes[0] |= ((gb_pad & 0x07)<<3);
+	 break;
+	case 1:	gb_bytes[0] |= ((gb_byte & 0x03)<<6);
+	 gb_bytes[1] = gb_pad & 0x07;
+	 break;
+	case 2: gb_bytes[1] |= ((gb_byte & 0x07)<<3);
+	 gb_bytes[1] |= ((gb_pad & 0x03)<<6);
+	 globalNewData = 1;
+	 gb_cont_bit=0;
+	 return;
+	 break;
+	default: break;
+   }
+   gb_cont_bit++;   
+  }
+ }
+	 
+	 
+ 
+  /*switch (gb_cont_bit)
   {  
    case 0: break;  
    case 1: gb_bytes[0] = gb_pad & 0x07; break; 
@@ -385,11 +420,11 @@ void HandleFourBtnNotSync()
  {
   gb_std_antes = gb_std;
   gb_cont_bit ++;
- }
+ }*/
 }
-*/
+
 //************************************************************************
-/*Falla
+//Falla
 void PollFourBtnNotSync()
 {//1 PAD 4 botones 2 bytes Sin sincronismo
  u_char i=0;
@@ -410,12 +445,14 @@ void PollFourBtnNotSync()
    }
    gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
    gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;
   }
   if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
    gb_launch_exe = 1;
  }
 }
-*/
+
 
 //************************************************************************
 void PollFourBtn2PAD()
@@ -505,9 +542,10 @@ void PollReceivedHeadFourBtn()
    gb_receivedHead = 1; //Ya se ha recibido la cabecera
    
    gb_cont_bit = 0; //Fuerzo a resetear contador
-   gb_std_antes = gb_std;
+   //gb_std_antes = gb_std;
    
-   gb_p_address = (u_char *)gb_address_psExe;
+   gb_p_address = (u_char *)gb_address_psExe;   
+   gb_BeginData = 0; //Buscar silencio
   }
  }
 }
@@ -519,7 +557,7 @@ void PollFourBtn()
   return;
  if (globalNewData == 1)
  {
-  globalNewData = 0;  
+  globalNewData = 0;
   if (main2[gb_address_psExe_cont] != gb_byte)
   {   
    gb_error = 1;
@@ -527,11 +565,13 @@ void PollFourBtn()
   }
   gb_p_address[gb_address_psExe_cont] = gb_byte;
   gb_address_psExe_cont++;
+  if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+   gb_address_psExe_cont= 2048;
+  //gb_address_psExe_cont+= 1920;
   if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
    gb_launch_exe = 1;
  }
 }
-
 
 /***************** functions ********************/
 int main(void) 
@@ -552,23 +592,50 @@ int main(void)
   GsClearOt(0, 0, &myOT[activeBuffer]);			//clears the OT contents
   if (gb_receivedHead == 0)
   {
-   HandleFourBtn();
-   PollReceivedHeadFourBtn();
+   if (gb_BeginData == 0)
+   {//Busca que este en silencio
+    gb_pad=PadRead(0);
+	if ((gb_pad&Pad1R1)==0)
+	 gb_BeginData = 1;
+   }
+   else
+   {	
+    HandleFourBtn();
+    PollReceivedHeadFourBtn();
+   }
   }
   else
   {
-   HandleFourBtn(); //4 Botones mando modificado
-   PollFourBtn();
-   //HandleFourBtn2PAD(); //4 Botones mando modificado 2 PAD
-   //PollFourBtn2PAD();   
-   //HandleFourBtnNotSync(); //Falla 4 Botones mando modificado Sin sincronia
-   //PollFourBtnNotSync();   //Falla
-   //Handle3bytes14Btn(); //14 Botones 1 mando fake spi
-   //Poll3bytes14Btn();
-   //Handle6bytes14Btn2PAD(); //14 botones 2 PAD 6 bytes
-   //Poll6bytes14Btn2PAD();
-   //Handle3bytes14BtnNotSync(); //No funciona 14 Botones 1 mando fake spi fast
-   //Poll3bytes14BtnNotSync();   
+   if (gb_BeginData == 0)
+   {//Busca que este en silencio
+    gb_pad=PadRead(0);
+	if ((gb_pad&Pad1R1)==0)
+	 gb_BeginData = 1;
+   }
+   else
+   {	
+    switch (gb_speed)
+	{
+	 case 0: HandleFourBtn(); //4 Botones mando modificado
+      PollFourBtn();
+	  break;
+	 case 1: HandleFourBtnNotSync(); //Falla 4 Botones mando modificado Sin sincronia
+      PollFourBtnNotSync();   //Falla
+	  break;
+	 default:HandleFourBtn(); //4 Botones mando modificado
+      PollFourBtn();
+      break;	  
+	}
+
+    //HandleFourBtn2PAD(); //4 Botones mando modificado 2 PAD
+    //PollFourBtn2PAD();      
+    //Handle3bytes14Btn(); //14 Botones 1 mando fake spi
+    //Poll3bytes14Btn();
+    //Handle6bytes14Btn2PAD(); //14 botones 2 PAD 6 bytes
+    //Poll6bytes14Btn2PAD();
+    //Handle3bytes14BtnNotSync(); //No funciona 14 Botones 1 mando fake spi fast
+    //Poll3bytes14BtnNotSync();   
+   }
   }    
   if (gb_error != 1)        
    sprintf (gb_cadLog,"%x %d/%d\n%x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_pad);
