@@ -90,8 +90,8 @@ void Handle3bytes14Btn(void);
 void Poll3bytes14Btn(void);
 void Handle6bytes14Btn2PAD(void);
 void Poll6bytes14Btn2PAD(void);
-void Handle3bytes14BtnNotSync(void);
-void Poll3bytes14BtnNotSync(void);
+//void Handle3bytes14BtnNotSync(void);
+//void Poll3bytes14BtnNotSync(void);
 void HandleFourBtnNotSync(void); //Falla
 void PollFourBtnNotSync(void); //Falla
 void PollReceivedHeadFourBtn(void);
@@ -114,7 +114,7 @@ void CargaPrograma(struct EXEC *exep){
 
 //************************************************************************
 //No funciona
-void Handle3bytes14BtnNotSync()
+/*void Handle3bytes14BtnNotSync()
 {//Sin sincronismo rapido
  //Izquierda Abajo Derecha Arriba Start Select Cuadrado X Circulo Triangulo R1 L1 R2 L2 
  //Left      Down  Right   Up     V     C         S     Z  X        D       R  W  T  E  
@@ -144,13 +144,14 @@ void Handle3bytes14BtnNotSync()
  }
  
 }
+*/
 
 //************************************************************************
 //No funciona
-void Poll3bytes14BtnNotSync()
+/*void Poll3bytes14BtnNotSync()
 {
  Poll3bytes14Btn(); //Se puede usar el mismo
-}
+}*/
 
 
 //************************************************************************
@@ -294,7 +295,9 @@ void Poll3bytes14Btn()
     }
    }
    gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
-   gb_address_psExe_cont++;   
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
   }
 
   if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
@@ -611,6 +614,8 @@ int main(void)
     gb_pad=PadRead(0);
 	if ((gb_pad&Pad1R1)==0)
 	 gb_BeginData = 1;
+    //if ((gb_pad&Pad1Left)==0)
+	// gb_BeginData = 1;
    }
    else
    {	
@@ -622,15 +627,16 @@ int main(void)
 	 case 1: HandleFourBtnNotSync(); //Falla 4 Botones mando modificado Sin sincronia
       PollFourBtnNotSync();   //Falla
 	  break;
+	 case 2: Handle3bytes14Btn(); //14 Botones 1 mando fake spi
+      Poll3bytes14Btn();
+	  break;
 	 default:HandleFourBtn(); //4 Botones mando modificado
       PollFourBtn();
       break;	  
 	}
 
     //HandleFourBtn2PAD(); //4 Botones mando modificado 2 PAD
-    //PollFourBtn2PAD();      
-    //Handle3bytes14Btn(); //14 Botones 1 mando fake spi
-    //Poll3bytes14Btn();
+    //PollFourBtn2PAD();          
     //Handle6bytes14Btn2PAD(); //14 botones 2 PAD 6 bytes
     //Poll6bytes14Btn2PAD();
     //Handle3bytes14BtnNotSync(); //No funciona 14 Botones 1 mando fake spi fast
@@ -638,7 +644,7 @@ int main(void)
    }
   }    
   if (gb_error != 1)        
-   sprintf (gb_cadLog,"%x %d/%d\n%x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_pad);
+   sprintf (gb_cadLog,"%x %d/%d\nBeg%d STD%d Vel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_BeginData,gb_std,gb_speed,gb_pad);
   FntPrint("%s",gb_cadLog);
   
   DisplayAll(activeBuffer);		//this displays the OT contents to screen		
