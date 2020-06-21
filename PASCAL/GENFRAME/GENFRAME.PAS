@@ -480,7 +480,7 @@ BEGIN
  CASE (gbSpeed) OF
   0: gbTopeLinea:= 6;
   1: gbTopeLinea:= 6;
-  2: gbTopeLinea:= 2;
+  2: gbTopeLinea:= 6;
   3: gbTopeLinea:= 1;
   else
    gbTopeLinea:= 6;
@@ -491,7 +491,7 @@ BEGIN
   1: SaveHead;
   2: BEGIN
       SaveHead1ByteSPI;
-      gbTopeLinea:= 8;
+      gbTopeLinea:= 20;
      END;
   3: BEGIN
       SaveHeadSPI;
