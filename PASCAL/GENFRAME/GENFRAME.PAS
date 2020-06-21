@@ -259,7 +259,7 @@ END;
 
 {******************************************************}
 PROCEDURE Save1ByteHeadSPI(data: byte);
-{Bit, que seria el 3 nibble}
+{Bit, que seria el 3 nibble. Logica negada envio arduino}
 {8   L2 Button}
 {9   R2 Button}
 {10  L1 Button}
@@ -267,14 +267,42 @@ PROCEDURE Save1ByteHeadSPI(data: byte);
 VAR
  aux: byte;
 BEGIN
- aux:= ((data AND $07) OR $08);
+ aux:= (not((data AND $07) OR $08)) AND $0F;
  gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
 
- aux:= (((data SHR 3) AND $07) OR $08);
+ aux:= (not(((data SHR 3) AND $07) OR $08) AND $0F);
  gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
 
- aux:= (((data SHR 6) AND $03) OR $08);
+ aux:= (not(((data SHR 6) AND $03) OR $08) AND $0F);
  gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE Save1ByteHeadSPINoFlag(data: byte);
+{Bit, que seria el 3 nibble. Logica negada envio arduino 25 ms}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= (not((data AND $07) OR $08)) AND $0F;
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'FFF';
+
+ aux:= (not(((data SHR 3) AND $07) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'FFF';
+
+ aux:= (not(((data SHR 6) AND $03) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'FFF';
 
  gbContLinea:= gbContLinea+1;
  IF (gbContLinea>gbTopeLinea) THEN
@@ -355,14 +383,14 @@ END;
 {******************************************************}
 PROCEDURE SaveByteSPI(a: byte);
 BEGIN
- {1 byte 8 botones Envio 1 byte Gatillos y botones}
+ {1 byte 8 botones Envio 1 byte Gatillos y botones.Logica negada Arduino}
  {Cuadrado X Circulo Triangulo R1 L1 R2 L2}
  {   S     Z  X        D       R  W  T  E}
  {Pos Bit en SPI 2 bytes controlador}
  {  15     14 13       12      11 10 9  8}
  {   7      6  5        4       3  2 1  0 Equivale}
- gbCadSal:= gbCadSal + NibbleToHexString((a AND $0F));
- gbCadSal:= gbCadSal + NibbleToHexString(((a SHR 4)AND $0F));
+ gbCadSal:= gbCadSal + NibbleToHexString((not(a AND $0F)AND $0F));
+ gbCadSal:= gbCadSal + NibbleToHexString((not((a SHR 4)AND $0F) AND $0F));
 
  gbContLinea:= gbContLinea+1;
  IF (gbContLinea>gbTopeLinea) THEN
@@ -408,11 +436,6 @@ VAR
  auxSize: longint;
 BEGIN
  auxSize:= FileSize(gbFileRead);
- Writeln(gbFileWrite);
- Writeln(gbFileWrite);
- Writeln(gbFileWrite,'*'); {Sincronismo}
- Writeln(gbFileWrite,'*');  {Vaciar buffer serial ARDUINO}
-
  cad:= '';
  Save1ByteHeadSPI((auxSize AND $FF));
  Save1ByteHeadSPI(((auxSize SHR 8) AND $FF));
@@ -426,12 +449,43 @@ BEGIN
 END;
 
 {******************************************************}
+PROCEDURE SaveHead1ByteSPINoFlag;
+VAR {25 milis}
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ cad:= '';
+ Save1ByteHeadSPINoFlag((auxSize AND $FF));
+ Save1ByteHeadSPINoFlag(((auxSize SHR 8) AND $FF));
+ Save1ByteHeadSPINoFlag(((auxSize SHR 16) AND $FF));
+ Save1ByteHeadSPINoFlag((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  Save1ByteHeadSPINoFlag(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
 PROCEDURE ShowHelp;
 BEGIN
  writeln('GENFRAME psexe frame memaddress speed compress');
  writeln('');
- writeln(' speed: 0,1,2,3,4');
- writeln(' compress: 0,1,2,3');
+ writeln(' speed:');
+ writeln('  0 - 4 btns 50 ms (3 bits) 60 bauds');
+ writeln('  1 - 4 btns 25 ms (3 bits) 120 bauds');
+ writeln('  2 - SPI 50 ms (8 bits) 160 bauds');
+ writeln('  3 - SPI 25 ms (8 bits) 320 bauds');
+ writeln('  4 - SPI 50 ms (12 bits) 240 bauds');
+ writeln('  5 - SPI 25 ms (12 bits) 480 bauds');
+ writeln(' compress:');
+ writeln('  0 - No compression');
+ writeln('  1 - Head remove 1920 bytes');
+ writeln('  2 - ');
+ writeln('  3 - ');
  writeln('');
  writeln('Example:');
  writeln(' GENFRAME demo1.exe frame.txt 80010000 0 0');
@@ -478,22 +532,31 @@ BEGIN
  gbContLinea:=0;
  gbContContLinea:=0;
  CASE (gbSpeed) OF
-  0: gbTopeLinea:= 6;
-  1: gbTopeLinea:= 6;
-  2: gbTopeLinea:= 6;
-  3: gbTopeLinea:= 1;
+  0: gbTopeLinea:= 6; {4 btns 50 ms 60 bauds}
+  1: gbTopeLinea:= 6; {4 btns 25 mss120 bauds}
+  2: gbTopeLinea:= 6; {spi 9 btns 1 byte 50 ms 160 bauds}
+  3: gbTopeLinea:= 6; {spi 9 btns 1 byte 25 ms 320 bauds}
+  4: gbTopeLinea:= 1; {spi 14 btns 12 bits 50 ms 240 bauds}
   else
    gbTopeLinea:= 6;
  END;
+
+ Writeln(gbFileWrite);
 
  CASE (gbSpeed) OF
   0: SaveHead;
   1: SaveHead;
   2: BEGIN
+      Writeln(gbFileWrite,'*'); {Sincronismo Vaciar serial ARDUINO}
       SaveHead1ByteSPI;
       gbTopeLinea:= 20;
      END;
   3: BEGIN
+      Writeln(gbFileWrite,'#'); {Sincronismo 25 ms}
+      SaveHead1ByteSPINoFlag;
+      gbTopeLinea:= 41;
+     END;
+  4: BEGIN
       SaveHeadSPI;
       gbTopeLinea:= 2; {2 Para igualar linea ancho archivo txt}
      END;
@@ -517,18 +580,20 @@ BEGIN
 
   CASE (gbSpeed) OF
    0: FOR i:=1 TO gbNumRead DO
-       SaveByteText(Buf[i],FALSE); {No se pone 0}
+       SaveByteText(Buf[i],FALSE); {No se pone 0 4 btns 60 bauds}
    1: BEGIN
        i:= 1;
        WHILE (i<gbNumRead) DO
         BEGIN
-         SaveByteTextNotFlag(Buf[i],Buf[i+1]); {Modo 25 milis}
+         SaveByteTextNotFlag(Buf[i],Buf[i+1]); {Modo 25 milis 4 btns}
          i:= i+2;
         END;
       END;
    2: FOR i:=1 TO gbNumRead DO
-       SaveByteSPI(Buf[i]);
-   3: BEGIN
+       SaveByteSPI(Buf[i]); {SPI 9 btns 1 byte 50 ms 160 bauds}
+   3: FOR i:=1 TO gbNumRead DO
+       SaveByteSPI(Buf[i]); {SPI 9 btns 1 byte 25 ms 320 bauds}
+   4: BEGIN
        i:= 1;
        WHILE (i<gbNumRead) DO
         BEGIN
