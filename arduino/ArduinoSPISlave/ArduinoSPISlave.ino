@@ -90,11 +90,12 @@
 
 //#define _DEBUG 0
 
-#define gbDelay 25
+//#define gbDelay 25
 #define max_buf 256
 uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
 uint8_t gb_aux=0;
+uint8_t gb_flipflop=1;
 
 
 //JJ
@@ -103,10 +104,11 @@ uint8_t gb_aux=0;
 //#define PSX_ACK_PIN   PINB
 //#define PSX_ACK_BIT   (1<<0)
 
-uint8_t gb_aux0=0;
-uint8_t gb_aux1=0;
+//uint8_t gb_aux0=0;
+//uint8_t gb_aux1=0;
 uint8_t gb_low=0;
-uint8_t gb_high=0;
+uint8_t gbUseFlag=0;
+//uint8_t gb_high=0;
 
 char control_data[2] = {0xFF,0xFF};
 //char control_data[2] = {0x00,0x00}; //JJ
@@ -236,12 +238,22 @@ void loop() {
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42)
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)
    gb_buf[gb_cont_buf++]=gb_aux;  
  }
-
- if (gb_aux==42)
+ if ((gb_aux==42) || (gb_aux==35))
  {
+  data_buff[2] = 0xFF; //Ponemos a 0 los botones
+  data_buff[3] = 0xFF;
+  switch (gb_aux)
+  {
+   case 42: gbUseFlag=1;
+    break;
+   case 35: gbUseFlag=0;
+    break;
+   default: gbUseFlag=1;
+    break;
+  } 
   gb_cont_buf=0; //Vaciamos buffer serie  
   gb_aux=0;
   Serial.end(); 
@@ -250,46 +262,62 @@ void loop() {
  else
  {
   if (gb_aux==13)
-  //if (gb_aux==10)
   {
-   Serial.end(); 
-   Serial.begin(9600);
    gb_aux=0;
-   //Serial.print(gb_cont_buf);
-   //Serial.print(" ");   
-   //for (uint8_t i=0;i<gb_cont_buf;i+=4)
-   for (uint8_t i=0;i<gb_cont_buf;i+=2)
+   if (gbUseFlag == 1)
    {
-    gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
-    //gb_high= (CharHexToDec(gb_buf[i+3])<<4)|CharHexToDec(gb_buf[i+2]);
-    data_buff[3] = ~(gb_low); //Ponemos a 0 los botones
-    data_buff[2] = ~(0x01); //Boton select como flag
-
-    
-    //data_buff[3] = ~(gb_high);
-    //delay(gbDelay);
-    for (uint8_t j=0;j<25;j++)
-     delayMicroseconds(1000);
-    //Serial.print((char)(gb_buf[i]));
-    data_buff[2] = 0xFF; //Ponemos a 0 los botones
-    data_buff[3] = 0xFF;
-    //delay(gbDelay);
-    for (uint8_t j=0;j<25;j++)
-     delayMicroseconds(1000);
-    //Serial.print(gb_low,HEX);
-    //Serial.print(gb_high,HEX);
+    for (uint8_t i=0;i<gb_cont_buf;i+=2)
+    {
+     gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
+     data_buff[3] = gb_low; //Ponemos a 0 los botones sin logica negada
+     data_buff[2] = 0xFE; //Boton select como flag 11111110
+     for (uint8_t j=0;j<25;j++)
+      delayMicroseconds(1000);    
+     data_buff[2] = 0xFF; //Ponemos a 0 los botones
+     data_buff[3] = 0xFF;
+     for (uint8_t j=0;j<25;j++)
+      delayMicroseconds(1000);    
+    }
    }
-   //data_buff[3] = ~0x1; //Ponemos a 0 los botones
-   //data_buff[4] = 0xFF;
-   //data_buff[2] = 0xFE; //Ponemos a 0 los botones
-   //data_buff[3] = 0xFF;
-   gb_cont_buf = 0;
-   //Serial.flush();
+   else
+   {
+    for (uint8_t i=0;i<gb_cont_buf;i+=2)
+    {
+     gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
+     data_buff[3] = gb_low; //Ponemos a 0 los botones sin logica negada
+     data_buff[2] = 0xFE | gb_flipflop; //Boton select como flag 11111110
+     gb_flipflop = (!gb_flipflop) & 0x01;
+     for (uint8_t j=0;j<25;j++)
+      delayMicroseconds(1000);
+    }   
+   }
+   gb_cont_buf = 0;   
   }
  }
 }
  
  /*Sobra
+//if (gb_aux==10)
+//Serial.flush();
+      //Serial.print(gb_cont_buf);
+   //Serial.print(" ");   
+   //for (uint8_t i=0;i<gb_cont_buf;i+=4)
+      //Serial.end(); 
+   //Serial.begin(9600);
+   //Serial.print(gb_low,HEX);
+    //Serial.print(gb_high,HEX);
+   //delay(gbDelay);
+   //Serial.print((char)(gb_buf[i]));
+    //gb_high= (CharHexToDec(gb_buf[i+3])<<4)|CharHexToDec(gb_buf[i+2]);
+    //data_buff[3] = ~(gb_low); //Ponemos a 0 los botones
+    //data_buff[2] = ~(0x01); //Boton select como flag
+    
+    //data_buff[3] = ~(gb_high);
+    //delay(gbDelay);   
+   //data_buff[3] = ~0x1; //Ponemos a 0 los botones
+   //data_buff[4] = 0xFF;
+   //data_buff[2] = 0xFE; //Ponemos a 0 los botones
+   //data_buff[3] = 0xFF;  
 
   data_buff[2] = CharHexToDec(gb_aux0);
   data_buff[3] = 0xFF;
