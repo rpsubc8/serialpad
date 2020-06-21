@@ -257,12 +257,16 @@ void loop() {
    gb_aux=0;
    //Serial.print(gb_cont_buf);
    //Serial.print(" ");   
-   for (uint8_t i=0;i<gb_cont_buf;i+=4)
+   //for (uint8_t i=0;i<gb_cont_buf;i+=4)
+   for (uint8_t i=0;i<gb_cont_buf;i+=2)
    {
     gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
-    gb_high= (CharHexToDec(gb_buf[i+3])<<4)|CharHexToDec(gb_buf[i+2]);
-    data_buff[2] = ~(gb_low); //Ponemos a 0 los botones
-    data_buff[3] = ~(gb_high);
+    //gb_high= (CharHexToDec(gb_buf[i+3])<<4)|CharHexToDec(gb_buf[i+2]);
+    data_buff[3] = ~(gb_low); //Ponemos a 0 los botones
+    data_buff[2] = ~(0x01); //Boton select como flag
+
+    
+    //data_buff[3] = ~(gb_high);
     //delay(gbDelay);
     for (uint8_t j=0;j<25;j++)
      delayMicroseconds(1000);
