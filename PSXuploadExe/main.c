@@ -90,6 +90,8 @@ void Handle3bytes14Btn(void);
 void Poll3bytes14Btn(void);
 void Handle1byte9Btn(void);
 void Poll1byte9Btn(void);
+void Handle1byte9BtnNoFlag(void);
+void Poll1byte9BtnNoFlag(void);
 void Handle6bytes14Btn2PAD(void);
 void Poll6bytes14Btn2PAD(void);
 //void Handle3bytes14BtnNotSync(void);
@@ -259,6 +261,64 @@ void Handle1byte9Btn()
 //************************************************************************
 void Poll1byte9Btn()
 {
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  
+  if (gb_address_psExe_cont <(gb_size_psExe-30))
+  {
+   if (main2[gb_address_psExe_cont] != gb_byte)
+   {   
+    gb_error = 1;
+    sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+   }
+  }
+  gb_p_address[gb_address_psExe_cont] = gb_byte;
+  gb_address_psExe_cont++;
+  if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+   gb_address_psExe_cont= 2048;   
+  
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+//************************************************************************
+void Handle1byte9BtnNoFlag()
+{//25 ms
+ //Recibe 1 byte 9 botones con Sync
+ //PSX  ePSXe   Function  
+ //Select Cuadrado X Circulo Triangulo R1 L1 R2 L2 
+ // C         S     Z  X        D       R  W  T  E   
+ //Pad1L2          (1<< 0)  0
+ //Pad1R2          (1<< 1)  1
+ //Pad1L1          (1<< 2)  2
+ //Pad1R1          (1<< 3)  3
+ //Pad1tri         (1<< 4)  4
+ //Pad1crc         (1<< 5)  5
+ //Pad1x           (1<< 6)  6
+ //Pad1sqr         (1<< 7)  7
+ //Pad1Select      (1<< 8)  8  
+ if (gb_error == 1)
+  return;
+ gb_pad=PadRead(0);
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0;
+ 
+ if (gb_std != gb_std_antes)
+ {
+  gb_std_antes = gb_std;
+  gb_byte = gb_pad & 0xFF;
+  globalNewData = 1;
+ }
+}
+
+//************************************************************************
+void Poll1byte9BtnNoFlag()
+{//25 ms
  u_char i=0;
  if (gb_error == 1)
   return;
@@ -692,10 +752,13 @@ int main(void)
 	 case 1: HandleFourBtnNotSync(); //Falla 4 Botones mando modificado Sin sincronia
       PollFourBtnNotSync();   //Falla
 	  break;
-	 case 2: Handle1byte9Btn(); //9 Botones 1 mando fake spi
+	 case 2: Handle1byte9Btn(); //9 Botones 1 mando fake spi 50 ms
       Poll1byte9Btn();
-	  break;	  
-	 case 3: Handle3bytes14Btn(); //14 Botones 1 mando fake spi
+	  break;
+	 case 3: Handle1byte9BtnNoFlag(); //9 Botones 1 mando fake spi 25 ms
+      Poll1byte9BtnNoFlag();
+	  break;	  	  
+	 case 4: Handle3bytes14Btn(); //14 Botones 1 mando fake spi
       Poll3bytes14Btn();
 	  break;
 	 default:HandleFourBtn(); //4 Botones mando modificado
@@ -712,7 +775,7 @@ int main(void)
    }
   }    
   if (gb_error != 1)        
-   sprintf (gb_cadLog,"%x %d/%d\nVel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_pad);
+   sprintf (gb_cadLog,"%x %d/%d\n%d %d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,gb_pad);
    //sprintf (gb_cadLog,"%x %d/%d\nBeg%d STD%d Vel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_BeginData,gb_std,gb_speed,gb_pad);
   FntPrint("%s",gb_cadLog);
   
