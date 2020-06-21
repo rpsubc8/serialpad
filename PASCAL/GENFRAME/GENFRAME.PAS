@@ -258,6 +258,34 @@ BEGIN
 END;
 
 {******************************************************}
+PROCEDURE Save1ByteHeadSPI(data: byte);
+{Bit, que seria el 3 nibble}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= ((data AND $07) OR $08);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
+
+ aux:= (((data SHR 3) AND $07) OR $08);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
+
+ aux:= (((data SHR 6) AND $03) OR $08);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
 PROCEDURE Save3BytesSPI(a,b,c: byte);
 VAR
  aux: word; {16 bits 2 bytes mando}
@@ -325,6 +353,27 @@ BEGIN
 END;
 
 {******************************************************}
+PROCEDURE SaveByteSPI(a: byte);
+BEGIN
+ {1 byte 8 botones Envio 1 byte Gatillos y botones}
+ {Cuadrado X Circulo Triangulo R1 L1 R2 L2}
+ {   S     Z  X        D       R  W  T  E}
+ {Pos Bit en SPI 2 bytes controlador}
+ {  15     14 13       12      11 10 9  8}
+ {   7      6  5        4       3  2 1  0 Equivale}
+ gbCadSal:= gbCadSal + NibbleToHexString((a AND $0F));
+ gbCadSal:= gbCadSal + NibbleToHexString(((a SHR 4)AND $0F));
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
 PROCEDURE SaveHeadSPI;
 VAR
  aux: byte;
@@ -345,6 +394,32 @@ BEGIN
  SaveByteHeadSPI((gbSpeed OR (gbCompress SHL 6)));
  FOR i:=1 TO 3 DO
   SaveByteHeadSPI(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHead1ByteSPI;
+VAR
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ Writeln(gbFileWrite);
+ Writeln(gbFileWrite);
+ Writeln(gbFileWrite,'*'); {Sincronismo}
+ Writeln(gbFileWrite,'*');  {Vaciar buffer serial ARDUINO}
+
+ cad:= '';
+ Save1ByteHeadSPI((auxSize AND $FF));
+ Save1ByteHeadSPI(((auxSize SHR 8) AND $FF));
+ Save1ByteHeadSPI(((auxSize SHR 16) AND $FF));
+ Save1ByteHeadSPI((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  Save1ByteHeadSPI(gbAddress[i]);
  Write(gbFileWrite,cad); {Ya ha metido retorno linea}
  IF (gbContLinea>0) THEN
   Writeln(gbFileWrite,gbCadSal); {Ultima linea}
@@ -405,7 +480,8 @@ BEGIN
  CASE (gbSpeed) OF
   0: gbTopeLinea:= 6;
   1: gbTopeLinea:= 6;
-  2: gbTopeLinea:= 1;
+  2: gbTopeLinea:= 2;
+  3: gbTopeLinea:= 1;
   else
    gbTopeLinea:= 6;
  END;
@@ -414,6 +490,10 @@ BEGIN
   0: SaveHead;
   1: SaveHead;
   2: BEGIN
+      SaveHead1ByteSPI;
+      gbTopeLinea:= 8;
+     END;
+  3: BEGIN
       SaveHeadSPI;
       gbTopeLinea:= 2; {2 Para igualar linea ancho archivo txt}
      END;
@@ -446,7 +526,9 @@ BEGIN
          i:= i+2;
         END;
       END;
-   2: BEGIN
+   2: FOR i:=1 TO gbNumRead DO
+       SaveByteSPI(Buf[i]);
+   3: BEGIN
        i:= 1;
        WHILE (i<gbNumRead) DO
         BEGIN
