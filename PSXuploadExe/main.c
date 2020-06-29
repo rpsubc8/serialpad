@@ -20,6 +20,7 @@
 
 #include <kernel.h>
 #include <libapi.h>
+#include <libpad.h>
 #include <sys/types.h>	//these are the various include files that need to be included
 #include <libetc.h>		//note that the order they are included in does matter in some cases!
 #include <libgte.h>
@@ -52,8 +53,29 @@ GsOT myOT[2]; //an array of 2 OT's this is how your double buffering is implemen
 GsOT_TAG myOT_TAG[2][1<<OT_LENGTH];
 PACKET GPUPacketArea[2][PACKETMAX2]; //also 2 gfx packet areas for double buffering
 
+
+
+//Defines
+#define IMASK					*((unsigned int*)0x1F801074)
+#define IPENDING				*((unsigned int*)0x1F801070)
+
+//Copied from pad.c
+#define PADSIO_DATA(x)	*((unsigned char*)(0x1f801040 + (x<<4)))
+#define PADSIO_STATUS(x)	*((unsigned short*)(0x1f801044 + (x<<4)))
+#define PADSIO_MODE(x)	*((unsigned short*)(0x1f801048 + (x<<4)))
+#define PADSIO_CTRL(x)	*((unsigned short*)(0x1f80104a + (x<<4)))
+#define PADSIO_BAUD(x)	*((unsigned short*)(0x1f80104e + (x<<4)))
+
+#define PAD_NONE 0xFF
+#define PAD_DIGITAL	0x41
+#define PAD_ANALOG 0x73
+#define PAD_FLIGHT 0x53
+#define PAD_MOUSE 0x12
+
+
+
 char gb_cadLog[200]="\0";
-u_long gb_pad; //El estado de botones
+u_long gb_pad=0; //El estado de botones
 int activeBuffer=0;		//variable used to hold the buffer that is currently being displayed
 u_char gb_std=0;
 u_char gb_std_antes=0;
@@ -79,7 +101,12 @@ unsigned char gb_BeginData = 0;
 u_char *gb_p_address; //Puntero a memoria PSX
 struct EXEC exe;
 
+static u_char padbuf[2][34]; //Mandos analogico
+//u_char* padi = padbuf[0];
+
+
 /***************** prototypes *******************/
+void PollAnalogPAD();
 void InitGraphics(void);		  //this method sets up gfx for printing to screen
 void DisplayAll(int);			  //this displays the contents of the OT
 void HandleFourBtn(void);
@@ -92,6 +119,8 @@ void Handle1byte9Btn(void);
 void Poll1byte9Btn(void);
 void Handle1byte9BtnNoFlag(void);
 void Poll1byte9BtnNoFlag(void);
+void Handle5bytesAnalog(void);
+void Poll5bytesAnalog(void);
 void Handle6bytes14Btn2PAD(void);
 void Poll6bytes14Btn2PAD(void);
 //void Handle3bytes14BtnNotSync(void);
@@ -99,9 +128,25 @@ void Poll6bytes14Btn2PAD(void);
 void HandleFourBtnNotSync(void); //Falla
 void PollFourBtnNotSync(void); //Falla
 void PollReceivedHeadFourBtn(void);
+
+
 void CargaPrograma(struct EXEC *exep);
 int main(void);
 
+
+//***********************************************************************
+void PollAnalogPAD()
+{  
+ //gb_pad=PadRead(0);            
+ //PadGetState(0x00); 
+ //PadInfoMode(0,InfoModeCurID,0); 
+ //PadGetState(0);
+ //PadInfoMode(0,InfoModeCurExID,0); 
+ if (padbuf[0][0] == 0)  
+  gb_pad = ~((padbuf[0][2]<<8) | (padbuf[0][3]));	 
+ else  
+  gb_pad = 0;
+}
 
 //***********************************************************************
 void CargaPrograma(struct EXEC *exep){
@@ -163,7 +208,7 @@ void Handle6bytes14Btn2PAD()
 {//6 bytes 2 PADS
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0);
+ //gb_pad=PadRead(0);
  if (gb_pad&Pad1Left) gb_std=1; else gb_std=0;
  
  if (gb_std != gb_std_antes)
@@ -244,7 +289,7 @@ void Handle1byte9Btn()
  //Pad1Select      (1<< 8)  8  
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0);
+ //gb_pad=PadRead(0);
  if (gb_pad&Pad1Select) gb_std=1; else gb_std=0;
  
  if (gb_std != gb_std_antes)
@@ -287,6 +332,76 @@ void Poll1byte9Btn()
  }
 }
 
+
+
+//************************************************************************
+void Handle5bytesAnalog()
+{
+ //Recibe 5 byte 9 botones y 4 bytes Analogico con Sync
+ //PSX  ePSXe   Function  
+ //Select Cuadrado X Circulo Triangulo R1 L1 R2 L2 
+ // C         S     Z  X        D       R  W  T  E   
+ //Pad1L2          (1<< 0)  0
+ //Pad1R2          (1<< 1)  1
+ //Pad1L1          (1<< 2)  2
+ //Pad1R1          (1<< 3)  3
+ //Pad1tri         (1<< 4)  4
+ //Pad1crc         (1<< 5)  5
+ //Pad1x           (1<< 6)  6
+ //Pad1sqr         (1<< 7)  7
+ //Pad1Select      (1<< 8)  8  
+ //if (gb_error == 1)
+ // return;
+ //ReadPads();
+    
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0;
+ 
+ if (gb_std != gb_std_antes)
+ {  
+  gb_std_antes = gb_std;
+  if (gb_std == 1)
+  {
+   gb_bytes[0] = gb_pad & 0xFF;
+   gb_bytes[1] = padbuf[0][4]; //Right X
+   gb_bytes[2] = padbuf[0][5]; //Right Y
+   gb_bytes[3] = padbuf[0][6]; //Left X
+   gb_bytes[4] = padbuf[0][7]; //Left Y
+   globalNewData = 1;
+  }
+ }
+}
+
+//************************************************************************
+void Poll5bytesAnalog()
+{//Analogico 5 bytes
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  for (i=0;i<5;i++)
+  {
+   if (gb_address_psExe_cont <(gb_size_psExe-30))
+   {
+    if (main2[gb_address_psExe_cont] != gb_bytes[i])
+    {   
+     //gb_error = 1;
+     //sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+    }
+   }
+   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
+  }
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+
 //************************************************************************
 void Handle1byte9BtnNoFlag()
 {//25 ms
@@ -305,7 +420,7 @@ void Handle1byte9BtnNoFlag()
  //Pad1Select      (1<< 8)  8  
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0);
+ //gb_pad=PadRead(0);
  if (gb_pad&Pad1Select) gb_std=1; else gb_std=0;
  
  if (gb_std != gb_std_antes)
@@ -371,7 +486,7 @@ void Handle3bytes14Btn()
  //Pad1Left        (1<<15) 13 
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0);
+ //gb_pad=PadRead(0);
  if (gb_pad&Pad1Left) gb_std=1; else gb_std=0;
  
  if (gb_std != gb_std_antes)
@@ -415,8 +530,8 @@ void Poll3bytes14Btn()
    {
     if (main2[gb_address_psExe_cont] != gb_bytes[i])
     {   
-     gb_error = 1;
-     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+     //gb_error = 1;
+     //sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
     }
    }
    gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
@@ -450,7 +565,7 @@ void HandleFourBtn2PAD()
  //Pad2R1          (1<<19)
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0); 
+ //gb_pad=PadRead(0); 
  if (gb_pad&Pad1R1) gb_std=1; else gb_std=0;
  if (gb_std != gb_std_antes)
  {  
@@ -484,50 +599,38 @@ void HandleFourBtn2PAD()
 void HandleFourBtnNotSync()
 {//4 botones 2 bytes sin sincronia
  // 0: estado raro posible 1
- // 1: 0 3 bits   Primer byte
- // 2: 1 3 bits
- // 3: 0 2 bits
- // 4: 1 3 bits   Segundo byte
- // 5: 0 3 bits
- // 6: 1 2 bits 
+ // 1: 1 3 bits   Primer byte
+ // 2: 0 3 bits
+ // 3: 1 2 bits
+ // 4: 0 3 bits   Segundo byte
+ // 5: 1 3 bits
+ // 6: 0 2 bits 
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0); 
+ //gb_pad=PadRead(0); 
  if (gb_pad&Pad1R1) gb_std=1; else gb_std=0;
 
 
- if (gb_std == 0)
+ if (gb_std != gb_std_antes)
  {
-  gb_byte = gb_pad; //guardamos estado cuando es 0
-  if (gb_std_antes != gb_std)  
-   gb_std_antes = gb_std;  
- }
- else
- {
-  if (gb_std_antes != gb_std)
+  gb_std_antes = gb_std;
+  switch (gb_cont_bit)
   {
-   gb_std_antes = gb_std;
-   switch (gb_cont_bit)
-   {
-	case 0: gb_bytes[0] = gb_byte & 0x07; 
-	 gb_bytes[0] |= ((gb_pad & 0x07)<<3);
-	 break;
-	case 1:	gb_bytes[0] |= ((gb_byte & 0x03)<<6);
-	 gb_bytes[1] = gb_pad & 0x07;
-	 break;
-	case 2: gb_bytes[1] |= ((gb_byte & 0x07)<<3);
-	 gb_bytes[1] |= ((gb_pad & 0x03)<<6);
-	 globalNewData = 1;
-	 gb_cont_bit=0;
-	 return;
-	 break;
-	default: break;
-   }
-   gb_cont_bit++;   
+   case 0: break;   
+   case 1: gb_byte = gb_pad & 0x07; 
+    break;
+   case 2: gb_byte |= ((gb_pad & 0x07)<<3);
+    break;
+   case 3: gb_byte |= ((gb_pad & 0x03)<<6);     
+	globalNewData = 1;
+	gb_cont_bit=1;
+	return;
+	break;
+   default: break;
   }
+  gb_cont_bit++;   	  
  }
-	 
-	 
+   	 
  
   /*switch (gb_cont_bit)
   {  
@@ -561,21 +664,19 @@ void PollFourBtnNotSync()
  if (globalNewData == 1)
  {
   globalNewData = 0;
-  for (i=0;i<2;i++)
+  if (gb_address_psExe_cont <(gb_size_psExe-30))
   {
-   if (gb_address_psExe_cont <(gb_size_psExe-30))
-   {
-    if (main2[gb_address_psExe_cont] != gb_bytes[i])
-    {   
-     gb_error = 1;
-     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
-    }
+   if (main2[gb_address_psExe_cont] != gb_byte)
+   {   
+    gb_error = 1;
+    sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
    }
-   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
-   gb_address_psExe_cont++;
-   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
-    gb_address_psExe_cont= 2048;
   }
+  gb_p_address[gb_address_psExe_cont] = gb_byte;
+  gb_address_psExe_cont++;
+  if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+   gb_address_psExe_cont= 2048;  
+
   if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
    gb_launch_exe = 1;
  }
@@ -622,7 +723,7 @@ void HandleFourBtn()
  //R1 -   R  - sync
  if (gb_error == 1)
   return;
- gb_pad=PadRead(0);
+ //gb_pad=PadRead(0);
  if (gb_pad&Pad1R1) gb_std=1; else gb_std=0;
  
  if (gb_std != gb_std_antes)
@@ -686,10 +787,13 @@ void PollFourBtn()
  if (globalNewData == 1)
  {
   globalNewData = 0;
-  if (main2[gb_address_psExe_cont] != gb_byte)
-  {   
-   gb_error = 1;
-   sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+  if (gb_address_psExe_cont <(gb_size_psExe-30))
+  {
+   if (main2[gb_address_psExe_cont] != gb_byte)
+   {   
+    gb_error = 1;
+    sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+   }
   }
   gb_p_address[gb_address_psExe_cont] = gb_byte;
   gb_address_psExe_cont++;
@@ -718,31 +822,33 @@ int main(void)
   activeBuffer = GsGetActiveBuff();	//gets the buffer currently being displayed and stores in activeBuffer
   GsSetWorkBase((PACKET*)GPUPacketArea[activeBuffer]);	//sets up the gfx workspace
   GsClearOt(0, 0, &myOT[activeBuffer]);			//clears the OT contents
+  
+  PollAnalogPAD();  
   if (gb_receivedHead == 0)
   {
    if (gb_BeginData == 0)
    {//Busca que este en silencio
-    gb_pad=PadRead(0);
+    //gb_pad=PadRead(0);
 	if ((gb_pad&Pad1R1)==0)
 	 gb_BeginData = 1;
    }
    else
-   {	
+   {	   
     HandleFourBtn();
     PollReceivedHeadFourBtn();
-   }
+   }   
   }
   else
   {
-   if (gb_BeginData == 0)
+/*   if (gb_BeginData == 0)
    {//Busca que este en silencio
-    gb_pad=PadRead(0);
+    //gb_pad=PadRead(0);
 	if ((gb_pad&Pad1R1)==0)
 	 gb_BeginData = 1;
     //if ((gb_pad&Pad1Left)==0)
 	// gb_BeginData = 1;
    }
-   else
+   else*/
    {	
     switch (gb_speed)
 	{
@@ -761,6 +867,9 @@ int main(void)
 	 case 4: Handle3bytes14Btn(); //14 Botones 1 mando fake spi
       Poll3bytes14Btn();
 	  break;
+	 case 6: Handle5bytesAnalog(); //Mando analogico
+	  Poll5bytesAnalog();
+	  break;
 	 default:HandleFourBtn(); //4 Botones mando modificado
       PollFourBtn();
       break;	  
@@ -773,9 +882,14 @@ int main(void)
     //Handle3bytes14BtnNotSync(); //No funciona 14 Botones 1 mando fake spi fast
     //Poll3bytes14BtnNotSync();   
    }
-  }    
+  } 
+  
+    
+  //Handle5bytesAnalog();
   if (gb_error != 1)        
-   sprintf (gb_cadLog,"%x %d/%d\n%d %d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,gb_pad);
+   //sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF));
+   sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %d %d",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),gb_std,gb_cont_bit);
+   //sprintf (gb_cadLog,"%x %d/%d\n%d %d %02x %02x %02x %02x %02x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xff),(padbuf[0][4]&0xff),(padbuf[0][5]&0xff),(padbuf[0][6]&0xff),(padbuf[0][7]&0xff));
    //sprintf (gb_cadLog,"%x %d/%d\nBeg%d STD%d Vel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_BeginData,gb_std,gb_speed,gb_pad);
   FntPrint("%s",gb_cadLog);
   
@@ -785,6 +899,7 @@ int main(void)
  CargaPrograma(&exe); //Prepara exec
  ResetGraph(3);
  PadStop();
+ PadStopCom();
  StopCallback();
  EnterCriticalSection();
  Exec(&exe,1,0); //Fin exec
@@ -797,7 +912,7 @@ void InitGraphics(void) {
 	//Prueba JJ
 	ResetCallback();//JJ
 	ResetGraph(0); //JJ 
-	PadInit(0); //JJ
+	//PadInit(0); //JJ
 	SetVideoMode( MODE_PAL ); //JJ
 	//SetVideoMode( MODE_NTSC ); //JJ
 	SetDispMask(1);				// 0: inhibit display 			
@@ -815,6 +930,12 @@ void InitGraphics(void) {
 	myOT[1].org = myOT_TAG[1];
 	GsClearOt(0,0,&myOT[0]); //initialises ordering table
 	GsClearOt(0,0,&myOT[1]);	
+			
+    //Mandos analogico
+	PadInitDirect(padbuf[0], padbuf[1]);
+	PadStartCom();
+	gb_pad = 0;		//controller value initialize
+	
 	//PadInit(0);	
 }
 //*************************************************
