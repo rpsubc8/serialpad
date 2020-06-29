@@ -16,15 +16,10 @@
 #define pinR2 8
 #define gbDelay 25
 
-//#define baudios 9600
-
 #define max_buf 256
-//uint8_t gb_incoming;
 uint8_t gb_aux=0;
 uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
-uint8_t auxLow=0;
-uint8_t auxHigh=0;
 uint8_t gbUseFlag=0;
 
 
@@ -76,8 +71,10 @@ void loop()
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)  
-   gb_buf[gb_cont_buf++]=gb_aux;  
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)
+  {
+   gb_buf[gb_cont_buf++] = (CharHexToDec(gb_aux)&0x0F);   
+  }
  } 
  if ((gb_aux==42) || (gb_aux==35))
  {//El asterisco 42 almohadilla 35
@@ -87,52 +84,35 @@ void loop()
   Serial.begin(9600);
   switch (gb_aux)
   {
-   case 42: gbUseFlag=1;
-    break;
-   case 35: gbUseFlag=0;    
-    break;
-   default: gbUseFlag=1;
-    break;
+   case 42: gbUseFlag=1; break;
+   case 35: gbUseFlag=0; break;
+   default: gbUseFlag=1; break;
   } 
   gb_aux=0;
  }
  else
  {
-  if (gb_aux==13)
-  {    
-   Serial.end(); 
-   Serial.begin(9600);
-   //Serial.end();       
-   //Serial.print(gb_cont_buf);
-   //Serial.print(" ");   
+  if (gb_aux==10)
+  {   
    gb_aux=0;
    if (gbUseFlag == 1)
-   {   
+   {//Hya flag 50 ms
     for (uint8_t i=0;i<gb_cont_buf;i++)
-    {
-     //Serial.print((char)(gb_buf[i]));    
+    {     
+     PADHexTo4Btn(gb_buf[i]);
+     for (uint8_t j=0;j<gbDelay;j++) delayMicroseconds(1000);     
      PADHexTo4Btn(0);
-     PADHexTo4Btn(CharHexToDec(gb_buf[i]));    
-     delay(gbDelay);
-     PADHexTo4Btn(0);
-     delay(gbDelay);    
+     for (uint8_t j=0;j<gbDelay;j++) delayMicroseconds(1000);     
     }    
    }
    else
-   {
+   {//No hay flag 25 ms
     for (uint8_t i=0;i<gb_cont_buf;i++)
-    {     
-     //PADHexTo4Btn(0);
-     PADHexTo4Btn(CharHexToDec(gb_buf[i]));
-     delay(gbDelay);
-     //PADHexTo4Btn(CharHexToDec(gb_buf[i+1]));
-     //delay(gbDelay);
-     //PADHexTo4Btn(0);
+    {          
+     PADHexTo4Btn(gb_buf[i]);
+     for (uint8_t j=0;j<gbDelay;j++) delayMicroseconds(1000);
     }        
    }
-
-   //Serial.println("");   
-   //Serial.flush();
    gb_cont_buf = 0;
   }
  }
