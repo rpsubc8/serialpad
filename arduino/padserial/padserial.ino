@@ -3,7 +3,15 @@
 //* Controla 4 botones PAD *
 //* Recibe datos por usb   *
 //**************************
-//9600 baudios 5000 delay en linea
+// 42 * Usar flag (speed 1x)
+// 35 # No usar flag (speed 2x)
+// 36 $ 25 ms espera
+// 37 % 20 ms espera
+// 38 & 18 ms espera
+// 40 ( 17 ms espera
+// 41 ) 16 ms espera
+
+//9600 baudios 1050 delay en linea
 //En PSX
 //Pad1L2 (1<< 0)
 //Pad1R2 (1<< 1)
@@ -14,9 +22,9 @@
 #define pinL2 6
 #define pinR1 7
 #define pinR2 8
-#define gbDelay 25
 
 #define max_buf 256
+uint8_t gbDelay=25; //Tiempo
 uint8_t gb_aux=0;
 uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
@@ -66,16 +74,29 @@ void setup()
  digitalWrite(pinR1,LOW);  
 }
 
+//********
+//* MAIN *
+//********
 void loop() 
 { 
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35 && gb_aux!=36 && gb_aux!=37 && gb_aux!=38 && gb_aux!=40)
   {
    gb_buf[gb_cont_buf++] = (CharHexToDec(gb_aux)&0x0F);   
   }
- } 
+ }
+ switch (gb_aux)
+ {
+  default: break;
+  case 36: gbDelay = 25; break; //$
+  case 37: gbDelay = 20; break; //%
+  case 38: gbDelay = 18; break; //&
+  case 40: gbDelay = 17; break; //(
+  case 41: gbDelay = 16; break; //)
+ }
+ 
  if ((gb_aux==42) || (gb_aux==35))
  {//El asterisco 42 almohadilla 35
   gb_cont_buf=0; //Vaciamos buffer serie
