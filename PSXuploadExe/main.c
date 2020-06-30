@@ -153,12 +153,12 @@ void CargaPrograma(struct EXEC *exep){
  char hbuf[H_SIZE];	// Buffer for EXE head
  struct XF_HDR *head; 
  u_char *p_address = (u_char *)gb_address_psExe; 
- //memcpy (hbuf, main2,H_SIZE);
- memcpy (hbuf, p_address,H_SIZE);
+ //memcpy (hbuf, main2,H_SIZE); //Para cargar de memoria
+ memcpy (hbuf, p_address,H_SIZE); //Carga de serie
  head = (struct XF_HDR *)hbuf;
  memcpy((void *)exep, (void *)&head->exec, sizeof(struct EXEC));
- //memcpy((void *)exep->t_addr,&main2[H_SIZE],exep->t_size);
- memcpy((void *)exep->t_addr,&p_address[H_SIZE],exep->t_size); 
+ //memcpy((void *)exep->t_addr,&main2[H_SIZE],exep->t_size); //Carga de memoria
+ memcpy((void *)exep->t_addr,&p_address[H_SIZE],exep->t_size);  //Carga de serie
 }
 
 //************************************************************************
@@ -806,6 +806,8 @@ void PollFourBtn()
 }
 
 /***************** functions ********************/
+int i=0;
+
 int main(void) 
 {	
  InitGraphics();			//this method sets up gfx for printing to screen	
@@ -898,10 +900,12 @@ int main(void)
  
  CargaPrograma(&exe); //Prepara exec
  ResetGraph(3);
- PadStop();
+ //PadStop(); //Solo usar con PadInit, con directport no
  PadStopCom();
  StopCallback();
- EnterCriticalSection();
+ for (i=0;i<100;i++)
+  VSync(0); //Esperamos 2 segundos 50x2
+ EnterCriticalSection(); 
  Exec(&exe,1,0); //Fin exec
  
  return 0;		//when program is finished return from it
