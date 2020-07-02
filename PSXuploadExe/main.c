@@ -41,9 +41,9 @@
 								  
 #define SCREEN_WIDTH 320 //contants to determine the height and width of the screen resolution
 //Modo PAL
-//#define SCREEN_HEIGHT 256
+#define SCREEN_HEIGHT 256
 //Modo NTSC
-#define SCREEN_HEIGHT 240
+//#define SCREEN_HEIGHT 240
 #define tope_texto 1024
 #define booleana unsigned char
 #define TRUE 1
@@ -919,14 +919,14 @@ void InitGraphics(void) {
 	ResetCallback();//JJ
 	ResetGraph(0); //JJ 
 	//PadInit(0); //JJ
-	//SetVideoMode( MODE_PAL ); //JJ
-	SetVideoMode( MODE_NTSC ); //JJ
+	SetVideoMode( MODE_PAL ); //JJ
+	//SetVideoMode( MODE_NTSC ); //JJ
 	SetDispMask(1);				// 0: inhibit display 			
 	//this method sets up gfx for printing to screen
 	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0); //initialises the graphics system	
     // set the graphics mode resolutions (GsNONINTER for NTSC, and GsINTER for PAL)
-	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsINTER|GsOFSGPU, 1, 0);	//PAL
-	GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0);	//NTSC
+	GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsINTER|GsOFSGPU, 1, 0);	//PAL
+	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0);	//NTSC
 	//no Gs* * * functions will work unless GsInitGraph() has been called
 	GsDefDispBuff(0, 0 , 0, SCREEN_HEIGHT); //defines double buffer attributes
 	//buffer 0's top left coordinate becomes (0,0) & buffer 1's coordinate becomes (0, y resolution)
