@@ -83,19 +83,23 @@
 #define DATA_PIN  4 //MISO
 #define CLK_PIN   5 //SCK
 
-#define DATA_LEN 5
-//#define DATA_LEN 8
+//Digital
+//#define DATA_LEN 5
+//Analogico
+//#define DATA_LEN 9
+//#define DATA_LEN 10
 
 //#define LED_PIN 7
 
 //#define _DEBUG 0
 
-//#define gbDelay 25
 #define max_buf 256
+#define gb_speed_baud 38400
+uint8_t gbDelay=25; //Tiempo
 uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
 uint8_t gb_aux=0;
-uint8_t gb_flipflop=1;
+//uint8_t gb_flipflop=0xFF;
 
 
 //JJ
@@ -107,25 +111,67 @@ uint8_t gb_flipflop=1;
 //uint8_t gb_aux0=0;
 //uint8_t gb_aux1=0;
 uint8_t gb_low=0;
-uint8_t gbUseFlag=0;
-//uint8_t gb_high=0;
+uint8_t gb_high=0;
+uint8_t gbUseFlag=1;
+uint8_t gbUseReadNumByte=1;
 
-char control_data[2] = {0xFF,0xFF};
+
+//En ordenador usb psx adaptador funciona esto en el modo analogico
+//volatile uint8_t data_buff[DATA_LEN]={0x53,0x53,0x5A,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; //sin parpadeo analogico
+//char control_data[2] = {0xFF,0xFF};
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; //No parpadeo analogico
+//Para digital en usb psx adaptador funciona esto en modo digital
+//volatile uint8_t data_buff[DATA_LEN]={0xFF,0x41,0x5A,0xFF,0xFF}; // Reply: nothing pressed digital OK sin parpadeo Digital
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpadeo digital
+
+
+//char control_data[2] = {0xFF,0xFF};
 //char control_data[2] = {0x00,0x00}; //JJ
 
-//volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xFF,0xFF,0xFF}; // Reply: nothing pressed. parpadea
+/*
+//INI Prueba emulador PAD modo digital
+#define DATA_LEN 5
+#define begin_buttons0 2
+#define begin_buttons1 3
 volatile uint8_t data_buff[DATA_LEN]={0xFF,0x41,0x5A,0xFF,0xFF}; // Reply: nothing pressed digital OK sin parpadeo Digital
+volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpadeo digital
+//FIN Prueba emulador PAD modo digital
+*/
+
+//INI Prueba PSX REAL PAD modo digital
+//1 byte flechas
+//2 byte gatillos
+//0x00,0x80 No parpadea
+//0000 Select apretado y resto botones
+//1000 Select sin apretar y resto botones
+#define DATA_LEN 5
+#define begin_buttons0 2
+#define begin_buttons1 3
+volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xFF,0xFF,0xFF}; // Reply: nothing pressed digital OK sin parpadeo Digital
+volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpadeo digital
+//FIN Prueba PSX REAL PAD modo digital
+
+
+//volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0x00,0x00,0xFF}; // Reply: nothing pressed. parpadea
+//Digital volatile uint8_t data_buff[DATA_LEN]={0xFF,0x41,0x5A,0xFF,0xFF}; // Reply: nothing pressed digital OK sin parpadeo Digital
 //volatile uint8_t data_buff[DATA_LEN]={0xFF,0x41,0x5A,0xFF,0xFF}; //Digital OK
 //volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xFF,0xFF,0xFF}; //Digital OK
 //volatile uint8_t data_buff[DATA_LEN]={0x73,0x5A,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; // parpadeo analogico
+//volatile uint8_t data_buff[DATA_LEN]={0x73,0x73,0x5A,0xFF,0x80,0x80,0x80,0x80,0xFF}; //sin parpadeo analogico funciona ne padtest y PC
+//volatile uint8_t data_buff[DATA_LEN]={0x73,0x73,0x5A,0xFF,0xFF,0x80,0x80,0x80,0x80,0xFF}; //sin parpadeo analogico funciona ne padtest y PC
+//volatile uint8_t data_buff[DATA_LEN]={0x73,0x5A,0xFF,0xFF,0x80,0x80,0x80,0x80,0xFF}; //sin parpadeo analogico
 //volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xFF,0xFF,0xFF}; // parpadeo digital
-volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpadeo
-//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00,0x00,0x00,0x00}; //No parpadeo
+//Digital volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpadeo digital
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; //No parpadeo analogico
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; //No parpadeo analogico
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; //No parpadeo analogico
 //volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00};
     
 volatile uint8_t curr_byte=0;
 volatile uint8_t next_byte=0;
 
+//uint8_t gb_cont_nibble=0;
+uint8_t gb_nibble=0;
 uint8_t CharHexToDec(char a);
 void setup();
 void loop();
@@ -146,7 +192,7 @@ void setup() {
   
   // Begin Serial communication with Pi
   //Serial.begin(38400);
-  Serial.begin(9600);
+  Serial.begin(gb_speed_baud);
     
   //SPI_PORT setup. 
   SPI_DDR |= (1<<ACK_PIN); // output
@@ -168,8 +214,9 @@ void setup() {
   
   sei(); // Enable global interrupts.
 
-  data_buff[2] = 0xFF; //Ponemos a 0 los botones
-  data_buff[3] = 0xFF;
+  //data_buff[begin_buttons0] = 0x01; //Para evitar parpadeo desconexion Flechas y Select
+  data_buff[begin_buttons0] = 0x00; //Para evitar parpadeo desconexion Flechas y Select
+  data_buff[begin_buttons1] = 0xFF; //Los gatillos
   //Serial.print("Ini");
   //delay(1000);
 }
@@ -190,35 +237,35 @@ void setup() {
 ISR(SPI_STC_vect) { 
 
   // Byte received from the master
-  uint8_t inbyte = SPDR;
+  uint8_t inbyte = SPDR;  
   
   // FIX ME : Manage other cases ? (other commands from the master?)
-  if (inbyte == command_buff[curr_byte]) {
-
+  //if (SPDR == command_buff[curr_byte])
+  if (inbyte == command_buff[curr_byte])  
+  {
     // We put the next byte in the buffer, to be send along the next clock cycle
-    SPDR = data_buff[curr_byte];
-    curr_byte++;
+    SPDR = data_buff[curr_byte++];
+    //curr_byte++; //Optimizado
     
     // We need to ACK (PS2 Protocol)
     if (curr_byte < DATA_LEN) 
     { // ACK goes low.
       SPI_PORT &= ~(1<<PORTB1);
-      _delay_us(10); // For 10µseconds      
-      SPI_PORT |= (1<<PORTB1);
-      //ack_jj();
-    } 
+      _delay_us(2); // For 10µseconds            
+      SPI_PORT |= (1<<PORTB1);      
+      //ack_jj();      
+    }     
     else 
     { // Except for the last packet
-      SPDR = 0xFF;
+      SPDR = 0xFF;      
       curr_byte = 0;
       //ack_jj();
-    }
-
+    }   
   } 
   else 
   {    
-    SPDR = 0xFF;
-    curr_byte = 0;  
+    SPDR = 0xFF;    
+    curr_byte = 0;      
     //ack_jj();
   }
   
@@ -238,65 +285,96 @@ void loop() {
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35)
-   gb_buf[gb_cont_buf++]=gb_aux;  
- }
- if ((gb_aux==42) || (gb_aux==35))
- {
-  data_buff[2] = 0xFF; //Ponemos a 0 los botones
-  data_buff[3] = 0xFF;
-  switch (gb_aux)
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35 && gb_aux!=36 && gb_aux!=37)  
   {
-   case 42: gbUseFlag=1;
-    break;
-   case 35: gbUseFlag=0;
-    break;
-   default: gbUseFlag=1;
-    break;
-  } 
-  gb_cont_buf=0; //Vaciamos buffer serie  
+   gb_buf[gb_cont_buf++] = (~(CharHexToDec(gb_aux))&0x0F)|0xF0; 
+   /*
+   //gb_buf[gb_cont_buf++]= (CharHexToDec(gb_aux)&0x0F);
+   if ((gb_cont_nibble & 0x01) == 0x00)
+    gb_nibble = CharHexToDec(gb_aux);
+   else
+   {
+    gb_buf[gb_cont_buf]= ((CharHexToDec(gb_aux)<<4)|gb_nibble);
+    gb_cont_buf++;
+   }
+   gb_cont_nibble++;   
+   */
+  }
+ }
+
+ switch (gb_aux)
+ {
+  default: break;
+  case 36: gbDelay = 25; break; //$
+  case 37: gbDelay = 20; break; //%
+  case 38: gbDelay = 18; break; //&
+  case 40: gbDelay = 17; break; //(
+  case 41: gbDelay = 16; break; //)
+ }
+ 
+ if ((gb_aux==42) || (gb_aux==35))
+ {    
+  gb_cont_buf= 0;
+  //gb_flipflop= 0x00;
+  data_buff[begin_buttons0] = 0x00; //Ponemos a 0  
+  //data_buff[begin_buttons0] = 0x00; //Ponemos a 0  
+  data_buff[begin_buttons1] = 0xFF;
+  //gb_cont_nibble=0;
+  //Serial.end(); 
+  //Serial.begin(gb_speed_baud);
+  switch (gb_aux)
+  {   
+   case 42: gbUseFlag=1; break; //*
+   case 35: gbUseFlag=0; break; //#
+   default: gbUseFlag=1; break;  
+  }  
   gb_aux=0;
-  Serial.end(); 
-  Serial.begin(9600);
  }
  else
  {
-  if (gb_aux==13)
+  if (gb_aux==10)
   {
-   gb_aux=0;
+   gb_aux =0;
    if (gbUseFlag == 1)
-   {
-    for (uint8_t i=0;i<gb_cont_buf;i+=2)
-    {
-     gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
-     data_buff[3] = gb_low; //Ponemos a 0 los botones sin logica negada
-     data_buff[2] = 0xFE; //Boton select como flag 11111110
-     for (uint8_t j=0;j<25;j++)
-      delayMicroseconds(1000);    
-     data_buff[2] = 0xFF; //Ponemos a 0 los botones
-     data_buff[3] = 0xFF;
-     for (uint8_t j=0;j<25;j++)
-      delayMicroseconds(1000);    
-    }
+   {    
+    for (uint8_t i=0;i<gb_cont_buf;i++)
+    {     
+     data_buff[begin_buttons1] = gb_buf[i];
+     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);           
+     data_buff[begin_buttons1] = 0xFF; //Ponemos a 0
+     //data_buff[begin_buttons0] = 0x00;
+     //data_buff[begin_buttons0] = 0x01; //Select quitado
+     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);                   
+    }           
    }
    else
    {
-    for (uint8_t i=0;i<gb_cont_buf;i+=2)
-    {
-     gb_low = (CharHexToDec(gb_buf[i+1])<<4)|CharHexToDec(gb_buf[i]);
-     data_buff[3] = gb_low; //Ponemos a 0 los botones sin logica negada
-     data_buff[2] = 0xFE | gb_flipflop; //Boton select como flag 11111110
-     gb_flipflop = (!gb_flipflop) & 0x01;
-     for (uint8_t j=0;j<25;j++)
-      delayMicroseconds(1000);
-    }   
+    for (uint8_t i=0;i<gb_cont_buf;i++)
+    {         
+     data_buff[begin_buttons1] = gb_buf[i];     
+     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);     
+    }    
    }
-   gb_cont_buf = 0;   
+   gb_cont_buf=0;    
   }
  }
-}
+ 
+} 
+
  
  /*Sobra
+//Serial.flush();
+    //Serial.print("(");   
+    //Serial.print(gb_cont_buf);
+    //Serial.print(")");      
+     //Serial.print(gb_buf[i],HEX);     
+     //Serial.print(gb_buf[i+1],HEX);     
+     //Fix flick button en PSX real     
+     //data_buff[begin_buttons0] = 0x00; //Boton select como flag 11111110
+     //data_buff[begin_buttons0] = gb_buf[i];
+     //data_buff[begin_buttons1] = gb_buf[i+1]; //Ponemos a 0 los botones sin logica negada                         
+     //data_buff[begin_buttons0] = 0xFE; //Boton select como flag 11111110 En real genera Flick                    
+   
 //if (gb_aux==10)
 //Serial.flush();
       //Serial.print(gb_cont_buf);
