@@ -647,12 +647,12 @@ BEGIN
       gbTopeLinea:= 13;
      END;
   2: BEGIN
-      Writeln(gbFileWrite,'*'); {Sincronismo Vaciar serial ARDUINO}
+      Writeln(gbFileWrite,'+*'); {Sincronismo Vaciar serial ARDUINO}
       SaveHead1ByteSPI;
       gbTopeLinea:= 20;
      END;
   3: BEGIN
-      Writeln(gbFileWrite,'#'); {Sincronismo 25 ms}
+      Writeln(gbFileWrite,'+#'); {Sincronismo 25 ms}
       SaveHead1ByteSPINoFlag;
       gbTopeLinea:= 41;
      END;
