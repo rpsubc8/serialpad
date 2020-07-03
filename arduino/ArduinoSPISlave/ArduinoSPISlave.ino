@@ -1,3 +1,12 @@
+//******************************
+//* Fake SPI PSX               *
+//* Author: ackerman           *
+//* Mode 0: 50 ms 60 baud  (*) *
+//* Mode 1: 25 ms 120 baud (#) *
+//* Mode 2: 50 ms 160 baud (+) *
+//* Mode 3: 25 ms 320 baud (,) *
+//******************************
+
 //En binario SPI Comunicaciones (2 bytes)
 //Bit
 //0   Select Button    (0=Pressed, 1=Released)
@@ -99,7 +108,7 @@ uint8_t gbDelay=25; //Tiempo
 uint8_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
 uint8_t gb_aux=0;
-//uint8_t gb_flipflop=0xFF;
+uint8_t gb_flipflop=0x01;
 
 
 //JJ
@@ -113,7 +122,7 @@ uint8_t gb_aux=0;
 uint8_t gb_low=0;
 uint8_t gb_high=0;
 uint8_t gbUseFlag=1;
-uint8_t gbUseReadNumByte=1;
+uint8_t gbUseReadNumNibble=1; //Lee 1 nibble puerto serie logica positiva
 
 
 //En ordenador usb psx adaptador funciona esto en el modo analogico
@@ -170,7 +179,7 @@ volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00}; //No parpade
 volatile uint8_t curr_byte=0;
 volatile uint8_t next_byte=0;
 
-//uint8_t gb_cont_nibble=0;
+uint8_t gb_cont_nibble=0;
 uint8_t gb_nibble=0;
 uint8_t CharHexToDec(char a);
 void setup();
@@ -285,41 +294,49 @@ void loop() {
  if(Serial.available()>=1)
  {  
   gb_aux = Serial.read();
-  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=42 && gb_aux!=35 && gb_aux!=36 && gb_aux!=37)  
+  if (gb_aux!=0 && gb_aux!=10 && gb_aux!=32 && gb_aux!=13 && gb_aux!=43 && gb_aux!=45 && gb_aux!=42 && gb_aux!=35 && gb_aux!=36 && gb_aux!=37)  
   {
-   gb_buf[gb_cont_buf++] = (~(CharHexToDec(gb_aux))&0x0F)|0xF0; 
-   /*
-   //gb_buf[gb_cont_buf++]= (CharHexToDec(gb_aux)&0x0F);
-   if ((gb_cont_nibble & 0x01) == 0x00)
-    gb_nibble = CharHexToDec(gb_aux);
-   else
+   switch (gbUseReadNumNibble)
    {
-    gb_buf[gb_cont_buf]= ((CharHexToDec(gb_aux)<<4)|gb_nibble);
-    gb_cont_buf++;
+    default: break;
+    case 1: gb_buf[gb_cont_buf++] = (~(CharHexToDec(gb_aux))&0x0F)|0xF0; break; //Modo 0,1 (* # le llega -)
+    case 2: //Modo 2,3 Leemos 8 bits
+     if ((gb_cont_nibble & 0x01) == 0x00) 
+      gb_nibble = (CharHexToDec(gb_aux)&0x0F);
+     else 
+      gb_buf[gb_cont_buf++]= ((CharHexToDec(gb_aux)<<4)|gb_nibble);
+     gb_cont_nibble++;
+     break;
    }
-   gb_cont_nibble++;   
-   */
   }
  }
 
  switch (gb_aux)
  {
   default: break;
+  //Numero de nibbles a leer
+  case 43: gbUseReadNumNibble= 2; //+ Lee 2 nibbles Modo 2,3 Logica negada botones
+   gb_nibble = gb_cont_nibble= gb_cont_buf = gb_aux = 0;
+   break; 
+  case 45: gbUseReadNumNibble= 1; //- Lee 1 nibble Modo 0,1 logica positiva botones
+   gb_cont_buf = gb_aux = 0;
+   break;   
+  //Velocidad
   case 36: gbDelay = 25; break; //$
   case 37: gbDelay = 20; break; //%
   case 38: gbDelay = 18; break; //&
   case 40: gbDelay = 17; break; //(
-  case 41: gbDelay = 16; break; //)
+  case 41: gbDelay = 16; break; //)  
  }
  
  if ((gb_aux==42) || (gb_aux==35))
  {    
   gb_cont_buf= 0;
-  //gb_flipflop= 0x00;
+  gb_flipflop= 0x01;
   data_buff[begin_buttons0] = 0x00; //Ponemos a 0  
   //data_buff[begin_buttons0] = 0x00; //Ponemos a 0  
   data_buff[begin_buttons1] = 0xFF;
-  //gb_cont_nibble=0;
+  gb_cont_nibble=0;
   //Serial.end(); 
   //Serial.begin(gb_speed_baud);
   switch (gb_aux)
@@ -336,24 +353,54 @@ void loop() {
   {
    gb_aux =0;
    if (gbUseFlag == 1)
-   {    
-    for (uint8_t i=0;i<gb_cont_buf;i++)
-    {     
-     data_buff[begin_buttons1] = gb_buf[i];
-     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);           
-     data_buff[begin_buttons1] = 0xFF; //Ponemos a 0
-     //data_buff[begin_buttons0] = 0x00;
-     //data_buff[begin_buttons0] = 0x01; //Select quitado
-     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);                   
-    }           
+   {
+    switch (gbUseReadNumNibble)
+    {
+     default: break;
+     case 1: //Modo 0 con flag 50 ms 4 bits 60 baud
+      for (uint8_t i=0;i<gb_cont_buf;i++)
+      {     
+       data_buff[begin_buttons1] = gb_buf[i];
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);           
+       data_buff[begin_buttons1] = 0xFF; //Ponemos a 0
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);                   
+      }                
+      break;
+     case 2: //Modo 2 con flag 50 ms 8 bits 160 baud
+      for (uint8_t i=0;i<gb_cont_buf;i++)
+      {     
+       data_buff[begin_buttons1] = gb_buf[i];
+       data_buff[begin_buttons0] = 0x00; //Select activo
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);           
+       data_buff[begin_buttons1] = 0xFF; //Ponemos a 0       
+       data_buff[begin_buttons0] = 0x01; //Select desactivado
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);
+      }             
+      break;        
+    }
    }
    else
-   {
-    for (uint8_t i=0;i<gb_cont_buf;i++)
-    {         
-     data_buff[begin_buttons1] = gb_buf[i];     
-     for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);     
-    }    
+   {//Sin flag
+    switch (gbUseReadNumNibble)
+    {
+     default: break;
+     case 1: //Modo 1 (25 ms sin flag 120 baud 4 bits)
+      for (uint8_t i=0;i<gb_cont_buf;i++)
+      {         
+       data_buff[begin_buttons1] = gb_buf[i];     
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);     
+      }
+      break;
+     case 2: //Modo 3 (25 ms sin flag 320 baud 8 bits)
+      for (uint8_t i=0;i<gb_cont_buf;i++)
+      {         
+       data_buff[begin_buttons1] = gb_buf[i];     
+       data_buff[begin_buttons0] = gb_flipflop;
+       for (uint8_t j=0;j<gbDelay;j++) _delay_us(1000);
+       gb_flipflop = ((!gb_flipflop)&0x01);
+      }
+      break;     
+    }
    }
    gb_cont_buf=0;    
   }
