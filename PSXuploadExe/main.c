@@ -123,6 +123,14 @@ void Handle1byte9BtnNoFlag(void);
 void Poll1byte9BtnNoFlag(void);
 void Handle5bytesAnalog(void);
 void Poll5bytesAnalog(void);
+void Handle3bytesAnalog(void); //Speed 8
+void Poll3bytesAnalog(void);
+void HandleSpeed10Flag(void); //Speed 10
+void PollSpeed10Flag(void);
+void HandleSpeed11NoFlag(void); //Speed 11
+void PollSpeed11NoFlag(void);
+void Handle3bytesAnalogNoFlag(void); //Speed 9
+void Poll3bytesAnalogNoFlag(void);
 void Handle6bytes14Btn2PAD(void);
 void Poll6bytes14Btn2PAD(void);
 //void Handle3bytes14BtnNotSync(void);
@@ -390,6 +398,212 @@ void Poll5bytesAnalog()
     {   
      //gb_error = 1;
      //sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_byte);
+    }
+   }
+   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
+  }
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+
+//************************************************************************
+void Handle3bytesAnalog()
+{//Recibe 3 bytes Analogico con Sync Speed 8
+ //4 Right X, 5 Right Y, 6 Left X, 7 Left Y
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0; 
+ if (gb_std != gb_std_antes)
+ {  
+  gb_std_antes = gb_std;
+  if (gb_std == 1)
+  {
+   gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
+   gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));
+   //gb_bytes[3] = ((padbuf[0][4]>>4)&0x03)|((padbuf[0][5]>>2)&0x0C)|(padbuf[0][6]&0x30)|((padbuf[0][7]<<2)&0xC0);
+   globalNewData = 1;
+  }
+ }
+}
+
+//************************************************************************
+void Poll3bytesAnalog()
+{//Analogico 3 bytes Speed 8
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  for (i=0;i<2;i++)
+  {
+   if (gb_address_psExe_cont <(gb_size_psExe-30))
+   {
+    if (main2[gb_address_psExe_cont] != gb_bytes[i])
+    {   
+     gb_error = 1;
+     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
+    }
+   }
+   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
+  }
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+
+//************************************************************************
+void HandleSpeed10Flag()
+{//Recibe 4 bytes Analogico con Sync Speed 10
+ //4 Right X, 5 Right Y, 6 Left X, 7 Left Y
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0; 
+ if (gb_std != gb_std_antes)
+ {  
+  gb_std_antes = gb_std;
+  if (gb_std == 1)
+  {
+   gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
+   gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));
+   gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
+                 |(((padbuf[0][5]>>4)&0x03)<<2)
+				 |(((padbuf[0][6]>>4)&0x03)<<4)
+				 |(((padbuf[0][7]>>4)&0x03)<<6);
+   gb_bytes[3] = (gb_pad&0x0F)
+                 |((padbuf[0][4]>>2)&0x10)
+				 |((padbuf[0][5]>>1)&0x20)
+				 |((padbuf[0][6])&0x40)
+				 |((padbuf[0][7]<<1)&0x80);
+   globalNewData = 1;
+  }
+ }
+}
+
+//************************************************************************
+void PollSpeed10Flag()
+{//Analogico 4 bytes Speed 10
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  for (i=0;i<4;i++)
+  {
+   if (gb_address_psExe_cont <(gb_size_psExe-30))
+   {
+    if (main2[gb_address_psExe_cont] != gb_bytes[i])
+    {   
+     gb_error = 1;
+     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
+    }
+   }
+   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
+  }
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+
+//************************************************************************
+void HandleSpeed11NoFlag()
+{//Recibe 4 bytes Analogico con Sync Speed 11
+ //4 Right X, 5 Right Y, 6 Left X, 7 Left Y
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0; 
+ if (gb_std != gb_std_antes)
+ {  
+  gb_std_antes = gb_std;
+  gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
+  gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));
+  gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
+                |(((padbuf[0][5]>>4)&0x03)<<2)
+			 |(((padbuf[0][6]>>4)&0x03)<<4)
+			 |(((padbuf[0][7]>>4)&0x03)<<6);
+  gb_bytes[3] = (gb_pad&0x0F)
+                |((padbuf[0][4]>>2)&0x10)
+			 |((padbuf[0][5]>>1)&0x20)
+			 |((padbuf[0][6])&0x40)
+			 |((padbuf[0][7]<<1)&0x80);
+  globalNewData = 1;
+ }
+}
+
+//************************************************************************
+void PollSpeed11NoFlag()
+{//Analogico 4 bytes Speed 11 No flag
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  for (i=0;i<4;i++)
+  {
+   if (gb_address_psExe_cont <(gb_size_psExe-30))
+   {
+    if (main2[gb_address_psExe_cont] != gb_bytes[i])
+    {   
+     gb_error = 1;
+     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
+    }
+   }
+   gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
+   gb_address_psExe_cont++;
+   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
+    gb_address_psExe_cont= 2048;   
+  }
+  
+  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+   gb_launch_exe = 1;
+ }
+}
+
+
+//************************************************************************
+void Handle3bytesAnalogNoFlag()
+{//Recibe 3 bytes Analogico con Sync Speed 9
+ //4 Right X, 5 Right Y, 6 Left X, 7 Left Y
+ if (gb_pad&Pad1Select) gb_std=1; else gb_std=0; 
+ 
+ if (gb_std != gb_std_antes)
+ {  
+  gb_std_antes = gb_std;
+  gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
+  gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));  
+  globalNewData = 1;
+ }
+}
+
+//************************************************************************
+void Poll3bytesAnalogNoFlag()
+{//Analogico 3 bytes Speed 9
+ u_char i=0;
+ if (gb_error == 1)
+  return;
+ if (globalNewData == 1)
+ {
+  globalNewData = 0; 
+  for (i=0;i<2;i++)
+  {
+   if (gb_address_psExe_cont <(gb_size_psExe-30))
+   {
+    if (main2[gb_address_psExe_cont] != gb_bytes[i])
+    {   
+     gb_error = 1;
+     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
     }
    }
    gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
@@ -874,6 +1088,18 @@ int main(void)
 	 case 6: Handle5bytesAnalog(); //Mando analogico
 	  Poll5bytesAnalog();
 	  break;
+	 case 8: Handle3bytesAnalog(); //Mando analogico
+	  Poll3bytesAnalog();
+	  break;	  
+	 case 9: Handle3bytesAnalogNoFlag(); //Mando analogico
+	  Poll3bytesAnalogNoFlag();
+	  break;	  	  
+	 case 10: HandleSpeed10Flag(); //Mando analogico
+	  PollSpeed10Flag();
+	  break;
+	 case 11: HandleSpeed11NoFlag(); //Mando analogico
+	  PollSpeed11NoFlag();
+	  break;
 	 default:HandleFourBtn(); //4 Botones mando modificado
       PollFourBtn();
       break;	  
@@ -892,8 +1118,8 @@ int main(void)
   //Handle5bytesAnalog();
   if (gb_error != 1)        
    //sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF));
-   sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %d %d",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),gb_std,gb_cont_bit);
-   //sprintf (gb_cadLog,"%x %d/%d\n%d %d %02x %02x %02x %02x %02x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xff),(padbuf[0][4]&0xff),(padbuf[0][5]&0xff),(padbuf[0][6]&0xff),(padbuf[0][7]&0xff));
+   //sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %d %d",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),gb_std,gb_cont_bit);
+   sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %02x %02x %02x %02x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),(padbuf[0][4]&0xff),(padbuf[0][5]&0xff),(padbuf[0][6]&0xff),(padbuf[0][7]&0xff));
    //sprintf (gb_cadLog,"%x %d/%d\nBeg%d STD%d Vel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_BeginData,gb_std,gb_speed,gb_pad);
   FntPrint("%s",gb_cadLog);
   
