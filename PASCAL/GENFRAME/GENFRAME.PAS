@@ -319,6 +319,127 @@ BEGIN
 END;
 
 {******************************************************}
+PROCEDURE Save2BytesHeadAnalogSPI(data: byte);
+{Bit, que seria el 3 nibble. 5 nibbles Arduino 50 ms Modo 8}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= (not((data AND $07) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+
+ aux:= (not(((data SHR 3) AND $07) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+
+ aux:= (not(((data SHR 6) AND $03) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadAnalogSPISpeed10Flag(data: byte);
+{Bit, que seria el 3 nibble. 5 nibbles Arduino 50 ms Modo 10 Modo}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= (not((data AND $07) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+
+ aux:= (not(((data SHR 3) AND $07) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+
+ aux:= (not(((data SHR 6) AND $03) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadAnalogSPISpeed11NoFlag(data: byte);
+{Bit, que seria el 3 nibble. 10 nibbles Arduino 25 ms Speed 11}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= (not((data AND $07) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+ gbCadSal:= gbCadSal + 'F000000000';
+
+ aux:= (not(((data SHR 3) AND $07) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+ gbCadSal:= gbCadSal + 'F000000000';
+
+ aux:= (not(((data SHR 6) AND $03) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'000000000';
+ gbCadSal:= gbCadSal + 'F000000000';
+
+ Write(gbFileWrite,gbCadSal);
+ gbCadSal:='';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE Save2BytesHeadAnalogSPINoFlag(data: byte);
+{Bit, que seria el 3 nibble. 3 nibbles Arduino 25 ms 5 nibbles 5 caracteres}
+{8   L2 Button}
+{9   R2 Button}
+{10  L1 Button}
+{11  R1 Button}
+VAR
+ aux: byte;
+BEGIN
+ aux:= (not((data AND $07) OR $08) AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+ gbCadSal:= gbCadSal + 'F0000';
+
+ aux:= (not(((data SHR 3) AND $07) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+ gbCadSal:= gbCadSal + 'F0000';
+
+ aux:= (not(((data SHR 6) AND $03) OR $08)AND $0F);
+ gbCadSal:= gbCadSal + NibbleToHexString(aux)+'0000';
+ gbCadSal:= gbCadSal + 'F0000';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
 PROCEDURE Save1ByteHeadSPI(data: byte);
 {Bit, que seria el 3 nibble. Logica negada envio arduino}
 {8   L2 Button}
@@ -479,6 +600,81 @@ BEGIN
 END;
 
 {******************************************************}
+PROCEDURE Save3BytesAnalogSPI(a,b,c: byte);
+BEGIN
+ {1 byte 8 botones Envio 1 byte Gatillos y botones.Logica negada Arduino}
+ {Cuadrado X Circulo Triangulo R1 L1 R2 L2}
+ {   S     Z  X        D       R  W  T  E}
+ {Pos Bit en SPI 2 bytes controlador}
+ {  15     14 13       12      11 10 9  8}
+ {   7      6  5        4       3  2 1  0 Equivale}
+ {Analogico Right X,Y, Left X,Y}
+ gbCadSal:= gbCadSal + '0'; {Forzar fallo analogico, no envia nada}
+ {Right Joy X}
+ gbCadSal:= gbCadSal + NibbleToHexString(a AND $0F); {Baja a}
+ {gbCadSal:= gbCadSal + '0';}
+ {gbCadSal:= gbCadSal + NibbleToHexString(c AND $03);} {2 bits de c}
+ {Right Joy Y}
+ gbCadSal:= gbCadSal + NibbleToHexString(((a SHR 4)AND $0F)); {Alta a}
+ {gbCadSal:= gbCadSal + NibbleToHexString((c SHR 2)AND $03);} {2 bits de c}
+ {gbCadSal:= gbCadSal + '0';}
+ {Left Joy X}
+ gbCadSal:= gbCadSal + NibbleToHexString(b AND $0F); {Baja b}
+ {gbCadSal:= gbCadSal + NibbleToHexString((c SHR 4)AND $03);} {2 bits de c}
+ {gbCadSal:= gbCadSal + '0';}
+ {Left Joy Y}
+ gbCadSal:= gbCadSal + NibbleToHexString(((b SHR 4)AND $0F)); {Alta b}
+ {gbCadSal:= gbCadSal + NibbleToHexString((c SHR 6)AND $03);} {2 bits de c}
+ {gbCadSal:= gbCadSal + '0';}
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE SaveAnalogSPISpeed1011(a,b,c,d: byte);
+VAR aux: byte;
+BEGIN
+ {gbCadSal:= gbCadSal + '00';} {Forzar fallo analogico, no envia nada}
+ aux:= ((NOT(d)AND $0F)) AND $0F; {Baja d}
+ gbCadSal:= gbCadSal + NibbleToHexString(aux); {Alta d}
+ gbCadSal:= gbCadSal + '0';
+ {Right Joy X}
+ gbCadSal:= gbCadSal + NibbleToHexString(a AND $0F); {Baja a}
+ aux:= (((d SHR 4)AND $01) SHL 2)AND $04;
+ gbCadSal:= gbCadSal + NibbleToHexString((c AND $03)OR aux); {2 bits de c}
+ {Right Joy Y}
+ gbCadSal:= gbCadSal + NibbleToHexString(((a SHR 4)AND $0F)); {Alta a}
+ aux:= (((d SHR 5)AND $01) SHL 2)AND $04;
+ gbCadSal:= gbCadSal + NibbleToHexString(((c SHR 2)AND $03)OR aux); {2 bits de c}
+ {Left Joy X}
+ gbCadSal:= gbCadSal + NibbleToHexString(b AND $0F); {Baja b}
+ aux:= (((d SHR 6)AND $01) SHL 2)AND $04;
+ gbCadSal:= gbCadSal + NibbleToHexString(((c SHR 4)AND $03)OR aux); {2 bits de c}
+ {Left Joy Y}
+ gbCadSal:= gbCadSal + NibbleToHexString(((b SHR 4)AND $0F)); {Alta b}
+ aux:= (((d SHR 7)AND $01) SHL 2)AND $04;
+ gbCadSal:= gbCadSal + NibbleToHexString(((c SHR 6)AND $03)OR aux); {2 bits de c}
+
+ Write(gbFileWrite,gbCadSal);
+ gbCadSal:='';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+
+{******************************************************}
 PROCEDURE SaveHead3ByteSPI;
 VAR{Graba 3 bytes 12 bits 50 ms Head}
  aux: byte;
@@ -519,6 +715,91 @@ BEGIN
  IF (gbContLinea>0) THEN
   Writeln(gbFileWrite,gbCadSal); {Ultima linea}
 END;
+
+{******************************************************}
+PROCEDURE SaveHead2BytesAnalogSPI;
+VAR{16 bits 50 ms Head 5 caracteres Arduino Modo 8}
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ cad:= '';
+ Save2BytesHeadAnalogSPI((auxSize AND $FF));
+ Save2BytesHeadAnalogSPI(((auxSize SHR 8) AND $FF));
+ Save2BytesHeadAnalogSPI(((auxSize SHR 16) AND $FF));
+ Save2BytesHeadAnalogSPI((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  Save2BytesHeadAnalogSPI(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed10Flag;
+VAR{32 bits 50 ms Head 10 caracteres Arduino Modo 10}
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ cad:= '';
+ SaveHeadAnalogSPISpeed10Flag((auxSize AND $FF));
+ SaveHeadAnalogSPISpeed10Flag(((auxSize SHR 8) AND $FF));
+ SaveHeadAnalogSPISpeed10Flag(((auxSize SHR 16) AND $FF));
+ SaveHeadAnalogSPISpeed10Flag((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  SaveHeadAnalogSPISpeed10Flag(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed11NoFlag;
+VAR{32 bits 25 ms Head 10 caracteres Arduino Modo 11}
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ cad:= '';
+ SaveHeadAnalogSPISpeed11NoFlag((auxSize AND $FF));
+ SaveHeadAnalogSPISpeed11NoFlag(((auxSize SHR 8) AND $FF));
+ SaveHeadAnalogSPISpeed11NoFlag(((auxSize SHR 16) AND $FF));
+ SaveHeadAnalogSPISpeed11NoFlag((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  SaveHeadAnalogSPISpeed11NoFlag(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHead2BytesAnalogSPINoFlag;
+VAR{16 bits 25 ms Head 5 caracteres Arduino}
+ aux: byte;
+ cad: string;
+ i:integer;
+ auxSize: longint;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ cad:= '';
+ Save2BytesHeadAnalogSPINoFlag((auxSize AND $FF));
+ Save2BytesHeadAnalogSPINoFlag(((auxSize SHR 8) AND $FF));
+ Save2BytesHeadAnalogSPINoFlag(((auxSize SHR 16) AND $FF));
+ Save2BytesHeadAnalogSPINoFlag((gbSpeed OR (gbCompress SHL 6)));
+ FOR i:=1 TO 3 DO
+  Save2BytesHeadAnalogSPINoFlag(gbAddress[i]);
+ Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
 
 {******************************************************}
 PROCEDURE SaveHead1ByteSPI;
@@ -568,14 +849,18 @@ BEGIN
  writeln('GENFRAME psexe frame memaddress speed compress');
  writeln('');
  writeln(' speed:');
- writeln('  0 - 4 btns 50 ms (3 bits) 60 bauds');
- writeln('  1 - 4 btns 25 ms (3 bits) 120 bauds');
- writeln('  2 - SPI 50 ms (8 bits) 160 bauds');
- writeln('  3 - SPI 25 ms (8 bits) 320 bauds');
- writeln('  4 - SPI 50 ms (12 bits) 240 bauds');
- writeln('  5 - SPI 25 ms (12 bits) 480 bauds');
- writeln('  6 - SPI 50 ms (40 bits) 800 bauds');
- writeln('  7 - SPI 25 ms (40 bits) 1600 bauds');
+ writeln('   0 - 4 btns 50 ms (3 bits) 60 bauds');
+ writeln('   1 - 4 btns 25 ms (3 bits) 120 bauds');
+ writeln('   2 - SPI 50 ms (8 bits) 160 bauds');
+ writeln('   3 - SPI 25 ms (8 bits) 320 bauds');
+ writeln('   4 - SPI 50 ms (12 bits) 240 bauds (ERROR)');
+ writeln('   5 - SPI 25 ms (12 bits) 480 bauds (ERROR)');
+ writeln('   6 - SPI 50 ms (40 bits) 800 bauds (ERROR)');
+ writeln('   7 - SPI 25 ms (40 bits) 1600 bauds (ERROR)');
+ writeln('   8 - SPI 50 ms (16 bits) 320 bauds');
+ writeln('   9 - SPI 25 ms (16 bits) 640 bauds');
+ writeln('  10 - SPI 50 ms (32 bits) 640 bauds');
+ writeln('  11 - SPI 25 ms (32 bits) 1280 bauds');
  writeln(' compress:');
  writeln('  0 - No compression');
  writeln('  1 - Head remove 1920 bytes');
@@ -634,6 +919,11 @@ BEGIN
   3: gbTopeLinea:= 6; {spi 9 btns 1 byte 25 ms 320 bauds}
   4: gbTopeLinea:= 6; {spi 12 btns 12 bits 50 ms 240 bauds}
   6: gbTopeLinea:= 6; {spi 50 ms 800 bauds Mando analogico}
+
+  8: gbTopeLinea:= 6; {spi 50 ms 320 bauds Mando analogico}
+  9: gbTopeLinea:= 6; {spi 25 ms 640 bauds Mando analogico}
+  10:gbTopeLinea:= 6; {spi 50 ms 640 bauds Mando analogico}
+  11:gbTopeLinea:= 6; {spi 25 ms 1290 bauds Mando analogico}
   else
    gbTopeLinea:= 6;
  END;
@@ -662,9 +952,31 @@ BEGIN
       gbTopeLinea:= 9;
      END;
   6: BEGIN
-      Writeln(gbFileWrite,'%');{10 caracteres arduino}
+      Writeln(gbFileWrite,'$,*');{10 caracteres arduino 50 ms}
       SaveHead5BytesAnalogSPI; {Mando analogico 5 bytes 40 bits}
       gbTopeLinea:= 20;
+     END;
+  8: BEGIN
+      Writeln(gbFileWrite,'$.*');{5 caracteres arduino 50 ms}
+      SaveHead2BytesAnalogSPI; {Mando analogico 2 bytes 16 bits}
+      gbTopeLinea:= 20;
+     END;
+  9: BEGIN
+      Writeln(gbFileWrite,'$.#');{5 caracteres arduino 25 ms no flag}
+      SaveHead2BytesAnalogSPINoFlag; {Mando analogico 2 bytes 16 bits}
+      gbTopeLinea:= 41;
+     END;
+  10:BEGIN
+      {No pongo codigo numero de nibbles}
+      Writeln(gbFileWrite,'$*');{10 nibbles arduino 50 ms flag}
+      SaveHeadSpeed10Flag; {Mando analogico 4 bytes}
+      gbTopeLinea:= 20;
+     END;
+  11:BEGIN
+      {No pongo codigo numero de nibbles}
+      Writeln(gbFileWrite,'$#');{10 nibbles arduino 50 ms no flag}
+      SaveHeadSpeed11NoFlag; {Mando analogico 4 bytes}
+      gbTopeLinea:= 41;
      END;
   else
    SaveHead;
@@ -707,6 +1019,38 @@ BEGIN
         BEGIN
          Save5BytesAnalogSPI(Buf[i],Buf[i+1],Buf[i+2],Buf[i+3],Buf[i+4]);
          i:= i+5;
+        END;
+      END;
+   8: BEGIN
+       i:= 1; {5 caracteres 2 bytes 50 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         Save3BytesAnalogSPI(Buf[i],Buf[i+1],Buf[i+2]);
+         i:= i+2;
+        END;
+      END;
+   9: BEGIN
+       i:= 1; {5 caracteres 3 bytes 25 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         Save3BytesAnalogSPI(Buf[i],Buf[i+1],Buf[i+2]);
+         i:= i+2;
+        END;
+      END;
+   10:BEGIN
+       i:= 1; {10 caracteres 4 bytes 50 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveAnalogSPISpeed1011(Buf[i],Buf[i+1],Buf[i+2],Buf[i+3]);
+         i:= i+4;
+        END;
+      END;
+   11:BEGIN
+       i:= 1; {10 caracteres 4 bytes 25 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveAnalogSPISpeed1011(Buf[i],Buf[i+1],Buf[i+2],Buf[i+3]);
+         i:= i+4;
         END;
       END;
   END;
