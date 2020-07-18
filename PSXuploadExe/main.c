@@ -30,7 +30,9 @@
 #include <strings.h>
 #include "pad.h"
 //#include "kk.h"
-#include "demo1.h"
+//#include "demo1.h" //Para comparar serie con datos memoria
+//u_char main2[20428]; //Lo defino para que compile bien, hay que quitarlo
+u_char main2[10]; //Lo defino para que compile bien, hay que quitarlo
 
 #define OT_LENGTH (10) //this is the 'length' of the OT (ordering tabble)
 					   //for more info on ordering tables, check out ot.txt on my 'info' page
@@ -73,7 +75,6 @@ PACKET GPUPacketArea[2][PACKETMAX2]; //also 2 gfx packet areas for double buffer
 #define PAD_ANALOG 0x73
 #define PAD_FLIGHT 0x53
 #define PAD_MOUSE 0x12
-
 
 
 char gb_cadLog[200]="\0";
@@ -140,9 +141,40 @@ void PollFourBtnNotSync(void); //Falla
 void PollReceivedHeadFourBtn(void);
 
 
+//void SendData(int pad_n, unsigned char *in, unsigned char *out, int len);
+//void TestSend();
 void CargaPrograma(struct EXEC *exep);
 int main(void);
 
+
+//Send data to PAD_SIO
+/*void SendData(int pad_n, unsigned char *in, unsigned char *out, int len)
+{int x,y,i;	
+	PADSIO_MODE(0) = 0x0D;
+	PADSIO_BAUD(0) = 0x88;	
+	if(pad_n == 1) PADSIO_CTRL(0) = 0x3003; else PADSIO_CTRL(0) = 0x1003;		
+	for(y=0;y<400;y++);	//Slight delay before first transmission
+	for(x = 0; x < len; x++)
+	{		
+		while((PADSIO_STATUS(0) & 4) < 1);//Wait for TX ready		
+		//while((PADSIO_STATUS(0) & 0x04) == 0x00);//Wait for TX ready		
+		PADSIO_DATA(0) = *in;
+		in++;		
+		while((PADSIO_STATUS(0) & 2) < 1);//Read RX status flag		
+		*out = PADSIO_DATA(0);
+		out++;
+	}	
+	PADSIO_CTRL(0) = 0;
+}*/
+
+//***********************************************************************
+/*void TestSend()
+{
+ unsigned char DataToSend[] =  {1, 0x42, 0, 0, 0, 0, 0, 0, 0};
+ unsigned char ReceivedData[16];
+ SendData(0, DataToSend, ReceivedData, sizeof(DataToSend));
+ sprintf (gb_cadLog,"Test %02x%02x%02x%02x",ReceivedData[0],ReceivedData[1],ReceivedData[2],ReceivedData[3]);
+}*/
 
 //***********************************************************************
 void PollAnalogPAD()
@@ -474,15 +506,19 @@ void HandleSpeed10Flag()
    gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
    gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));
    gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
-                 |(((padbuf[0][5]>>4)&0x03)<<2)
-				 |(((padbuf[0][6]>>4)&0x03)<<4)
-				 |(((padbuf[0][7]>>4)&0x03)<<6);
+                 |(((padbuf[0][5]>>2)&0x0C))
+	 		     |(padbuf[0][6]&0x30)
+	 		     |((padbuf[0][7]<<2)&0xC0);				
    gb_bytes[3] = (gb_pad&0x0F)
                  |((padbuf[0][4]>>2)&0x10)
 				 |((padbuf[0][5]>>1)&0x20)
 				 |((padbuf[0][6])&0x40)
 				 |((padbuf[0][7]<<1)&0x80);
    globalNewData = 1;
+   //gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
+   //              |(((padbuf[0][5]>>4)&0x03)<<2)
+   //    		   |(((padbuf[0][6]>>4)&0x03)<<4)
+   //		  	   |(((padbuf[0][7]>>4)&0x03)<<6);   
   }
  }
 }
@@ -529,15 +565,20 @@ void HandleSpeed11NoFlag()
   gb_bytes[0] = ((padbuf[0][4]&0x0F)|((padbuf[0][5]<<4)&0xF0));
   gb_bytes[1] = ((padbuf[0][6]&0x0F)|((padbuf[0][7]<<4)&0xF0));
   gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
-                |(((padbuf[0][5]>>4)&0x03)<<2)
-			 |(((padbuf[0][6]>>4)&0x03)<<4)
-			 |(((padbuf[0][7]>>4)&0x03)<<6);
+                |(((padbuf[0][5]>>2)&0x0C))
+			    |(padbuf[0][6]&0x30)
+			    |((padbuf[0][7]<<2)&0xC0);
   gb_bytes[3] = (gb_pad&0x0F)
                 |((padbuf[0][4]>>2)&0x10)
-			 |((padbuf[0][5]>>1)&0x20)
-			 |((padbuf[0][6])&0x40)
-			 |((padbuf[0][7]<<1)&0x80);
+			    |((padbuf[0][5]>>1)&0x20)
+			    |((padbuf[0][6])&0x40)
+			    |((padbuf[0][7]<<1)&0x80);
   globalNewData = 1;
+  /*gb_bytes[2] = ((padbuf[0][4]>>4)&0x03)
+                |(((padbuf[0][5]>>4)&0x03)<<2)
+			    |(((padbuf[0][6]>>4)&0x03)<<4)
+			    |(((padbuf[0][7]>>4)&0x03)<<6);
+			 */  
  }
 }
 
@@ -552,14 +593,14 @@ void PollSpeed11NoFlag()
   globalNewData = 0; 
   for (i=0;i<4;i++)
   {
-   if (gb_address_psExe_cont <(gb_size_psExe-30))
-   {
-    if (main2[gb_address_psExe_cont] != gb_bytes[i])
-    {   
-     gb_error = 1;
-     sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
-    }
-   }
+   //if (gb_address_psExe_cont <(gb_size_psExe-30))
+   //{
+   // if (main2[gb_address_psExe_cont] != gb_bytes[i])
+   // {   
+   //  gb_error = 1;
+   //  sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],gb_bytes[i]);
+   // }
+   //}
    gb_p_address[gb_address_psExe_cont] = gb_bytes[i];
    gb_address_psExe_cont++;
    if ((gb_type == 1)&&(gb_address_psExe_cont==128))
@@ -1023,6 +1064,7 @@ void PollFourBtn()
 
 /***************** functions ********************/
 int i=0;
+int port0,port1,info0,info1;
 
 int main(void) 
 {	
@@ -1030,7 +1072,7 @@ int main(void)
  FntLoad(960, 256);		//this loads the font gfx to the vram
  //FntOpen(32, 32, 256, 200, 0, 512);	//this sets up the fonts printing attributes
  //x y ini, width heigh, clear, max char
- FntOpen(8, 8, 300, 24, 0, 64);	//this sets up the fonts printing attributes
+ FntOpen(8, 8, 300, 24, 0, 128);	//this sets up the fonts printing attributes
 						//eg printing boundries and number of letters to hold in printing buffer etc    	
  DrawSync(0);    
  //while (1) 
@@ -1040,6 +1082,7 @@ int main(void)
   activeBuffer = GsGetActiveBuff();	//gets the buffer currently being displayed and stores in activeBuffer
   GsSetWorkBase((PACKET*)GPUPacketArea[activeBuffer]);	//sets up the gfx workspace
   GsClearOt(0, 0, &myOT[activeBuffer]);			//clears the OT contents
+  
   
   PollAnalogPAD();  
   if (gb_receivedHead == 0)
@@ -1056,17 +1099,17 @@ int main(void)
     PollReceivedHeadFourBtn();
    }   
   }
-  else
+  else	  	  
   {
-/*   if (gb_BeginData == 0)
-   {//Busca que este en silencio
-    //gb_pad=PadRead(0);
-	if ((gb_pad&Pad1R1)==0)
-	 gb_BeginData = 1;
-    //if ((gb_pad&Pad1Left)==0)
-	// gb_BeginData = 1;
-   }
-   else*/
+//   if (gb_BeginData == 0)
+//   {//Busca que este en silencio
+//    //gb_pad=PadRead(0);
+//	if ((gb_pad&Pad1R1)==0)
+//	 gb_BeginData = 1;
+//    //if ((gb_pad&Pad1Left)==0)
+//	// gb_BeginData = 1;
+//   }
+//   else
    {	
     switch (gb_speed)
 	{
@@ -1111,15 +1154,40 @@ int main(void)
     //Poll6bytes14Btn2PAD();
     //Handle3bytes14BtnNotSync(); //No funciona 14 Botones 1 mando fake spi fast
     //Poll3bytes14BtnNotSync();   
-   }
+   }  
   } 
   
-    
+  
+  //port0= PadGetState(0x00);
+  //port1= PadGetState(0x01);
+  //PadGetState(0x02);
+  //PadGetState(0x03);
+     
+  //info0= PadInfoMode(0,InfoModeCurID,0);
+  //info1= PadInfoMode(1,InfoModeCurID,0);
+  //PadInfoMode(2,InfoModeCurID,0);
+  //PadInfoMode(4,InfoModeCurID,0);
+  
+  //TestSend();
+ 
   //Handle5bytesAnalog();
   if (gb_error != 1)        
    //sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF));
    //sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %d %d",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),gb_std,gb_cont_bit);
-   sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %02x %02x %02x %02x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),(padbuf[0][4]&0xff),(padbuf[0][5]&0xff),(padbuf[0][6]&0xff),(padbuf[0][7]&0xff));
+//   sprintf (gb_cadLog,"%02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x %d %d %d %d",
+//   (padbuf[0][0]&0xFF),(padbuf[0][1]&0xFF),(padbuf[0][2]&0xFF),(padbuf[0][3]&0xFF),
+//   (padbuf[0][4]&0xFF),(padbuf[0][5]&0xFF),(padbuf[0][6]&0xFF),(padbuf[0][7]&0xFF),
+//   (padbuf[0][8]&0xFF),(padbuf[0][9]&0xFF),(padbuf[0][10]&0xFF),(padbuf[0][11]&0xFF),
+//   (padbuf[0][12]&0xFF),(padbuf[0][13]&0xFF),(padbuf[0][14]&0xFF),(padbuf[0][15]&0xFF),
+//   (padbuf[0][16]&0xFF),(padbuf[0][17]&0xFF),(padbuf[0][18]&0xFF),(padbuf[0][19]&0xFF),
+//   (padbuf[0][20]&0xFF),(padbuf[0][21]&0xFF),(padbuf[0][22]&0xFF),(padbuf[0][23]&0xFF),
+//   (padbuf[0][24]&0xFF),(padbuf[0][25]&0xFF),(padbuf[0][26]&0xFF),(padbuf[0][27]&0xFF),
+//   (padbuf[0][28]&0xFF),(padbuf[0][29]&0xFF),(padbuf[0][30]&0xFF),(padbuf[0][31]&0xFF),
+//   (padbuf[0][32]&0xFF),(padbuf[0][33]&0xFF),
+//   port0,port1,info0,info1
+//   );
+  //sprintf (gb_cadLog,"%x %d/%d\n%d %d",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type);
+  sprintf (gb_cadLog,"%x %d/%d\n%d %d %04x %02x%02x%02x%02x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,(gb_pad&0xFFFF),(padbuf[0][4]&0xff),(padbuf[0][5]&0xff),(padbuf[0][6]&0xff),(padbuf[0][7]&0xff));
    //sprintf (gb_cadLog,"%x %d/%d\nBeg%d STD%d Vel%d %x",gb_address_psExe,gb_size_psExe,gb_address_psExe_cont,gb_BeginData,gb_std,gb_speed,gb_pad);
   FntPrint("%s",gb_cadLog);
   
@@ -1149,7 +1217,7 @@ void InitGraphics(void) {
 	SetVideoMode( MODE_NTSC ); //JJ
 	SetDispMask(1);				// 0: inhibit display 			
 	//this method sets up gfx for printing to screen
-	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0); //initialises the graphics system	
+	GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0); //initialises the graphics system	
     // set the graphics mode resolutions (GsNONINTER for NTSC, and GsINTER for PAL)
 	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsINTER|GsOFSGPU, 1, 0);	//PAL
 	GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0);	//NTSC
@@ -1162,12 +1230,26 @@ void InitGraphics(void) {
 	myOT[1].org = myOT_TAG[1];
 	GsClearOt(0,0,&myOT[0]); //initialises ordering table
 	GsClearOt(0,0,&myOT[1]);	
-			
-    //Mandos analogico
+	
+	
+    //Mandos analogico directo
 	PadInitDirect(padbuf[0], padbuf[1]);
 	PadStartCom();
 	gb_pad = 0;		//controller value initialize
+	//Fin mandos analogicos directo
 	
+	
+	//Multitap
+//	PadInitMtap(padbuf[0],padbuf[1]);
+	//InitTAP(padbuf[0],34,padbuf[1],34);
+	//VSync(0);
+    //StartTAP();
+    //VSync(0);
+	//ChangeClearPAD(0);
+
+	//StartTAP();
+	//PadStartCom();
+	//gb_pad = 0;
 	//PadInit(0);	
 }
 //*************************************************
