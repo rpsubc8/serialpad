@@ -70,6 +70,7 @@ VAR
  gbContLinea, gbContContLinea,gbNumRead,i: Word;
  gbSpeed, gbCompress, gbCode: integer;
  Buf: array[1..32000] of byte; {32000 bytes}
+ gbMaxSizeReadBuf: word; {32000 por defecto}
  gbCadAddress,gbCadSal: string;
  gbAddress: array[1..4] of byte;
  gbModeFlag: boolean; {TRUE flanco btn. FALSE, no flanco}
@@ -675,6 +676,60 @@ END;
 
 
 {******************************************************}
+PROCEDURE SaveCustomSPISpeed1213(VAR a: array OF byte);
+VAR aux,i: byte;{Graba 16 nibbles 8 bytes}
+BEGIN
+ FOR i:=0 TO 7 DO
+  BEGIN
+   gbCadSal:= gbCadSal + NibbleToHexString(a[i] AND $0F); {Baja}
+   gbCadSal:= gbCadSal + NibbleToHexString(((a[i] SHR 4)AND $0F)); {Alta}
+  END;
+
+ Write(gbFileWrite,gbCadSal);
+ gbCadSal:='';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
+PROCEDURE SaveCustomSPISpeed1415(VAR a: array OF byte);
+VAR aux,i: byte;{Graba 32 nibbles 16 bytes 14 bytes}
+BEGIN
+ FOR i:=0 TO 13 DO
+  BEGIN
+   gbCadSal:= gbCadSal+NibbleToHexString(a[i] AND $0F);{Baja}
+   gbCadSal:= gbCadSal+NibbleToHexString(((a[i] SHR 4)AND $7));{Alta 7 bits}
+  END;
+    
+ aux:= ((a[0] AND $80)SHR 7)OR((a[1] AND $80) SHR 6)OR((a[2] AND $80) SHR 5)OR((a[3] AND $80) SHR 4);
+ gbCadSal:= gbCadSal+NibbleToHexString(aux AND $0F);
+ aux:= ((a[4] AND $80)SHR 7)OR((a[5] AND $80) SHR 6)OR((a[6] AND $80) SHR 5); 
+ gbCadSal:= gbCadSal+NibbleToHexString(aux AND $07);
+
+ aux:= ((a[7] AND $80)SHR 7)OR((a[8] AND $80) SHR 6)OR((a[9] AND $80) SHR 5)OR((a[10] AND $80) SHR 4);
+ gbCadSal:= gbCadSal+NibbleToHexString(aux AND $0F);
+ aux:= ((a[11] AND $80)SHR 7)OR((a[12] AND $80) SHR 6)OR((a[13] AND $80) SHR 5); 
+ gbCadSal:= gbCadSal+NibbleToHexString(aux AND $07);
+
+ Write(gbFileWrite,gbCadSal);
+ gbCadSal:='';
+
+ gbContLinea:= gbContLinea+1;
+ IF (gbContLinea>gbTopeLinea) THEN
+  BEGIN
+   gbContLinea:= 0;
+   Writeln(gbFileWrite,gbCadSal);
+   gbCadSal:= '';
+  END;
+END;
+
+{******************************************************}
 PROCEDURE SaveHead3ByteSPI;
 VAR{Graba 3 bytes 12 bits 50 ms Head}
  aux: byte;
@@ -754,6 +809,105 @@ BEGIN
  FOR i:=1 TO 3 DO
   SaveHeadAnalogSPISpeed10Flag(gbAddress[i]);
  Write(gbFileWrite,cad); {Ya ha metido retorno linea}
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed12Flag;
+VAR{64 bits 50 ms Head 16 caracteres Arduino Modo 12}
+ aux: byte;
+ i:integer;
+ auxSize: longint;
+ a: ARRAY[0..7] OF byte;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ a[0]:=(auxSize AND $FF);
+ a[1]:=((auxSize SHR 8) AND $FF);
+ a[2]:=((auxSize SHR 16) AND $FF);
+ a[3]:=(gbSpeed OR (gbCompress SHL 6));
+ a[4]:=gbAddress[1];
+ a[5]:=gbAddress[2];
+ a[6]:=gbAddress[3];
+ a[7]:=0;
+ SaveCustomSPISpeed1213(a);
+ FOR i:=1 TO 20 DO
+  Write(gbFileWrite,'0000000000000000');
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed14Flag;
+VAR{112 bits 50 ms Head 32 char 16 bytes 14 bytes Arduino Modo 14}
+ aux: byte;
+ i:integer;
+ auxSize: longint;
+ a: ARRAY[0..13] OF byte; {14 bytes enviar}
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ a[0]:=(auxSize AND $FF);
+ a[1]:=((auxSize SHR 8) AND $FF);
+ a[2]:=((auxSize SHR 16) AND $FF);
+ a[3]:=(gbSpeed OR (gbCompress SHL 6));
+ a[4]:=gbAddress[1];
+ a[5]:=gbAddress[2];
+ a[6]:=gbAddress[3];
+ FOR i:=7 TO 13 DO
+  a[i]:=0;
+ SaveCustomSPISpeed1415(a);
+ FOR i:=1 TO 10 DO
+  Write(gbFileWrite,'00000000000000000000000000000000');
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed13NoFlag;
+VAR{64 bits 25 ms Head 16 caracteres Arduino Modo 13}
+ aux: byte;
+ i:integer;
+ auxSize: longint;
+ a: ARRAY[0..7] OF byte;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ a[0]:=(auxSize AND $FF);
+ a[1]:=((auxSize SHR 8) AND $FF);
+ a[2]:=((auxSize SHR 16) AND $FF);
+ a[3]:=(gbSpeed OR (gbCompress SHL 6));
+ a[4]:=gbAddress[1];
+ a[5]:=gbAddress[2];
+ a[6]:=gbAddress[3];
+ a[7]:=0;
+ SaveCustomSPISpeed1213(a);
+ FOR i:=1 TO 41 DO
+  Write(gbFileWrite,'0000000000000000');
+ IF (gbContLinea>0) THEN
+  Writeln(gbFileWrite,gbCadSal); {Ultima linea}
+END;
+
+
+{******************************************************}
+PROCEDURE SaveHeadSpeed15NoFlag;
+VAR{112 bits 25 ms Head 32 char 16 bytes 14 bytes Arduino Modo 15}
+ aux: byte;
+ i:integer;
+ auxSize: longint;
+ a: ARRAY[0..13] OF byte;
+BEGIN
+ auxSize:= FileSize(gbFileRead);
+ a[0]:=(auxSize AND $FF);
+ a[1]:=((auxSize SHR 8) AND $FF);
+ a[2]:=((auxSize SHR 16) AND $FF);
+ a[3]:=(gbSpeed OR (gbCompress SHL 6));
+ a[4]:=gbAddress[1];
+ a[5]:=gbAddress[2];
+ a[6]:=gbAddress[3]; 
+ FOR i:=7 TO 13 DO
+  a[i]:=0; 
+ SaveCustomSPISpeed1415(a);
+ FOR i:=1 TO 41 DO
+  Write(gbFileWrite,'00000000000000000000000000000000');
  IF (gbContLinea>0) THEN
   Writeln(gbFileWrite,gbCadSal); {Ultima linea}
 END;
@@ -846,7 +1000,7 @@ END;
 {******************************************************}
 PROCEDURE ShowHelp;
 BEGIN
- writeln('GENFRAME psexe frame memaddress speed compress');
+ writeln('GENFRAME psexe frame memaddress speed compress ms');
  writeln('');
  writeln(' speed:');
  writeln('   0 - 4 btns 50 ms (3 bits) 60 bauds');
@@ -861,11 +1015,21 @@ BEGIN
  writeln('   9 - SPI 25 ms (16 bits) 640 bauds');
  writeln('  10 - SPI 50 ms (32 bits) 640 bauds');
  writeln('  11 - SPI 25 ms (32 bits) 1280 bauds');
+ writeln('  12 - SPI 50 ms (64 bits custom) 1280 bauds');
+ writeln('  13 - SPI 25 ms (64 bits custom) 2560 bauds');
+ writeln('  14 - SPI 50 ms (112 bits custom) 2240 bauds');
+ writeln('  15 - SPI 25 ms (112 bits custom) 4480 bauds');
  writeln(' compress:');
  writeln('  0 - No compression');
  writeln('  1 - Head remove 1920 bytes');
  writeln('  2 - ');
  writeln('  3 - ');
+ writeln(' ms:');
+ writeln('  25 - 25 ms');
+ writeln('  20 - 20 ms');
+ writeln('  18 - 18 ms');
+ writeln('  17 - 17 ms');
+ writeln('  16 - 16 ms');
  writeln('');
  writeln('Example:');
  writeln(' GENFRAME demo1.exe frame.txt 80010000 0 0');
@@ -898,6 +1062,7 @@ END;
 {* MAIN *}
 {********}
 BEGIN
+ gbMaxSizeReadBuf:= 32000;
  IF (paramCount<5) THEN
   BEGIN
    ShowHelp;
@@ -924,6 +1089,10 @@ BEGIN
   9: gbTopeLinea:= 6; {spi 25 ms 640 bauds Mando analogico}
   10:gbTopeLinea:= 6; {spi 50 ms 640 bauds Mando analogico}
   11:gbTopeLinea:= 6; {spi 25 ms 1290 bauds Mando analogico}
+  12:gbTopeLinea:= 6; {spi 50 ms 1280 bauds PSXSDK}
+  13:gbTopeLinea:= 6; {spi 25 ms 2560 bauds PSXSDK}
+  14:gbTopeLinea:= 6; {spi 50 ms 2560 bauds PSXSDK}
+  15:gbTopeLinea:= 6; {spi 25 ms 5120 bauds PSXSDK}
   else
    gbTopeLinea:= 6;
  END;
@@ -978,6 +1147,28 @@ BEGIN
       SaveHeadSpeed11NoFlag; {Mando analogico 4 bytes}
       gbTopeLinea:= 41;
      END;
+  12:BEGIN
+      Writeln(gbFileWrite,'$*');{16 nibbles arduino 50 ms no flag}
+      SaveHeadSpeed12Flag; {custom 8 bytes}
+      gbTopeLinea:= 20;
+     END;
+  13:BEGIN
+      Writeln(gbFileWrite,'$#');{16 nibbles arduino 25 ms no flag}
+      SaveHeadSpeed13NoFlag; {custom 8 bytes}
+      gbTopeLinea:= 41;
+     END;
+  14:BEGIN
+      gbMaxSizeReadBuf:= 31976; {Multiplo 14}
+      Writeln(gbFileWrite,'$*');{32 char 16 bytes arduino 50 ms flag}
+      SaveHeadSpeed14Flag; {custom 14 bytes}
+      gbTopeLinea:= 20;
+     END;
+  15:BEGIN
+      gbMaxSizeReadBuf:= 31976; {Multiplo 14}
+      Writeln(gbFileWrite,'$#');{32 char 16 bytes arduino 25 ms no flag}
+      SaveHeadSpeed15NoFlag; {custom 14 bytes}
+      gbTopeLinea:= 41;  
+     END;
   else
    SaveHead;
  END;
@@ -987,7 +1178,7 @@ BEGIN
  gbContLinea:=0;
  gbContContLinea:=0;
  REPEAT
-  BlockRead(gbFileRead, Buf, SizeOf(Buf), gbNumRead);
+  BlockRead(gbFileRead, Buf, gbMaxSizeReadBuf, gbNumRead);
   IF ((gbCompress=1) AND (isHead = FALSE)) THEN
    BEGIN {Primera vez es la cabecera}
     isHead:= TRUE;
@@ -1051,6 +1242,38 @@ BEGIN
         BEGIN
          SaveAnalogSPISpeed1011(Buf[i],Buf[i+1],Buf[i+2],Buf[i+3]);
          i:= i+4;
+        END;
+      END;
+   12:BEGIN
+       i:= 1;{16 nibbles 8 bytes 50 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveCustomSPISpeed1213(Buf[i]);
+         i:= i+8;
+        END;
+      END;
+   13:BEGIN
+       i:= 1;{16 nibbles 8 bytes 25 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveCustomSPISpeed1213(Buf[i]);
+         i:= i+8;
+        END;
+      END;
+   14:BEGIN
+       i:= 1;{32 nibbles 16 bytes 14 bytes envio 50 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveCustomSPISpeed1415(Buf[i]);
+         i:= i+14;
+        END;
+      END;
+   15:BEGIN
+       i:= 1;{32 nibbles 16 bytes 14 bytes envio 50 ms}
+       WHILE (i<gbNumRead) DO
+        BEGIN
+         SaveCustomSPISpeed1415(Buf[i]);
+         i:= i+14;
         END;
       END;
   END;
