@@ -1,3 +1,3 @@
 all:
-               ccpsx -O2 -Xo$8005F800 main.c -omain.cpe 
+               ccpsx -O2 -Xo$801A0000 main.c -omain.cpe 
                                                                                                                                
