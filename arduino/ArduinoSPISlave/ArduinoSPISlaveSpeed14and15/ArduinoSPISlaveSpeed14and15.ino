@@ -4,8 +4,13 @@
 //* Arduino IDE 1.8.11            *
 //* CUSTOM MSG 0x1 PSXSDK PSYQ    *
 //* 16 bytes send 14 bytes        *
-//* Mode 14: 50 ms 2240 baud (*)  * 
-//* Mode 15: 25 ms 4480 baud (#)  *
+//* PACK 14 bytes en 16 bytes     *
+//* Se usan 32 chars para 16 bytes*
+//* Vel 14: 50 ms 2240 baud (*)   * 
+//* Vel 15: 25 ms 4480 baud (#)   *
+//* Realterm delay 1050           *
+//* Vel 14 - 25,20,18,17          *
+//* Vel 15 - 25,20,18             *
 //*********************************
 //Arduino SPI Slave for Playstation 2
 //Based on busslave's work form 2012 
@@ -24,7 +29,7 @@
 #include <util/delay.h>
 
 #define F_CPU 16000000
-#define ARDUINO 101
+//#define ARDUINO 101
 
 #define SPI_PORT PORTB
 #define SPI_PINS PINB
@@ -39,11 +44,8 @@
 
 
 //Analogico
-#define max_buf 1512
-//#define gb_speed_baud 500000
-//#define gb_speed_baud 57600
-#define gb_speed_baud 38400
-//#define gb_speed_baud 9600
+#define max_buf 1400
+#define gb_speed_baud 115200
 uint8_t gbDelay=25; //Tiempo
 uint16_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
@@ -63,25 +65,25 @@ uint8_t gbUseFlag=1;
 
 //CUSTOM MSG
 volatile uint8_t data_buff[DATA_LEN]=   {0x41,0x00, 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01, 0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02, 0xFF};
-volatile uint8_t command_buff[DATA_LEN]={0x01,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00};
+//volatile uint8_t command_buff[DATA_LEN]={0x01,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00};
     
 volatile uint8_t curr_byte=0;
-volatile uint8_t next_byte=0;
 
 uint8_t gb_cont_nibble=0;
 uint8_t gb_nibble=0;
 
 void SetFlag(uint8_t aux);
 void EnviaDatos(void);
-void Speed13ms17Flag(void);
-void Speed13ms18Flag(void);
-void Speed13ms20Flag(void);
-void Speed13ms25Flag(void);
-void Speed12ms17Flag(void);
-void Speed12ms18Flag(void);
-void Speed12ms20Flag(void);
-void Speed12ms25Flag(void);
+void Speed15ms17NoFlag(void);
+void Speed15ms18NoFlag(void);
+void Speed15ms20NoFlag(void);
+void Speed15ms25NoFlag(void);
+void Speed14ms17Flag(void);
+void Speed14ms18Flag(void);
+void Speed14ms20Flag(void);
+void Speed14ms25Flag(void);
 uint8_t CharHexToDec(char a);
+void ResetAll(void);
 void setup();
 void loop();
 
@@ -94,11 +96,20 @@ uint8_t CharHexToDec(char a)
  return aReturn;
 }
 
+//*************************************
+void ResetAll(){
+ data_buff[1] = 0x00; //Desactivo
+ gb_cont_buf= 0;
+ gb_flipflop= 0x01;
+ gbUseFlag=1;//Pongo flag defecto
+ gb_aux=0;
+ gbDelay=25; 
+ gb_cont_nibble=0;
+}
+
 
 //*****************************************************
-void setup() {  
-  // Begin Serial communication with Pi
-  //Serial.begin(38400);
+void setup() {     
   Serial.begin(gb_speed_baud);
      
   //SPI_PORT setup. 
@@ -120,8 +131,8 @@ void setup() {
   SPDR=0xFF;
   
   sei(); // Enable global interrupts.
-  
-  data_buff[1] = 0x00; //Desactivo
+     
+  ResetAll();
 }
 
 //SPI interrupt
@@ -130,7 +141,8 @@ ISR(SPI_STC_vect) {
   uint8_t inbyte = SPDR;    
   // FIX ME : Manage other cases ? (other commands from the master?)
   //if (SPDR == command_buff[curr_byte])
-  if (inbyte == command_buff[curr_byte])  
+  //if (inbyte == command_buff[curr_byte])  
+  if ((curr_byte==0 && inbyte == 1)||(curr_byte>0 && inbyte == 0))
   {
     // We put the next byte in the buffer, to be send along the next clock cycle
     SPDR = data_buff[curr_byte++];
@@ -163,7 +175,7 @@ ISR(SPI_STC_vect) {
 }
 
 //***************************************************************
-void Speed12ms17Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed14ms17Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = 0x01; //Activo
@@ -174,7 +186,7 @@ void Speed12ms17Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 
 }
 
 //***************************************************************
-void Speed12ms18Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed14ms18Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = 0x01; //Activo
@@ -185,7 +197,7 @@ void Speed12ms18Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 
 }
 
 //***************************************************************
-void Speed12ms20Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed14ms20Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = 0x01; //Activo
@@ -196,7 +208,7 @@ void Speed12ms20Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 
 }
 
 //***************************************************************
-void Speed12ms25Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed14ms25Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = 0x01; //Activo
@@ -210,7 +222,7 @@ void Speed12ms25Flag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 
 
 
 //***************************************************************
-void Speed13ms17NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed15ms17NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = gb_flipflop; //Activo
@@ -220,7 +232,7 @@ void Speed13ms17NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bi
 }
 
 //***************************************************************
-void Speed13ms18NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed15ms18NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = gb_flipflop; //Activo
@@ -230,7 +242,7 @@ void Speed13ms18NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bi
 }
 
 //***************************************************************
-void Speed13ms20NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed15ms20NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = gb_flipflop; //Activo
@@ -240,7 +252,7 @@ void Speed13ms20NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bi
 }
 
 //***************************************************************
-void Speed13ms25NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
+void Speed15ms25NoFlag() //Envio 8 bytes 16 nibbles(quitamos parte alta fallo bit 7)
 {for (uint16_t i=0;i<gb_cont_buf;i+=16)
  {memcpy(&data_buff[2],&gb_buf[i],16);
   data_buff[1] = gb_flipflop; //Activo
@@ -259,10 +271,10 @@ void EnviaDatos()
   switch (gbDelay)
   {
    default: break;
-   case 17: Speed12ms17Flag(); break;
-   case 18: Speed12ms18Flag(); break;
-   case 20: Speed12ms20Flag(); break;
-   case 25: Speed12ms25Flag(); break;
+   case 17: Speed14ms17Flag(); break;
+   case 18: Speed14ms18Flag(); break;
+   case 20: Speed14ms20Flag(); break;
+   case 25: Speed14ms25Flag(); break;
   }
  }
  else
@@ -270,10 +282,10 @@ void EnviaDatos()
   switch (gbDelay)
   {
    default: break;   
-   case 17: Speed13ms17NoFlag(); break;
-   case 18: Speed13ms18NoFlag(); break;
-   case 20: Speed13ms20NoFlag(); break;
-   case 25: Speed13ms25NoFlag(); break;   
+   case 17: Speed15ms17NoFlag(); break;
+   case 18: Speed15ms18NoFlag(); break;
+   case 20: Speed15ms20NoFlag(); break;
+   case 25: Speed15ms25NoFlag(); break;   
   }    
  }
  gb_cont_buf=0;    
@@ -301,7 +313,10 @@ void loop() {
    if ((gb_cont_nibble & 0x01) == 0x00)
     gb_nibble = (CharHexToDec(gb_aux)&0x0F);
    else
+   {
     gb_buf[gb_cont_buf++]= ((CharHexToDec(gb_aux)<<4)|gb_nibble);
+    if (gb_cont_buf>=max_buf) gb_cont_buf = 0;    
+   }
    gb_cont_nibble++;
   }
  }
@@ -311,11 +326,11 @@ void loop() {
  {
   default: break;
   case 10: EnviaDatos(); break; //Nueva linea envio datos
-  case 36: gbDelay = 25; break; //$
-  case 37: gbDelay = 20; break; //%
-  case 38: gbDelay = 18; break; //&
-  case 40: gbDelay = 17; break; //(
-  case 41: gbDelay = 16; break; //)
+  case 36: gbDelay = 25; gb_aux=0;break; //$
+  case 37: gbDelay = 20; gb_aux=0;break; //%
+  case 38: gbDelay = 18; gb_aux=0;break; //&
+  case 40: gbDelay = 17; gb_aux=0;break; //(
+  case 41: gbDelay = 16; gb_aux=0; break; //)
   case 42: SetFlag(1); break; //* Flag  
   case 35: SetFlag(0); break; //#  
  }
