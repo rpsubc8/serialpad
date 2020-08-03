@@ -9,6 +9,7 @@ CONST
  Latch_High = $01;
 VAR
  gbNoWait: boolean;
+ gbStopArduino: boolean;
  gbBaud: longint;
  gbCadFile: string;
  gbDelayLine: word;
@@ -125,11 +126,19 @@ BEGIN
  aux:= ParamStr(3);
  IF (aux='115200') THEN gbBaud:= 115200
  ELSE gbBaud:= 9600;
+ 
+ gbNoWait:= false;  
+ gbStopArduino:= false;
  IF (ParamCount>=4) THEN
-  IF ParamStr(4)='nowait' THEN
-   gbNoWait:= true
-  ELSE
-   gbNoWait:= false;
+  BEGIN
+   IF ParamStr(4)='nowait' THEN gbNoWait:= true;
+   IF (ParamStr(4)='stop') THEN gbStopArduino:= true;
+  END;
+ IF (ParamCount>=5) THEN  
+  BEGIN
+   IF ParamStr(5)='nowait' THEN gbNoWait:= true;
+   IF (ParamStr(5)='stop') THEN gbStopArduino:= true;   
+  END;
 END;
 
 {************************************************}
@@ -138,26 +147,40 @@ BEGIN
  writeln('');
  writeln('SEND PAD PSX ARDUINO   Author: Ackerman');
  writeln('----------------------------------------');
- writeln('SEND frame.txt delay baud nowait');
+ writeln('SEND frame.txt delay baud nowait stop');
  writeln('');
  writeln(' delay milliseconds');
  writeln(' baud:');
  writeln('  9600   - 9600 bauds');
  writeln('  115200 - 115200 bauds');
  writeln(' nowait: Not wait key press');
+ writeln(' stop: Start Stop arduino');
  writeln('');
  writeln('Example:');
- writeln(' SEND frame.txt 1050 9600');
+ writeln(' SEND frame.txt 1050 9600 stop');
 END;
 
 {************************************************}
 PROCEDURE EnviaFichero;
 BEGIN
+ gotoxy(1,1); Write('Delay ',ParamStr(2),' Baud ',gbBaud);
  IF (gbNoWait = false) THEN
   BEGIN
-   Write('Press key to begin');
+   IF (gbStopArduino = true) THEN
+    BEGIN
+     gotoxy(1,2);Write('ARDUINO STOP');
+     SendSerial('-'); {Paro ARDUINO}
+    END;
+   gotoxy(1,3);Write('Press key to begin');
    WHILE NOT(keypressed) DO;
    readkey;
+   IF (gbStopArduino = true) THEN
+    BEGIN
+     SendSerial('+'); {Arranco ARDUINO}
+     gotoxy(1,2);Write('ARDUINO START');
+     gbBeforeTime:= gbCurrentTime;
+     WHILE ((gbCurrentTime - gbBeforeTime) <= gbDelayLine) DO;
+    END;
   END;
  Reset(gbFile);
  while not Eof(gbFile) do
@@ -170,7 +193,7 @@ BEGIN
      SendSerial(chr($0D));
      SendSerial(chr($0A));
      gbCurrentLinea:= gbCurrentLinea+1;
-     gotoxy(1,2); Write('Line ',gbTotalLineas,'/',gbCurrentLinea);
+     gotoxy(1,4); Write('Line ',gbTotalLineas,'/',gbCurrentLinea);
      gbBeforeTime:= gbCurrentTime;
      WHILE (((gbCurrentTime - gbBeforeTime) <= gbDelayLine) AND NOT Keypressed) DO;
      {Delay(1150);}
