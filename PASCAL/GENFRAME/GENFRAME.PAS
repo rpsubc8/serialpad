@@ -909,7 +909,7 @@ BEGIN
  gbCadSal:= gbCadSal+NibbleToHexString(aux AND $0F);
  aux:= ((a[39] AND $80)SHR 7)OR((a[40] AND $80) SHR 6)OR((a[41] AND $80) SHR 5); 
  gbCadSal:= gbCadSal+NibbleToHexString(aux AND $07);
- 
+
 
  aux:= ((a[42] AND $80)SHR 7)OR((a[43] AND $80) SHR 6)OR((a[44] AND $80) SHR 5)OR((a[45] AND $80) SHR 4);
  gbCadSal:= gbCadSal+NibbleToHexString(aux AND $0F);
@@ -1567,14 +1567,7 @@ BEGIN
  writeln(' compress:');
  writeln('  0 - No compression');
  writeln('  1 - Head remove 1920 bytes');
- writeln('  2 - ');
- writeln('  3 - ');
- writeln(' ms:');
- writeln('  25 - 25 ms');
- writeln('  20 - 20 ms');
- writeln('  18 - 18 ms');
- writeln('  17 - 17 ms');
- writeln('  16 - 16 ms');
+ writeln(' ms: 30, 25, 20, 18, 17, 16');
  writeln('');
  writeln('Example:');
  writeln(' GENFRAME demo1.exe frame.txt 80010000 0 25');
@@ -1602,6 +1595,7 @@ BEGIN
   18: gbChrControlSpeed:= '&';
   20: gbChrControlSpeed:= '%';
   25: gbChrControlSpeed:= '$';
+  30: gbChrControlSpeed:= '.';
   else
    gbChrControlSpeed:= '$';
  END;
