@@ -1,6 +1,26 @@
 //Autor: ackerman
 //upload PsExe PAD CUSTOM SIO port with ARDUINO
 //Jaime Jose Gavin Sierra
+
+//ARDUINO conectado a 0 (puerto 1), 1 (puerto 2)
+//MANDO PSX conectado a 0 (puerto 1), 1 (puerto 2)
+//TEST usar mando seleccion de velocidades
+//#define MODE_VIDEO_NTSC
+#define MODE_VIDEO_PAL
+#define GB_USEPORTARDUINO 1
+#define GB_USEPORTPADPSX 0
+#define GB_USEPADTESTSPEED 1
+#define maxTimeOutChange 1200
+#define maxTimeOutRemovePAD 600
+#define PAD_UP (1<<12)
+#define PAD_DOWN (1<<14)
+#define PAD_LEFT (1<<15)
+#define PAD_RIGHT (1<<13)
+#define PAD_CRC (1<<5)
+#define PAD_X (1<<6)
+#define PAD_SELECT (1<<8)
+#define PAD_START (1<<11)
+
 #include <kernel.h>
 #include <libapi.h>
 #include <sys/types.h>
@@ -20,9 +40,13 @@ u_char main2[10];//Para comparar serie con datos memoria
 								  
 #define SCREEN_WIDTH 320
 //NTSC
-#define SCREEN_HEIGHT 240
+#ifdef MODE_VIDEO_NTSC
+ #define SCREEN_HEIGHT 240
+#endif
 //PAL
-//#define SCREEN_HEIGHT 256
+#ifdef MODE_VIDEO_PAL
+ #define SCREEN_HEIGHT 256
+#endif 
 #define tope_texto 1024
 #define booleana unsigned char
 #define TRUE 1
@@ -54,44 +78,59 @@ PACKET GPUPacketArea[2][PACKETMAX2];
 #define maxTimeOut 300
 //Actualiza texto carga cada x fps
 #define maxFpsUpdate 40
-//unsigned char gb_DataToSend[20] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 12,13,14,15 
-//unsigned char gb_DataToSend[36] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 16,17,18,19
-//unsigned char gb_DataToSend[68] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 20,21,22,23
-unsigned char gb_DataToSend[132] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 24,25
-//unsigned char gb_DataToSend[260] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 28,29
+unsigned char gb_DataToSend20[20] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 12,13,14,15 
+unsigned char gb_DataToSend36[36] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 16,17,18,19
+unsigned char gb_DataToSend68[68] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 20,21,22,23
+unsigned char gb_DataToSend132[132] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 24,25
+//unsigned char gb_DataToSend260[260] = {1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0}; //Speed 28,29
 
 u_char gb_contfps=0;
 char gb_cadLog[1024]="TEST\0";
-u_long gb_pad=0; //El estado de botones
+char gb_cadPrev[64]="\0";
 int activeBuffer=0;		//variable used to hold the buffer that is currently being displayed
 u_char gb_std=0;
 u_char gb_std_antes=0;
-u_char gb_cont_bit=0;
 u_char gb_bufferFrame[1024]; //trama
 u_char * gb_ptrFrameData = &gb_bufferFrame[3]; //Apunta a los datos
-u_char gb_bufferFrame2[1024]; //buffer auxiliar
-int gb_cont_bufferFrame=0;
+//u_char gb_bufferFrame2[1024]; //buffer auxiliar
 
 u_char globalNewData=0;
 u_char gb_byte=0; //El byte de dato
-u_char gb_bytes[6]={0,0,0,0,0,0}; //Varios bytes
 u_char gb_error=0;
 unsigned int gb_size_psExe=0;
 unsigned int gb_address_psExe=0;
 u_char gb_receivedHead= 0; //No se ha recibido aun la cabecera
-int gb_type = -1;
-int gb_speed = -1;
+short int gb_type = -1;
+short int gb_speed = -1;
 int gb_CRC = -1;
 u_char gb_launch_exe= 0;
 unsigned int gb_address_psExe_cont=0;
-//unsigned char gb_BeginData = 0;
 unsigned char gb_BeginPulse = 0;
 
 u_char *gb_p_address; //Puntero a memoria PSX
 struct EXEC exe;
 
-static u_char padbuf[2][34]; //Mandos analogico
 unsigned int gb_contNoFlagHeadBlock = 0; //Contador a saltar de Cabecera relleno
+u_char gb_useFlag = 0; //usar modo flag
+#ifdef GB_USEPADTESTSPEED
+ unsigned short gb_pad_antes;
+ unsigned short gb_pad; //Botones del mando 16 botones
+ unsigned short gb_pad_speed[14]={1280,2560 ,2240,4480, 2560,5120, 4480,8960, 5120,10240, 8960,17920, 10240,20480};//Velocidades de 12 a 25 
+ u_char gb_currentPadSpeed = 12;
+ u_char gb_endSelect = 0; //Aun no ha saleccionado
+#endif
+
+unsigned short int gb_contChange = 0;
+u_char gb_resetPSXSerial = 0;
+u_char gb_loop = 1;
+u_char gb_autoPAD = 0;
+u_char gb_padDisconnect = 0;
+u_char gbWaitRemovePAD = 0;
+enum enumTypeFile{
+ fileTIM, fileVAG, fileVAB, fileTMD, fileHMD, fileSEQ, fileEXE, fileOther, fileCEL, fileBGD, filePMD, fileNone
+};
+
+enum enumTypeFile gb_launch_file = fileNone;
 
 
 void InitGraphics(void);
@@ -99,10 +138,179 @@ void DisplayAll(int);
 
 void CargaPrograma(struct EXEC *exep);
 void SendData(int pad_n, unsigned char *in, unsigned char *out, int len);
+#ifdef GB_USEPADTESTSPEED
+ void ReadPad(void);
+ void SelectSpeed(void);
+#endif
 void TestPADSIO(void);
 void PollSpeed12Flag(void);
 void PollHead(void);
+void ResetLoader(void);
+void ResetPSXSERIAL(void);
+void CheckFileData();
 int main(void);
+
+//*****************************************
+void CheckFileData()
+{//Check TIM,VAG,TMD,EXE,etc..
+ gb_launch_file = fileNone;
+ switch (gb_p_address[0])
+ {
+  case 0x10: gb_launch_file= fileTIM; break;
+  case 0x22: gb_launch_file= fileCEL; break;
+  case 0x23: gb_launch_file= fileBGD; break;
+  case 0x41: gb_launch_file= fileTMD; break;
+  case 0x42: gb_launch_file= filePMD; break;
+  case 0x50:
+   if ((gb_p_address[1]==0x53)&&(gb_p_address[2]==0x2D)&&(gb_p_address[3]==0x58)) gb_launch_file= fileEXE;   
+   else
+    if ((gb_p_address[1]==0)&&(gb_p_address[2]==0)&&(gb_p_address[3]==0)) gb_launch_file= fileHMD;
+	else gb_launch_file = fileOther;
+   break;
+  case 0x53: gb_launch_file= fileSEQ; break;
+  case 0x56: gb_launch_file= fileVAG; break;
+  case 0x70: gb_launch_file= fileVAB; break;
+  default: gb_launch_file= fileOther; break;
+ }
+ 
+ switch (gb_launch_file)
+ {
+  case fileTIM: sprintf(gb_cadPrev,"TIM OK"); break;
+  case fileCEL: sprintf(gb_cadPrev,"CEL OK"); break;
+  case fileBGD: sprintf(gb_cadPrev,"BGD OK"); break;
+  case fileTMD: sprintf(gb_cadPrev,"TMD OK"); break;
+  case fileEXE: sprintf(gb_cadPrev,"EXE OK"); break;
+  case fileHMD: sprintf(gb_cadPrev,"HMD OK"); break;
+  case fileSEQ: sprintf(gb_cadPrev,"SEQ OK"); break;
+  case fileVAG: sprintf(gb_cadPrev,"VAG OK"); break;
+  case fileVAB: sprintf(gb_cadPrev,"VAB OK"); break;
+  case filePMD: sprintf(gb_cadPrev,"PMD OK"); break;
+  default: sprintf(gb_cadPrev,"OTHER OK"); break;
+ }
+}
+
+#ifdef GB_USEPADTESTSPEED
+ //***********************************************************************
+ void ReadPad()
+ {u_char DataToSend[] = {1,0x42,0,0,0,0,0,0,0};//Leer mando
+  u_char ReceivedData[16];
+  SendData(GB_USEPORTPADPSX, DataToSend, ReceivedData, sizeof(DataToSend));
+  gb_pad = ~((ReceivedData[3] << 8) | ReceivedData[4]);
+  if (ReceivedData[1] == PAD_NONE)
+   gb_padDisconnect = 1;   
+  else 
+   gb_padDisconnect = 0;
+ }
+
+ //***********************************************************************
+ void SelectSpeed()
+ {
+  u_char auxRun = 0;
+  if (gb_pad_antes != gb_pad)
+  {
+   gb_pad_antes = gb_pad;
+   if (gb_pad & PAD_DOWN) gb_currentPadSpeed--;
+   if (gb_pad & PAD_UP) gb_currentPadSpeed++;
+   if (gb_pad & PAD_LEFT) gb_currentPadSpeed-=10;
+   if (gb_pad & PAD_RIGHT) gb_currentPadSpeed+=10;   
+   if (gb_pad & PAD_CRC) gb_autoPAD=1;   
+   if (gb_pad & PAD_X) auxRun=1;         
+   if (gb_pad & PAD_START)
+   {gb_loop=0;
+	gb_resetPSXSerial=1;//Llamamos a PSXSERIAL
+   }
+   if (gb_pad & PAD_SELECT) ResetLoader();//Reiniciamos nuestro cargador
+   if (gb_currentPadSpeed<12) gb_currentPadSpeed=12;
+   if (gb_currentPadSpeed>25) gb_currentPadSpeed=25;
+  }
+
+  if ((gb_autoPAD == 1) && (gb_padDisconnect == 1)) auxRun=1;
+
+  if ((gb_currentPadSpeed & 0x01)==0x00) gb_useFlag = 1; //Es par es con flag
+  else gb_useFlag = 0;
+  
+  if (auxRun == 1)
+  {gb_endSelect = 1;
+   gb_speed = gb_currentPadSpeed;	   	  
+  }
+   
+  sprintf(gb_cadLog, "V1    %d - %d BAUD(FLAG %d)\n\nX(OK) O(AUTO) START(RST) SEL(INI)",gb_currentPadSpeed,gb_pad_speed[(gb_currentPadSpeed-12)],gb_useFlag);
+ }
+#endif
+
+//***********************************************************************
+void ResetLoadNextFile()
+{
+ gb_endSelect=1;
+ gbWaitRemovePAD=0;
+ gb_contChange=0;
+ gb_error=0;
+ gb_BeginPulse=0;
+ gb_receivedHead=0;
+ gb_contNoFlagHeadBlock=0;
+ gb_autoPAD=0;
+ gb_padDisconnect=0;
+ gb_address_psExe_cont=0;
+ gb_launch_exe=0;
+ gb_launch_file = fileNone;
+ 
+ gb_contfps=0;
+ globalNewData=0;
+ gb_byte=0;
+ gb_size_psExe=0;
+ gb_address_psExe=0;
+ //gb_type=-1;
+ //gb_speed=-1;
+ //gb_useFlag=0;
+ //gb_currentPadSpeed=12;
+ gb_resetPSXSerial=0;
+ gb_loop=1;
+}
+
+//***********************************************************************
+void ResetLoader()//Reset Loader
+{
+ sprintf(gb_cadPrev,"");
+ gb_endSelect=0;
+ gbWaitRemovePAD=0;
+ gb_contChange=0;
+ gb_error=0;
+ gb_BeginPulse=0;
+ gb_receivedHead=0;
+ gb_contNoFlagHeadBlock=0;
+ gb_autoPAD=0;
+ gb_padDisconnect=0;
+ gb_address_psExe_cont=0;
+ gb_launch_exe=0; 
+ gb_launch_file = fileNone;
+ 
+ gb_contfps=0;
+ globalNewData=0;
+ gb_byte=0;
+ gb_size_psExe=0;
+ gb_address_psExe=0;
+ gb_type=-1;
+ gb_speed=-1;
+ gb_useFlag=0;
+ gb_currentPadSpeed=12;
+ gb_resetPSXSerial=0;
+ gb_loop=1;
+ 
+ //ResetGraph(3);
+ //StopCallback();
+ //EnterCriticalSection(); 
+ //__asm__("j 0x80199C84");//Direccion del pc0 cpe2x
+}
+
+//***********************************************************************
+void ResetPSXSERIAL()//Reset PSXSerial
+{ResetGraph(3);
+ StopCallback();
+ EnterCriticalSection();
+ //__asm__("j 0x801ecd94");//v1.3
+ //__asm__("j 0x801EAAE8");//v1.2
+ __asm__("j 0x801e75a8");//v1 funciona 
+}
 
 //***********************************************************************
 void CargaPrograma(struct EXEC *exep){
@@ -140,7 +348,9 @@ void PollSpeed12Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
-  gb_launch_exe = 1; 
+ {gb_loop=0;
+  gb_launch_exe = 1;
+ }
 }
 
 //***********************************************************************
@@ -184,11 +394,13 @@ void PollSpeed13NoFlag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 	
+ }
 }
 
 //***********************************************************************
-void PollHeadSpeed12(){  
+void PollHeadSpeed1213161720212425(){  
  gb_size_psExe = ((gb_ptrFrameData[0]|(gb_ptrFrameData[1]<<4))|((gb_ptrFrameData[2]|(gb_ptrFrameData[3]<<4))<<8)|((gb_ptrFrameData[4]|(gb_ptrFrameData[5]<<4))<<16));
  gb_speed = (gb_ptrFrameData[6]|(gb_ptrFrameData[7]<<4));
  gb_type = (gb_ptrFrameData[8]|(gb_ptrFrameData[9]<<4));
@@ -221,7 +433,9 @@ void PollSpeed1415Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 //********************************************************
@@ -384,7 +598,9 @@ void PollSpeed1819Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 
@@ -580,7 +796,9 @@ void PollSpeed2223Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 
@@ -634,7 +852,9 @@ void PollSpeed1617Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 
@@ -660,7 +880,9 @@ void PollSpeed2021Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 
@@ -672,21 +894,33 @@ void PollSpeed2425Flag()
  for (i=0;i<128;i+=2)
  {
   aux = (gb_ptrFrameData[i]|(gb_ptrFrameData[i+1]<<4));
-//  if (gb_address_psExe_cont <(gb_size_psExe-200))
-//  {
-//   if (main2[gb_address_psExe_cont] != aux)
-//   {   
-//    gb_error = 1;
-//    sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],aux);
-//   }
-//  }
+  //if (gb_address_psExe_cont <(gb_size_psExe-200))
+  //{
+  // if (main2[gb_address_psExe_cont] != aux)
+  // {   
+  //  gb_error = 1;
+  //  sprintf (gb_cadLog,"\nERROR id %d src %x value %x",gb_address_psExe_cont,main2[gb_address_psExe_cont],aux);
+  // }
+  //}
   gb_p_address[gb_address_psExe_cont] = aux;
   gb_address_psExe_cont++;
   if ((gb_type == 1)&&(gb_address_psExe_cont==128))
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
-  gb_launch_exe = 1; 
+ {
+  CheckFileData();  
+  if (gb_launch_file == fileEXE)
+  {
+   gb_loop=0;
+   gb_launch_exe = 1;
+  }
+  else
+  {
+   ResetLoadNextFile();
+   //ResetLoader();
+  }
+ }
 }
 
 
@@ -712,26 +946,46 @@ void PollSpeed2829Flag()
    gb_address_psExe_cont= 2048;   
  }
  if (gb_size_psExe>0 && gb_address_psExe_cont>0 && gb_address_psExe_cont >= gb_size_psExe)
+ {gb_loop=0;
   gb_launch_exe = 1; 
+ }
 }
 
 
 //***********************************************************************
 void TestPADSIO(void)
-{//Recivo FF4100x0x0x0
+{//Recivo FF4100x0x0x0 
  if (gb_error == 1)
   return;
- //SendData(0, gb_DataToSend, gb_bufferFrame, 20); //Speed 12,13,14,15
- //SendData(0, gb_DataToSend, gb_bufferFrame, 36); //Speed 16,17,18,19
- //SendData(0, gb_DataToSend, gb_bufferFrame, 68); //Speed 20,21,22,23
- SendData(0, gb_DataToSend, gb_bufferFrame, 132); //Speed 24,25
- //SendData(0, gb_DataToSend, gb_bufferFrame, 260); //Speed 28,29
-	 
- //sprintf (gb_cadLog,"Test %02x%02x%02x%02x%02x%02x%02x%02x",gb_bufferFrame[0],gb_bufferFrame[1],gb_bufferFrame[2],gb_bufferFrame[3],gb_bufferFrame[4],gb_bufferFrame[5],gb_bufferFrame[6],gb_bufferFrame[7]);
+ switch (gb_speed)
+ {
+  case 12:case 13:case 14:case 15:
+   SendData(GB_USEPORTARDUINO, gb_DataToSend20, gb_bufferFrame, 20);//Speed 12,13,14,15
+   break;
+  case 16:case 17:case 18:case 19:
+   SendData(GB_USEPORTARDUINO, gb_DataToSend36, gb_bufferFrame, 36);//Speed 16,17,18,19
+   break;
+  case 20:case 21:case 22:case 23:
+   SendData(GB_USEPORTARDUINO, gb_DataToSend68, gb_bufferFrame, 68);//Speed 20,21,22,23
+   break;
+  case 24:case 25: 
+   SendData(GB_USEPORTARDUINO, gb_DataToSend132, gb_bufferFrame, 132);//Speed 24,25
+   break;
+  default:break;
+ }
+ //SendData(GB_USEPORTARDUINO, gb_DataToSend, gb_bufferFrame, 260); //Speed 28,29
+	  
  //if ((Rcv[2] & 0x01)==0x01) gb_std=1; else gb_std=0;
+ 
+ //if (gb_bufferFrame[1] != 0x41) //Mensaje 1
+ //{
+ // sprintf (gb_cadLog,"Test %02x%02x%02x%02x%02x%02x%02x%02x",gb_bufferFrame[0],gb_bufferFrame[1],gb_bufferFrame[2],gb_bufferFrame[3],gb_bufferFrame[4],gb_bufferFrame[5],gb_bufferFrame[6],gb_bufferFrame[7]);
+ // return;
+ //}
+	 
+ 
  if ((gb_bufferFrame[2] & 0x01)==0x01) gb_std=1; else gb_std=0;
- 
- 
+  
  if (gb_BeginPulse == 0)
  {//Busca que este en silencio Primera vez
   if (gb_std==0)   
@@ -742,48 +996,64 @@ void TestPADSIO(void)
  if (gb_std != gb_std_antes)
  {
   gb_std_antes = gb_std;
-  //if (gb_std == 1) //Lo uso cuando es con flag
+  gb_contChange = 0;
+  if (
+      ((gb_useFlag == 1) && (gb_std == 1))
+	  ||
+	  (gb_useFlag == 0)
+	 )
+  //if (gb_std == 1) //Lo uso cuando es con flag	 
   {
    if (gb_receivedHead==0)
    {
-    PollHeadSpeed12(); //Modo 12,13  16,17, tambien 20,21,  24,25  28,29
-	//DecodeSIOBuffer1415();PollHeadSpeed1415(); //Modo 14,15	
-	//DecodeSIOBuffer1819();PollHeadSpeed1819(); //Modo 18,19
-	//DecodeSIOBuffer2223();PollHeadSpeed2223(); //Modo 22,23
+    switch (gb_speed)
+	{
+     case 12:case 13:case 16:case 17:case 20:case 21:case 24:case 25:
+	  PollHeadSpeed1213161720212425(); //Modo 12,13  16,17, tambien 20,21,  24,25  28,29
+	  break;
+	 case 14:case 15: DecodeSIOBuffer1415();PollHeadSpeed1415(); break;//Modo 14,15
+	 case 18:case 19: DecodeSIOBuffer1819();PollHeadSpeed1819(); break;//Modo 18,19
+	 case 22:case 23: DecodeSIOBuffer2223();PollHeadSpeed2223(); break;//Modo 22,23
+	 default: break;
+	}
    }
    else
    {
+	#ifdef GB_USEPADTESTSPEED
+	 if (gb_speed != gb_currentPadSpeed)
+	 {sprintf(gb_cadLog,"ERROR SPEED SELECT %d RECEIVE %d",gb_currentPadSpeed,gb_speed);
+	  gb_error = 1;
+	  return;
+	 }
+	#endif
     gb_contNoFlagHeadBlock++; //Para saltarse relleno linea
-	//if (gb_contNoFlagHeadBlock<21) return;//Para velocidad 12 relleno	  
-	//if (gb_contNoFlagHeadBlock<42) return;//Para velocidad 13 sin flag saltar 42 lecturas relleno linea		
-	//if (gb_contNoFlagHeadBlock<21) return;//Para velocidad 14 con flag saltar 21 lecturas relleno
-	//if (gb_contNoFlagHeadBlock<42) return;//Para velocidad 15 sin flag saltar 42 lecturas relleno
-    //if (gb_contNoFlagHeadBlock<21) return; //Para velocidad 16 con flag saltar 21 lecturas relleno linea	
-    //if (gb_contNoFlagHeadBlock<42) return;//Para velocidad 17 sin flag saltar 42 lecturas relleno linea		
-    //if (gb_contNoFlagHeadBlock<21) return;//Para velocidad 18,19 21 lecturas relleno linea	    
-	//if (gb_contNoFlagHeadBlock<21) return;//Para velocidad 20 y 21  21 lecturas relleno linea		
-	//if (gb_contNoFlagHeadBlock<11) return;//Para velocidad 22,23 saltar 10 lecturas relleno linea	
-	if (gb_contNoFlagHeadBlock<11) return;//Velocidad 24 y 25 salta 10	
-	
+	switch (gb_speed)
+	{
+	 default: break;
+	 case 12: if (gb_contNoFlagHeadBlock<21) return; break;//Velocidad 12 relleno	  
+	 case 13: if (gb_contNoFlagHeadBlock<42) return; break;//Velocidad 13 sin flag saltar 42 lecturas relleno linea
+	 case 14: if (gb_contNoFlagHeadBlock<21) return; break;//Velocidad 14 con flag saltar 21 lecturas relleno
+	 case 15: if (gb_contNoFlagHeadBlock<42) return; break;//Velocidad 15 sin flag saltar 42 lecturas relleno
+     case 16: if (gb_contNoFlagHeadBlock<21) return; break;//Para velocidad 16 con flag saltar 21 lecturas relleno linea
+     case 17: if (gb_contNoFlagHeadBlock<42) return; break;//Para velocidad 17 sin flag saltar 42 lecturas relleno linea
+     case 18:case 19: if (gb_contNoFlagHeadBlock<21) return; break;//Para velocidad 18,19 21 lecturas relleno linea
+	 case 20:case 21: if (gb_contNoFlagHeadBlock<21) return; break;//Velocidad 20 y 21  21 lecturas relleno linea
+	 case 22:case 23: if (gb_contNoFlagHeadBlock<11) return; break;//Velocidad 22,23 saltar 10 lecturas relleno linea
+	 case 24:case 25: if (gb_contNoFlagHeadBlock<11) return; break; //Velocidad 24,25
+	}
 	//if (gb_contNoFlagHeadBlock<5) return;//Velocidad 28 salta 10 No funciona
 	
 	switch (gb_speed)
 	{
 	 default: break;
-	 //case 12: PollSpeed12Flag(); break;
-	 //case 13: PollSpeed13NoFlag(); break;
-	 //case 14: DecodeSIOBuffer1415();PollSpeed1415Flag(); break;
-	 //case 15: DecodeSIOBuffer1415();PollSpeed1415Flag(); break;
-	 //case 16: PollSpeed1617Flag(); break;
-	 //case 17: PollSpeed1617Flag(); break;
-	 //case 18: DecodeSIOBuffer1819();PollSpeed1819Flag(); break;
-	 //case 19: DecodeSIOBuffer1819();PollSpeed1819Flag(); break;
-     //case 20: PollSpeed2021Flag(); break;
-	 //case 21: PollSpeed2021Flag(); break;
-     //case 22: DecodeSIOBuffer2223();PollSpeed2223Flag(); break;
-	 //case 23: DecodeSIOBuffer2223();PollSpeed2223Flag(); break;	 
-     case 24: PollSpeed2425Flag(); break;
-	 case 25: PollSpeed2425Flag(); break;	 
+	 case 12: PollSpeed12Flag(); break;
+	 case 13: PollSpeed13NoFlag(); break;
+	 case 14: case 15: DecodeSIOBuffer1415();PollSpeed1415Flag(); break;	 
+	 case 16: case 17: PollSpeed1617Flag(); break;	 
+	 case 18: case 19: DecodeSIOBuffer1819();PollSpeed1819Flag(); break;
+     case 20: case 21: PollSpeed2021Flag(); break;	 
+     case 22: case 23: DecodeSIOBuffer2223();PollSpeed2223Flag(); break;	 
+     case 24: case 25: PollSpeed2425Flag(); break;	 
      //case 28: PollSpeed2829Flag(); break; //No funciona
 	 //case 29: PollSpeed2829Flag(); break; //No funciona
 	}	
@@ -795,7 +1065,7 @@ void TestPADSIO(void)
  {
   gb_contfps = 0;
   if (gb_error == 0){
-   sprintf(gb_cadLog, "%08x %d/%d\n%d %d",gb_p_address,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type);
+   sprintf(gb_cadLog, "%08x %d/%d\n%d %d %d",gb_p_address,gb_size_psExe,gb_address_psExe_cont,gb_speed,gb_type,gb_contChange);
   }  
  }
 }
@@ -815,7 +1085,6 @@ void TestPADSIO(void)
 	//}	   
 
 
-int i=0;
 
 int main(void) 
 {	
@@ -828,30 +1097,56 @@ int main(void)
  DrawSync(0); 
  
  //gb_address_psExe = 0x80010000; 
- //gb_launch_exe = 1;
- TestPADSIO(); ///Primer test quitar timeout
- 
- while (gb_launch_exe == 0)
+ //gb_launch_exe = 1; 
+ //TestPADSIO(); ///Primer test quitar timeout 
+ while (gb_loop == 1)
  {				//infinite
   activeBuffer = GsGetActiveBuff();	//gets the buffer currently being displayed and stores in activeBuffer
   GsSetWorkBase((PACKET*)GPUPacketArea[activeBuffer]);	//sets up the gfx workspace
   GsClearOt(0, 0, &myOT[activeBuffer]);			//clears the OT contents
-       
-  TestPADSIO();  
-  FntPrint("%s",gb_cadLog);
+
+  #ifdef GB_USEPADTESTSPEED
+   if (gb_endSelect == 0)
+   {ReadPad();
+    SelectSpeed();
+   }
+  #endif  
   
+  if (gb_endSelect == 1)
+  {
+   gb_contChange++;
+   if (gbWaitRemovePAD == 0) //Esperamos quitar mando
+   {	
+	sprintf(gb_cadLog,"REMOVE PAD CONTROL PORT%d 00:%02d\n%s",(GB_USEPORTPADPSX+1),((maxTimeOutRemovePAD-gb_contChange)/60),gb_cadPrev);
+	if (gb_contChange > maxTimeOutRemovePAD)
+	{
+	 gbWaitRemovePAD = 1;
+	 gb_contChange = 0;
+	 sprintf(gb_cadLog,"WAIT");
+	}
+   }
+   else
+   {
+	TestPADSIO();
+    if (gb_contChange > maxTimeOutChange) ResetLoader();    
+   }
+  }
+  FntPrint("%s",gb_cadLog);  
   DisplayAll(activeBuffer);		//this displays the OT contents to screen		
  }
  
-  
- CargaPrograma(&exe); //Prepara exec 
- ResetGraph(3);
- //PadStopCom();
- StopCallback();
-// for (i=0;i<100;i++)
-//  VSync(0); //Esperamos 2 segundos 50x2 
- EnterCriticalSection(); 
- Exec(&exe,1,0); //Fin exec
+ if (gb_resetPSXSerial == 1) ResetPSXSERIAL();//Arranca Hitmen Serial
+ 
+ if (gb_launch_exe==1)
+ {CargaPrograma(&exe); //Prepara exec 
+  ResetGraph(3);
+  //PadStopCom();
+  StopCallback();
+  // for (i=0;i<100;i++)
+  //  VSync(0); //Esperamos 2 segundos 50x2 
+  EnterCriticalSection(); 
+  Exec(&exe,1,0); //Fin exec
+ }
  return 0;		//when program is finished return from it
 } 
 
@@ -860,14 +1155,22 @@ void InitGraphics(void) {
 	//Prueba JJ
 	ResetCallback();//JJ
 	ResetGraph(0); //JJ 
-	//SetVideoMode( MODE_PAL ); //JJ
-	SetVideoMode( MODE_NTSC ); //JJ
+	#ifdef MODE_VIDEO_PAL
+	 SetVideoMode( MODE_PAL ); //JJ
+	#endif 
+	#ifdef MODE_VIDEO_NTSC
+	 SetVideoMode( MODE_NTSC ); //JJ
+	#endif 
 	SetDispMask(1);				// 0: inhibit display 			
 	//this method sets up gfx for printing to screen
 	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0); //initialises the graphics system	
     // set the graphics mode resolutions (GsNONINTER for NTSC, and GsINTER for PAL)
-	//GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsINTER|GsOFSGPU, 1, 0);	//PAL
-	GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0);	//NTSC
+	#ifdef MODE_VIDEO_PAL
+	 GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsINTER|GsOFSGPU, 1, 0);	//PAL
+	#endif
+    #ifdef MODE_VIDEO_NTSC	
+	 GsInitGraph(SCREEN_WIDTH, SCREEN_HEIGHT, GsNONINTER|GsOFSGPU, 1, 0);	//NTSC
+	#endif 
 	//no Gs* * * functions will work unless GsInitGraph() has been called
 	GsDefDispBuff(0, 0 , 0, SCREEN_HEIGHT); //defines double buffer attributes
 	//buffer 0's top left coordinate becomes (0,0) & buffer 1's coordinate becomes (0, y resolution)
