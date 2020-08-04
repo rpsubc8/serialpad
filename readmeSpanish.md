@@ -155,15 +155,15 @@ El cargador permite elegir el puerto en el que queremos el ARDUINO, así como el
 El aviso de desconexión del mando, se hace así, para no interferir en el bus SPI. Si dejásemos el mando, daría problemas de comunicaciones.
 Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia el programa (no se borra memoria).
 <center><img src="preview/capturaepsx.gif"></center>
-Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
+Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta <a href="https://github.com/rpsubc8/serialpad/tree/master/PASCAL/GENFRAME">GENFRAME</a>, realizada en PASCAL y que funciona en DOSBOX.
 
-Los modos de velocidad para mando 4 botones (transistores), con cargador UploadExe:
+Los modos de velocidad para mando 4 botones (transistores), con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExe</a>:
 <ul>
  <li><b>0</b> - (50 ms 3 bits 60 baudios)</li>
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
 </ul>
 
-Los modos de velocidad para emulación mando digital emulado (fake spi), con cargador UploadExe:
+Los modos de velocidad para emulación mando digital emulado (fake spi), con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExea</a>:
 <ul>
  <li><b>0</b> - (50 ms 3 bits 60 baudios)</li>
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
@@ -171,7 +171,7 @@ Los modos de velocidad para emulación mando digital emulado (fake spi), con car
  <li><b>3</b> - (25 ms 8 bits 320 baudios)</li>
 </ul> 
  
-Los modos de velocidad para emulación mando analógico emulado (fake spi), con cargador UploadExe:
+Los modos de velocidad para emulación mando analógico emulado (fake spi), con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExe</a>:
 <ul>  
  <li><b>8</b> - (50 ms 16 bits 320 baudios)</li>
  <li><b>9</b> - (25 ms 16 bits 640 baudios)</li>
@@ -179,7 +179,7 @@ Los modos de velocidad para emulación mando analógico emulado (fake spi), con 
  <li><b>11</b> - (25 ms 32 bits 1280 baudios)</li>
 </ul>
 
-Los modos de velocidad para mensajes custom, con cargador PADSIO: 
+Los modos de velocidad para mensajes custom, con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/padsioup">PADSIO</a>: 
 <ul>
  <li><b>12</b> - (50 ms 64 bits 1280 baudios)</li>
  <li><b>13</b> - (25 ms 64 bits 2560 baudios)</li>
@@ -201,11 +201,25 @@ Esta herramienta se puede lanzar:
  GENFRAME demo1.exe frame.txt 80010000 12 0 25
 </pre>
 Este ejemplo, sería para el ejecutable <b>demo1.exe</b> convirtiéndolo en datos ASCII hexadecimales en el archivo <b>frame.txt</b>, dejando la cabecera de memoria en <b>80010000</b>, con el modo de velocidad 12 (1280 baudios), sin compresión y con 25 milisegundos.
+<ul>
+ Los parámetros:
+ <li>1 - demo.exe - Ejecutable o datos a enviar</li>
+ <li>2 - frame.txt - Fichero ASCII con las tramas a enviar</li>
+ <li>3 - 80010000 - Dirección de memoria donde poner los datos</li>
+ <li>4 - 12 - Velocidad a enviar</li>
+ <li>5 - 0 - Sin compresión</li>
+ <li>6 - 25 - 25 milisegundos en enviar dato</li>
+</ul>
+
+También podemos enviar datos:
+<pre>
+ GENFRAME time.tim tim.txt 80100000 12 0 25
+</pre>
 
 Tenemos 2 cargadores, que usaremos según nos interese:
 <ul>
- <li><b>UploadExe</b> - usa las librerias asíncronas PADLIB para comunicarse (velocidades de 0 a 11)</li>
- <li><b>PADSIO</b> - usa comunicación directa al puerto PADSIO (velocidades de 12 a 25)</li>
+ <li><b><a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExe</a></b> - usa las librerias asíncronas PADLIB para comunicarse (velocidades de 0 a 11)</li>
+ <li><b><a href="https://github.com/rpsubc8/serialpad/tree/master/padsioup">PADSIO</a></b> - usa comunicación directa al puerto PADSIO (velocidades de 12 a 25)</li>
 </ul>
 
 Los 25 milisegundos, son la espera en cada transmisión de datos. Si queremos la máxima velocidad, lo mejor es compilar en modo NTSC nuestro cargador (teoría del muestreo), dado que soporta 60 fps.
