@@ -148,8 +148,31 @@ Si pulsamos <b>START</b>, reinicia a la posición del cargador de PSXSerial de H
 Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia el programa.
 <center><img src="preview/capturaepsx.gif"></center>
 Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
+
+Los modos de velocidad para mando 4 botones (transistores):
 <ul>
- Los modos de velocidad para mensajes custom son: 
+ <li><b>0</b> (50 ms 3 bits 60 baudios)</li>
+ <li><b>1</b> (25 ms 3 bits 120 baudios)</li>
+</ul>
+
+Los modos de velocidad para emulación mando digital emulado (fake spi):
+<ul>
+ <li><b>0</b> (50 ms 3 bits 60 baudios)</li>
+ <li><b>1</b> (25 ms 3 bits 120 baudios)</li>
+ <li><b>2</b> (50 ms 8 bits 160 baudios)</li>
+ <li><b>3</b> (25 ms 8 bits 320 baudios)</li>
+</ul> 
+ 
+Los modos de velocidad para emulación mando analógico emulado (fake spi):
+<ul>  
+ <li><b>8</b> (50 ms 16 bits 320 baudios)</li>
+ <li><b>9</b> (25 ms 16 bits 640 baudios)</li>
+ <li><b>10</b> (50 ms 32 bits 640 baudios)</li>
+ <li><b>11</b> (25 ms 32 bits 1280 baudios)</li>
+</ul>
+
+Los modos de velocidad para mensajes custom: 
+<ul>
  <li><b>12</b> (50 ms 64 bits 1280 baudios)</li>
  <li><b>13</b> (25 ms 64 bits 2560 baudios)</li>
  <li><b>14</b> (50 ms 112 bits 2240 baudios)</li>
@@ -166,10 +189,12 @@ Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos 
  <li><b>25</b> (25 ms 512 bits 20480 baudios)</li>
 </ul>
 Esta herramienta se puede lanzar:
-<code>
+<pre>
  GENFRAME demo1.exe frame.txt 80010000 12 0 25
-</code>
+</pre>
 Este ejemplo, sería para el ejecutable <b>demo1.exe</b> convirtiéndolo en datos ASCII hexadecimales en el archivo <b>frame.txt</b>, dejando la cabecera de memoria en <b>80010000</b>, con el modo de velocidad 12 (1280 baudios), sin compresión y con 25 milisegundos.
+
+
 
 
 <br><br>
