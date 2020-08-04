@@ -1,5 +1,5 @@
 # Serial PAD
-It allows you to use a PC keyboard or mouse on a real PSX connected to the control port. Supports:
+It allows you to use a PC keyboard or mouse on a real PSX connected to the command port, as well as to send data to the PSX. Supports:
 <ul>
  <li><a href='#simulation'>Simulation</a></li>
  <li><a href='#padmodification'>Modify control</a></li>
