@@ -1,5 +1,5 @@
 # Serial PAD
-Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de mandos. Soporta:
+Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de mandos, así como enviar datos a la PSX. Soporta:
 <ul>
  <li><a href='#simulation'>Simulación</a></li>
  <li><a href='#padmodification'>Modificar mando</a></li>
