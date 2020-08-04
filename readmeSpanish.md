@@ -138,20 +138,10 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
 
 
 <a name="uploadpsexe"><h2>Upload PsEXE</h2></a>
-Estoy realizando pruebas para usar este hack del mando como si fuera un canal de comunicaciones, estilo modem <b>(lento)</b> serie. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
-Y lo más importante, se permite realizar un upload de un ps-exe directamente  a memoria o a la memory card.
+Permiteenviar enviar ejecutables y datos a la PSX por medio del puerto de mandos. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
 <center><img src="preview/capturaepsx.gif"></center>
-Recordemos, que la PSX puede disponer de hasta 8 mandos PSX por medio de multitaps:
-<ul>
- <li><b>8 x 14 botones x 50 </b>= 5600 bits/s</li>
- <li><b>8 x 14 botones x 60 </b>= 6720 bits/s</li>
- <li><b>8 x 16 botones (modo analogico) x 50 </b>= 6400 bits/s</li>
- <li><b>8 x 16 botones (modo analogico) x 60 </b>= 7680 bits/s</li>
- <li><b>8 x 48 bits (modo analógico) x 50 </b>= 19200 bits/s</li>
- <li><b>8 x 48 bits (modo analógico) x 60 </b>= 23040 bits/s</li>
-</ul>
+
 <center><img src="preview/linkPadSerial.jpg"></center>
-Llevarlo a la práctica físicamente es bastante engorroso, pero es fácil de simular.
 <br><br>
 
 <h2>Simulacion</h2>
