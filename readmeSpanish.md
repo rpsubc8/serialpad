@@ -138,48 +138,42 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
 
 
 <a name="uploadpsexe"><h2>Upload PsEXE</h2></a>
-Permiteenviar enviar ejecutables y datos a la PSX por medio del puerto de mandos. Estoy usando un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando.
-<center><img src="preview/capturaepsx.gif"></center>
-
+Permite enviar ejecutables y datos a la PSX por medio del puerto de mandos. Estoy usando un mando (4 botones) o un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando, tan sólo se requiere un alargador de mandos PSX, o directamente podemos conectar los cables al puerto.
 <center><img src="preview/linkPadSerial.jpg"></center>
+Actualmente estoy consiguiendo velocidades de 20480 baudios con un custom mensaje.
+El cargador permite elegir el puerto en el que queremos el ARDUINO, así como el mando, y podemos seleccionar la velocidad con la que nos comunicaremos, por medio del mando con los botones de dirección.
+Si aceptamos con el botón <b>X</b>, nos dará 10 segundos para desconectar el mando. Esto se hace así, para no interferir en el bus SPI. Si dejasemos el mando, daria problemas de comunicaciones.
+Si aceptamos con el botón <b>O</b>, en cuanto desconectemos el mando, nos dará 10 segundos para arrancar, garantizando que hemos desconectado fijo.
+Si pulsamos <b>START</b>, reinicia a la posición del cargador de PSXSerial de Hitmen, y si pulsamos <b>SELECT</b> se restablece el programa.
+Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia el programa.
+<center><img src="preview/capturaepsx.gif"></center>
+Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
+<ul>
+ Los modos de velocidad para mensajes custom son: 
+ <li><b>12</b> (50 ms 64 bits 1280 baudios)</li>
+ <li><b>13</b> (25 ms 64 bits 2560 baudios)</li>
+ <li><b>14</b> (50 ms 112 bits 2240 baudios)</li>
+ <li><b>15</b> (25 ms 112 bits 4480 baudios)</li>
+ <li><b>16</b> (50 ms 128 bits 2560 baudios)</li>
+ <li><b>17</b> (25 ms 128 bits 5120 baudios)</li>
+ <li><b>18</b> (50 ms 224 bits 4480 baudios)</li>
+ <li><b>19</b> (25 ms 224 bits 8960 baudios)</li>
+ <li><b>20</b> (50 ms 256 bits 5120 baudios)</li>
+ <li><b>21</b> (25 ms 256 bits 10240 baudios)</li>
+ <li><b>22</b> (50 ms 448 bits 8960 baudios)</li>
+ <li><b>23</b> (25 ms 448 bits 17920 baudios)</li>
+ <li><b>24</b> (50 ms 512 bits 10240 baudios)</li>
+ <li><b>25</b> (25 ms 512 bits 20480 baudios)</li>
+</ul>
+Esta herramienta se puede lanzar:
+<code>
+ GENFRAME demo1.exe frame.txt 80010000 12 0 25
+</code>
+Este ejemplo, sería para el ejecutable <b>demo1.exe</b> convirtiéndolo en datos ASCII hexadecimales en el archivo <b>frame.txt</b>, dejando la cabecera de memoria en <b>80010000</b>, con el modo de velocidad 12 (1280 baudios), sin compresión y con 25 milisegundos.
+
+
 <br><br>
 
-<h2>Simulacion</h2>
-Para pruebas rápidas estoy usando un emulador de psx (epsx) y un script (autohotkey) que envia las pulsaciones de teclas para el emulador.
-Se usan 8 botones del mando, junto con 1 más (L1) para el pulso (sincronia) del dato.
-
-<center><table>
- <tr>
-  <td>Button</td><td>Key</td><td>Bit</td>
- </tr>
- <tr>
-  <td>L1</td><td>W</td><td>(sync)</td>
- </tr>
- <tr>  
-  <td>L2</td><td>E</td><td>Q7</td>
- </tr>   
- <tr>  
-  <td>R1</td><td>R</td><td>Q6</td>
- </tr>   
- <tr>     
-  <td>R2</td><td>T</td><td>Q5</td>
- </tr>  
- <tr>  
-  <td>Triangulo</td><td>D</td><td></td>
- </tr>  
- <tr>  
-  <td>Cuadrado</td><td>S</td><td>Q3</td>
- <tr> 
- </tr>  
-  <td>Circulo</td><td>X</td><td>Q2</td>
- <tr> 
- </tr>  
-  <td>X</td><td>Z</td><td>Q1</td>
- <tr>      
-  <td>Start</td><td>V</td><td>Q0</td>
- </tr>  
-</table></center>
-<br><br>
 
 <h2>Otros frentes de desarrollo</h2>
 Se realiza un ataque en varios frentes, desde el m&aacute;s sencillo, al m&aacute;s complejo:
