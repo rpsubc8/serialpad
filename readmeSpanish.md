@@ -149,13 +149,13 @@ Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia
 <center><img src="preview/capturaepsx.gif"></center>
 Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
 
-Los modos de velocidad para mando 4 botones (transistores):
+Los modos de velocidad para mando 4 botones (transistores), con cargador UploadExe:
 <ul>
  <li><b>0</b> - (50 ms 3 bits 60 baudios)</li>
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
 </ul>
 
-Los modos de velocidad para emulación mando digital emulado (fake spi):
+Los modos de velocidad para emulación mando digital emulado (fake spi), con cargador UploadExe:
 <ul>
  <li><b>0</b> - (50 ms 3 bits 60 baudios)</li>
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
@@ -163,7 +163,7 @@ Los modos de velocidad para emulación mando digital emulado (fake spi):
  <li><b>3</b> - (25 ms 8 bits 320 baudios)</li>
 </ul> 
  
-Los modos de velocidad para emulación mando analógico emulado (fake spi):
+Los modos de velocidad para emulación mando analógico emulado (fake spi), con cargador UploadExe:
 <ul>  
  <li><b>8</b> - (50 ms 16 bits 320 baudios)</li>
  <li><b>9</b> - (25 ms 16 bits 640 baudios)</li>
@@ -171,7 +171,7 @@ Los modos de velocidad para emulación mando analógico emulado (fake spi):
  <li><b>11</b> - (25 ms 32 bits 1280 baudios)</li>
 </ul>
 
-Los modos de velocidad para mensajes custom: 
+Los modos de velocidad para mensajes custom, con cargador PADSIO: 
 <ul>
  <li><b>12</b> - (50 ms 64 bits 1280 baudios)</li>
  <li><b>13</b> - (25 ms 64 bits 2560 baudios)</li>
@@ -217,11 +217,10 @@ Se permite enviar datos al estilo de la herramienta <b>pqbload</b>:
  <li><b>SEQ</b> - sonido</li>
  <li><b>SEP</b> - sonido</li>
  <li><b>VAG</b> - sonido</li>
- <li><b>VAB</b> - sonido</li>
- VAG
+ <li><b>VAB</b> - sonido</li> 
 </ul>
 Cuando los archivos no son ejecutables, se dejan en la posición de memoria especificada, y se reinicia el cargador, permitiendo cargar más datos, hasta que sea un ejecutable, que es cuando se lanza. De esta forma, podemos pasar todo tipo de datos para proyectos más complejos, dejando los datos en posiciones fijas, y sólo cargando el EXE.
-Cuando se carga un datos, se muestra el tipo en la espera de desconexión del mando.
+Cuando se carga un fichero de datos, se muestra el tipo en el mensaje de la espera de desconexión del mando.
 
 <br><br>
 
