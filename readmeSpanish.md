@@ -254,6 +254,7 @@ El motivo de usar MSDOS, es para lograr máxima compatibilidad con DOSBOX, de fo
 
 <a name="history"><h2>Historial</h2></a>
 <ul>
+ <li>2020/08/04 - 40% Upload PsExe y datos</li>
  <li>2020/05/25 - 100% ratón PS/2</li>
  <li><b>En pruebas</b> - Simulación de PAD con teclado y emulador ePSX.</li> 
  <li>Código comentado para uso de teclado, y envio de ficheros (recibe 100 bytes).</li>
