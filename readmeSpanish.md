@@ -7,7 +7,7 @@ Permite usar un teclado o ratón de PC en una PSX real conectada al puerto de ma
  <li><a href="#realpadrealconsole">Mando físico en consola real</a></li>
  <li><a href="#protocolo">Protocolo Ratón</a></li>
  <li><a href="#arduino">ARDUINO</a></li> 
- <li><a href="#uploadpsexe">Upload PsEXE</a></li>  
+ <li><a href="#uploadpsexe">Upload PsEXE y datos</a></li>  
  <li><a href="#msdos">Uso de MSDOS</a></li>  
  <li><a href="#history">Historial</a></li>  
  <li><a href="#conclusion">Conclusion</a></li>  
@@ -137,7 +137,7 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
  
 
 
-<a name="uploadpsexe"><h2>Upload PsEXE</h2></a>
+<a name="uploadpsexe"><h2>Upload PsEXE y datos</h2></a>
 Permite enviar ejecutables y datos a la PSX por medio del puerto de mandos. Estoy usando un mando (4 botones) o un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando, tan sólo se requiere un alargador de mandos PSX, o directamente podemos conectar los cables al puerto.
 <center><img src="preview/linkPadSerial.jpg"></center>
 Actualmente estoy consiguiendo velocidades de 20480 baudios con un custom mensaje.
@@ -206,8 +206,22 @@ Los 25 milisegundos, son la espera en cada transmisión de datos. Si queremos la
  <li><b>PAL</b> - 50 fps</li>
 </ul>
 
-
-
+Se permite enviar datos al estilo de la herramienta <b>pqbload</b>:
+<ul>
+ <li><b>TIM</b> - texturas</li>
+ <li><b>CEL</b> - </li>
+ <li><b>BGD</b> - </li>
+ <li><b>TMD</b> - </li>
+ <li><b>EXE</b> - Ejecutable (automáticamente lo lanza)</li>
+ <li><b>HMD</b> - </li>
+ <li><b>SEQ</b> - sonido</li>
+ <li><b>SEP</b> - sonido</li>
+ <li><b>VAG</b> - sonido</li>
+ <li><b>VAB</b> - sonido</li>
+ VAG
+</ul>
+Cuando los archivos no son ejecutables, se dejan en la posición de memoria especificada, y se reinicia el cargador, permitiendo cargar más datos, hasta que sea un ejecutable, que es cuando se lanza. De esta forma, podemos pasar todo tipo de datos para proyectos más complejos, dejando los datos en posiciones fijas, y sólo cargando el EXE.
+Cuando se carga un datos, se muestra el tipo en la espera de desconexión del mando.
 
 <br><br>
 
