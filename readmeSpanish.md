@@ -163,7 +163,7 @@ Los modos de velocidad para mando 4 botones (transistores), con cargador <a href
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
 </ul>
 
-Los modos de velocidad para emulación mando digital emulado (fake spi), con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExea</a>:
+Los modos de velocidad para emulación mando digital emulado (fake spi), con cargador <a href="https://github.com/rpsubc8/serialpad/tree/master/PSXuploadExe">UploadExe</a>:
 <ul>
  <li><b>0</b> - (50 ms 3 bits 60 baudios)</li>
  <li><b>1</b> - (25 ms 3 bits 120 baudios)</li>
