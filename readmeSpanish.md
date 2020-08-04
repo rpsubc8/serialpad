@@ -138,13 +138,20 @@ Los pines activarán la base del transistor, que permitirá activar los botones 
 
 
 <a name="uploadpsexe"><h2>Upload PsEXE y datos</h2></a>
-Permite enviar ejecutables y datos a la PSX por medio del puerto de mandos. Estoy usando un mando (4 botones) o un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando, tan sólo se requiere un alargador de mandos PSX, o directamente podemos conectar los cables al puerto.
+Permite enviar ejecutables y datos a la PSX por medio del puerto de mandos. Se usa un mando (4 botones) o un hack del bus de comunicaciones SPI, con un fake slave spi con arduino, de manera que no es necesario modificar el mando, tan sólo se requiere un alargador de mandos PSX, o directamente podemos conectar los cables al puerto.
 <center><img src="preview/linkPadSerial.jpg"></center>
 Actualmente estoy consiguiendo velocidades de 20480 baudios con un custom mensaje.
-El cargador permite elegir el puerto en el que queremos el ARDUINO, así como el mando, y podemos seleccionar la velocidad con la que nos comunicaremos, por medio del mando con los botones de dirección.
-Si aceptamos con el botón <b>X</b>, nos dará 10 segundos para desconectar el mando. Esto se hace así, para no interferir en el bus SPI. Si dejasemos el mando, daria problemas de comunicaciones.
-Si aceptamos con el botón <b>O</b>, en cuanto desconectemos el mando, nos dará 10 segundos para arrancar, garantizando que hemos desconectado fijo.
-Si pulsamos <b>START</b>, reinicia a la posición del cargador de PSXSerial de Hitmen, y si pulsamos <b>SELECT</b> se restablece el programa.
+El cargador permite elegir el puerto en el que queremos el ARDUINO, así como el mando, y podemos:
+<ul>
+ <li><b>Arriba</b> - Aumenta velocidad</li>
+ <li><b>Abajo</b> - Reduce velocidad</li>
+ <li><b>Izquierda</b> - Aumenta 10 velocidad</li>
+ <li><b>X</b> - Acepta velocidad y nos deja 10 segundos para desconectar el mando</li>
+ <li><b>O</b> - Detecta la desconexión del mando</li>
+ <li><b>START</b> - Reinicia a la posición del cargador de PSXSerial de Hitmen</li>
+ <li><b>SELECT</b> - Se restablece el programa.</li>
+</ul>
+El aviso de desconexión del manso, se hace así, para no interferir en el bus SPI. Si dejasemos el mando, daria problemas de comunicaciones.
 Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia el programa (no se borra memoria).
 <center><img src="preview/capturaepsx.gif"></center>
 Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
