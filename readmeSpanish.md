@@ -144,14 +144,15 @@ Actualmente estoy consiguiendo velocidades de 20480 baudios con un custom mensaj
 El cargador permite elegir el puerto en el que queremos el ARDUINO, así como el mando, y podemos:
 <ul>
  <li><b>Arriba</b> - Aumenta velocidad</li>
- <li><b>Abajo</b> - Reduce velocidad</li>
- <li><b>Izquierda</b> - Aumenta 10 velocidad</li>
+ <li><b>Abajo</b> - Reduce velocidad</li> 
+ <li><b>Derecha</b> - Aumenta en 10 posiciones la velocidad</li>
+ <li><b>Izquierda</b> - Reduce en 10 posiciones la velocidad</li>
  <li><b>X</b> - Acepta velocidad y nos deja 10 segundos para desconectar el mando</li>
  <li><b>O</b> - Detecta la desconexión del mando</li>
  <li><b>START</b> - Reinicia a la posición del cargador de PSXSerial de Hitmen</li>
  <li><b>SELECT</b> - Se restablece el programa.</li>
 </ul>
-El aviso de desconexión del manso, se hace así, para no interferir en el bus SPI. Si dejasemos el mando, daria problemas de comunicaciones.
+El aviso de desconexión del mando, se hace así, para no interferir en el bus SPI. Si dejásemos el mando, daría problemas de comunicaciones.
 Si en 10 segundos no recibimos datos correctos o si ocurre un error, se reinicia el programa (no se borra memoria).
 <center><img src="preview/capturaepsx.gif"></center>
 Para recibir datos, primero tenemos que tenerlos generados. Para ello, usaremos la herramienta GENFRAME, realizada en PASCAL y que funciona en DOSBOX.
