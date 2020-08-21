@@ -14,6 +14,7 @@ VAR
  gbBaud: longint;
  salir:boolean;
  c:char;
+ gbMute: boolean;
 
 {************************************************}
 PROCEDURE Prepara;
@@ -74,15 +75,17 @@ BEGIN
  gotoxy(offsetX,offsetY+5);WRITE(' ю©  зды              юд©  зы ');
  gotoxy(offsetX,offsetY+6);WRITE('  юдды                  юдды  ');
 
- gotoxy(2,16);WRITE('Q - EXIT');
- gotoxy(2,17);WRITE('W - UP');
- gotoxy(2,18);WRITE('S - DOWN');
- gotoxy(2,19);WRITE('A - LEFT');
- gotoxy(2,20);WRITE('D - RIGHT');
- gotoxy(2,21);WRITE('X - X');
- gotoxy(2,22);WRITE('Z - O');
- gotoxy(2,23);WRITE('C - SEL');
- gotoxy(2,24);WRITE('V - START');
+ gotoxy(2,14);WRITE('Q - (ESC) - EXIT');
+ gotoxy(2,15);WRITE('- -  (-)  - MUTE ARDUINO');
+ gotoxy(2,16);WRITE('+ -  (+)  - UNMUTE ARDUINO');
+ gotoxy(2,17);WRITE('W -  (^)  - UP');
+ gotoxy(2,18);WRITE('S -  (v)  - DOWN');
+ gotoxy(2,19);WRITE('A -  (<)  - LEFT');
+ gotoxy(2,20);WRITE('D -  (>)  - RIGHT');
+ gotoxy(2,21);WRITE('X -  (X)  - X');
+ gotoxy(2,22);WRITE('Z -  (O)  - O');
+ gotoxy(2,23);WRITE('C -  (C)  - SEL');
+ gotoxy(2,24);WRITE('V -  (V)  - START');
 END;
 
 {*****************************************************}
@@ -153,9 +156,11 @@ END;
 PROCEDURE ShowInfo;
 BEGIN
  Writeln;
- Writeln('PADREMOT baud stop');
+ Writeln('PADREMOT baud');
  Writeln;
- Writeln('Example: PADREMOT 115200 stop');
+ Writeln('baud: 9600, 115200');
+ Writeln;
+ Writeln('Example: PADREMOT 115200');
 END;
 
 {*****************************************************}
@@ -187,8 +192,19 @@ BEGIN
 END;
 
 {*****************************************************}
+PROCEDURE ShowStateARDUINO;
 BEGIN
- IF (ParamCount<2) THEN
+ gotoxy(28,1);
+ IF (gbMute=true) THEN
+  Write(' MUTE ARDUINO ')
+ ELSE
+  Write('UNMUTE ARDUINO');
+END;
+
+{*****************************************************}
+BEGIN
+ gbMute:= false;
+ IF (ParamCount<1) THEN
   BEGIN
    ShowInfo;
    exit;
@@ -201,11 +217,13 @@ BEGIN
   Set9600baudios
  ELSE
   SetBaudRate(gbBaud);
- gotoxy(30,14);WRITE('BAUD ',gbBaud);
+ gotoxy(30,12);WRITE('BAUD ',gbBaud);
+ ShowStateARDUINO;
  Prepara;
  delay(100);
  SendSerial(chr(34)); {Modo PAD}
  delay(100);
+ SendSerial('+'); {UNMUTE}
  ResetPAD;
  REPEAT
   IF (KeyPressed) THEN
@@ -220,8 +238,18 @@ BEGIN
      'V': BEGIN ShowStart(true); Send(moveStart); END;
      'X': BEGIN ShowX(true); Send(moveX); END;
      'Z': BEGIN ShowO(true); Send(moveO); END;
+     '+': BEGIN SendSerial('+'); gbMute:= false; END;
+     '-': BEGIN SendSerial('-'); gbMute:= true; END;
      'Q': salir:= true;
     END;
+    CASE ord(c) OF
+     72: BEGIN ShowUp(true); Send(moveUp); END;
+     80: BEGIN ShowDown(true); Send(moveDown); END;
+     75: BEGIN ShowLeft(true); Send(moveLeft); END;
+     77: BEGIN ShowRight(true); Send(moveRight); END;
+     27: salir:= true;
+    END;
+    ShowStateARDUINO;
     gotoxy(offsetx+14,offsety+6);WRITE('',c);
     delay(50);
     ClearPAD;
@@ -230,5 +258,8 @@ BEGIN
    END
  UNTIL (salir=true);
  ResetPAD;
- SendSerial(chr(33)); {Modo PAD}
+ SendSerial(chr(33)); {Modo PADSIO}
+ IF (gbMute=true) THEN
+  SendSerial('-'); {Obligo mute}
+ clrscr;
 END.
