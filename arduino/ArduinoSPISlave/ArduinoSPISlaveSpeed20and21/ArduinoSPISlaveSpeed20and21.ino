@@ -50,6 +50,8 @@ uint16_t gb_cont_buf=0;
 uint8_t gb_buf[max_buf];
 uint8_t gb_aux=0;
 uint8_t gb_flipflop=0x01;
+volatile uint8_t gb_stop=0; //Arrancamos no parados
+volatile uint8_t gb_mode_pad=0; //Modo pad o padsio
 
 //JJ
 //#define PSX_ACK_PORT  PORTB
@@ -60,6 +62,7 @@ uint8_t gb_flipflop=0x01;
 uint8_t gbUseFlag=1;
 
 #define DATA_LEN 67
+uint8_t gbDataLen=DATA_LEN;
 
 //CUSTOM MSG
 volatile uint8_t data_buff[DATA_LEN]=   {0x41,0x00, 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01, 0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02, 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01, 0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02, 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01, 0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02, 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01, 0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02, 0xFF};
@@ -74,14 +77,42 @@ void Speed21ms17NoFlag(void);
 void Speed21ms18NoFlag(void);
 void Speed21ms20NoFlag(void);
 void Speed21ms25NoFlag(void);
+void Speed21ms30NoFlag(void);
 void Speed20ms17Flag(void);
 void Speed20ms18Flag(void);
 void Speed20ms20Flag(void);
 void Speed20ms25Flag(void);
-uint8_t CharHexToDec(char a);
+void Speed20ms30Flag(void);
 void ResetAll(void);
+uint8_t CharHexToDec(char a);
+void PreparePAD(void);
+void SetModePADSIO(void);
+void SetModePAD(void);
 void setup();
 void loop();
+
+//*************************************
+void SetModePAD()
+{
+ gb_stop=1;
+ gb_mode_pad=1; 
+ memset(&data_buff[2],0xFF,3); 
+ gbDataLen=5;
+ ResetAll();
+ data_buff[1]=0x5A;
+ gb_stop=0;
+}
+
+//*************************************
+void SetModePADSIO()
+{
+ gb_stop=1; 
+ gb_mode_pad=0; 
+ memset(&data_buff[1],0xFF,(DATA_LEN-1)); 
+ gbDataLen=DATA_LEN;
+ ResetAll();
+ gb_stop=0;
+}
 
 //*************************************
 void ResetAll(){
@@ -132,19 +163,27 @@ void setup() {
 
 //SPI interrupt
 ISR(SPI_STC_vect) { 
+  if (gb_stop==1)
+   return;  
   // Byte received from the master
   uint8_t inbyte = SPDR;    
   // FIX ME : Manage other cases ? (other commands from the master?)
   //if (SPDR == command_buff[curr_byte])
   //if (inbyte == command_buff[curr_byte])  
-  if ((curr_byte==0 && inbyte == 1)||(curr_byte>0 && inbyte == 0))
+  //if ((curr_byte==0 && inbyte == 1)||(curr_byte>0 && inbyte == 0))
+  if(
+     ((gb_mode_pad==0)&&((curr_byte==0 && inbyte == 0x01)||(curr_byte>0 && inbyte == 0)))
+     ||
+     ((gb_mode_pad==1)&&((curr_byte==0 && inbyte == 0x01)||(curr_byte==1 && inbyte == 0x42)||(curr_byte>1 && inbyte == 0)))
+    )  
   {
     // We put the next byte in the buffer, to be send along the next clock cycle
     SPDR = data_buff[curr_byte++];
     //curr_byte++; //Optimizado
     
     // We need to ACK (PS2 Protocol)
-    if (curr_byte < DATA_LEN) 
+    //if (curr_byte < DATA_LEN) 
+    if (curr_byte < gbDataLen)
     { // ACK goes low.
       SPI_PORT &= ~(1<<PORTB1);
       //_delay_us(2); // For 10µseconds Quitar delay o 1 us para funcionar
@@ -213,7 +252,16 @@ void Speed20ms25Flag() //Envio 64 bytes 32 nibbles(quitamos parte alta fallo bit
  }
 }
 
-
+//***************************************************************
+void Speed20ms30Flag() //Envio 64 bytes 32 nibbles(quitamos parte alta fallo bit 7)
+{for (uint16_t i=0;i<gb_cont_buf;i+=64)
+ {memcpy(&data_buff[2],&gb_buf[i],64);
+  data_buff[1] = 0x01; //Activo
+  _delay_us(30000);
+  data_buff[1] = 0x00; //Desactivo
+  _delay_us(30000);
+ }
+}
 
 
 //***************************************************************
@@ -257,11 +305,29 @@ void Speed21ms25NoFlag() //Envio 64 bytes 32 nibbles(quitamos parte alta fallo b
  }
 }
 
+//***************************************************************
+void Speed21ms30NoFlag() //Envio 64 bytes 32 nibbles(quitamos parte alta fallo bit 7)
+{for (uint16_t i=0;i<gb_cont_buf;i+=64)
+ {
+  memcpy(&data_buff[2],&gb_buf[i],64);
+  data_buff[1] = gb_flipflop; //Activo
+  _delay_us(30000);
+  gb_flipflop = ((!gb_flipflop)&0x01);
+ }
+}
+
 
 //***************************************************************
 void EnviaDatos()
 {
  gb_aux =0;
+ if (gb_mode_pad==1)
+ { 
+  data_buff[2]=gb_buf[0]|(gb_buf[1]<<4);
+  data_buff[3]=gb_buf[2]|(gb_buf[3]<<4);
+  gb_cont_buf=0;
+  return;   
+ }
  if (gbUseFlag == 1)
  {//Con flag
   switch (gbDelay)
@@ -271,6 +337,7 @@ void EnviaDatos()
    case 18: Speed20ms18Flag(); break;
    case 20: Speed20ms20Flag(); break;
    case 25: Speed20ms25Flag(); break;
+   case 30: Speed20ms30Flag(); break;
   }
  }
  else
@@ -282,6 +349,7 @@ void EnviaDatos()
    case 18: Speed21ms18NoFlag(); break;
    case 20: Speed21ms20NoFlag(); break;
    case 25: Speed21ms25NoFlag(); break;   
+   case 30: Speed21ms30NoFlag(); break;   
   }    
  }
  gb_cont_buf=0;    
@@ -320,7 +388,12 @@ void loop() {
   case 38: gbDelay = 18; gb_aux=0; break; //&
   case 40: gbDelay = 17; gb_aux=0; break; //(
   case 41: gbDelay = 16; gb_aux=0; break; //)
+  case 46: gbDelay = 30; gb_aux=0; break; //.
   case 42: SetFlag(1); break; //* Flag  
   case 35: SetFlag(0); break; //#  
+  case 43: ResetAll(); gb_stop=0; break;  //+ Arrancar
+  case 45: gb_stop=1; ResetAll(); break;  //- Parar
+  case 33: SetModePADSIO(); break; //! Modo PADSIO
+  case 34: SetModePAD(); break; //" Modo mando    
  }
 } 
