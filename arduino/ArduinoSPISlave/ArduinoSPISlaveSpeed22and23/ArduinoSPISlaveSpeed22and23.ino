@@ -396,7 +396,8 @@ void loop() {
   case 38: gbDelay = 18; gb_aux=0;break; //&
   case 40: gbDelay = 17; gb_aux=0;break; //(
   case 41: gbDelay = 16; gb_aux=0; break; //)
-  case 42: SetFlag(1); break; //* Flag  
+  case 46: gbDelay = 30; gb_aux=0; break; //.  
+  case 42: SetFlag(1); break; //* Flag    
   case 35: SetFlag(0); break; //#
   case 43: ResetAll(); gb_stop=0; break;  //+ Arrancar
   case 45: gb_stop=1; ResetAll(); break;  //- Parar
