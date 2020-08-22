@@ -229,20 +229,18 @@ BEGIN
   IF (KeyPressed) THEN
    BEGIN
     c:= Upcase(readkey);
-    CASE c OF
-     'W': BEGIN ShowUp(true); Send(moveUp); END;
-     'S': BEGIN ShowDown(true); Send(moveDown); END;
-     'A': BEGIN ShowLeft(true); Send(moveLeft); END;
-     'D': BEGIN ShowRight(true); Send(moveRight); END;
-     'C': BEGIN ShowSelect(true); Send(moveSelect); END;
-     'V': BEGIN ShowStart(true); Send(moveStart); END;
-     'X': BEGIN ShowX(true); Send(moveX); END;
-     'Z': BEGIN ShowO(true); Send(moveO); END;
-     '+': BEGIN SendSerial('+'); gbMute:= false; END;
-     '-': BEGIN SendSerial('-'); gbMute:= true; END;
-     'Q': salir:= true;
-    END;
     CASE ord(c) OF
+     87: BEGIN ShowUp(true); Send(moveUp); END;{W}
+     83: BEGIN ShowDown(true); Send(moveDown); END;{S}
+     65: BEGIN ShowLeft(true); Send(moveLeft); END;{A}
+     68: BEGIN ShowRight(true); Send(moveRight); END;{D}
+     67: BEGIN ShowSelect(true); Send(moveSelect); END;{C}
+     86: BEGIN ShowStart(true); Send(moveStart); END;{V}
+     88: BEGIN ShowX(true); Send(moveX); END;{X}
+     90: BEGIN ShowO(true); Send(moveO); END;{Z}
+     43: BEGIN SendSerial('+'); gbMute:= false; END;{+}
+     45: BEGIN SendSerial('-'); gbMute:= true; END;{-}
+     81: salir:= true;{Q}
      72: BEGIN ShowUp(true); Send(moveUp); END;
      80: BEGIN ShowDown(true); Send(moveDown); END;
      75: BEGIN ShowLeft(true); Send(moveLeft); END;
