@@ -63,7 +63,6 @@ volatile uint8_t gb_mode_pad=0; //Modo pad o padsio
 uint8_t gbUseFlag=1;
 
 #define DATA_LEN 131
-
 uint8_t gbDataLen=DATA_LEN;
 
 //Enviamos mensaje 2 y devuelve 2
@@ -89,19 +88,21 @@ void Speed24ms25Flag(void);
 void Speed24ms30Flag(void);
 void ResetAll(void);
 uint8_t CharHexToDec(char a);
+void PreparePAD(void);
+void SetModePADSIO(void);
+void SetModePAD(void);
 void setup();
 void loop();
-void PreparePAD(void);
 
 //*************************************
 void SetModePAD()
 {
  gb_stop=1;
  gb_mode_pad=1; 
- data_buff[1]=0x5A;
  memset(&data_buff[2],0xFF,3); 
  gbDataLen=5;
  ResetAll();
+ data_buff[1]=0x5A;
  gb_stop=0;
 }
 
@@ -110,7 +111,7 @@ void SetModePADSIO()
 {
  gb_stop=1; 
  gb_mode_pad=0; 
- memset(&data_buff[1],0,(DATA_LEN-1)); 
+ memset(&data_buff[1],0xFF,(DATA_LEN-1)); 
  gbDataLen=DATA_LEN;
  ResetAll();
  gb_stop=0;
@@ -167,9 +168,9 @@ void setup() {
 
 //SPI interrupt
 ISR(SPI_STC_vect) { 
-  // Byte received from the master  
   if (gb_stop==1)
    return;
+  // Byte received from the master  
   uint8_t inbyte = SPDR;
   // FIX ME : Manage other cases ? (other commands from the master?)
   //if (SPDR == command_buff[curr_byte])
@@ -188,7 +189,7 @@ ISR(SPI_STC_vect) {
     
     // We need to ACK (PS2 Protocol)
     //if (curr_byte < DATA_LEN) 
-    if (curr_byte < gbDataLen)     
+    if (curr_byte < gbDataLen)
     { // ACK goes low.
       SPI_PORT &= ~(1<<PORTB1);
       //_delay_us(2); // For 10µseconds Quitar delay o 1 us para funcionar
